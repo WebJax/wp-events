@@ -1,0 +1,107 @@
+/* Minimal styles for events list and carousel */
+.wp-events-list, .wp-events-carousel { margin: 1em 0; }
+.wp-event-item { padding: 0.5em; border-bottom: 1px solid #eee; }
+.wp-events-carousel .swiper-slide { background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.wp-events-carousel .venue { font-size: 0.9em; color: #666; }
+
+/* Individual event component blocks */
+.wp-events-venue-block,
+.wp-events-organizer-block,
+.wp-events-start-block,
+.wp-events-end-block {
+    margin: 1em 0;
+    padding: 0.75em;
+    background: #f9f9f9;
+    border-left: 4px solid #0073aa;
+    border-radius: 3px;
+}
+
+.wp-events-venue-block h3,
+.wp-events-organizer-block h3 {
+    margin: 0 0 0.5em 0;
+    font-size: 1.1em;
+}
+
+.wp-events-venue-block h3 a,
+.wp-events-organizer-block h3 a {
+    text-decoration: none;
+    color: #0073aa;
+}
+
+.wp-events-venue-block h3 a:hover,
+.wp-events-organizer-block h3 a:hover {
+    text-decoration: underline;
+}
+
+.venue-address,
+.venue-phone,
+.venue-email,
+.venue-website,
+.venue-directions,
+.organizer-phone,
+.organizer-email,
+.organizer-website {
+    margin: 0.25em 0;
+    font-size: 0.95em;
+}
+
+.venue-directions a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #0073aa;
+    font-weight: 500;
+    padding: 0.25em 0.5em;
+    background: rgba(0, 115, 170, 0.1);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.venue-directions a:hover {
+    background: rgba(0, 115, 170, 0.2);
+    text-decoration: none;
+}
+
+.venue-directions .dashicons {
+    margin-right: 0.25em;
+    font-size: 1em;
+}
+
+.organizer-item {
+    margin-bottom: 1em;
+}
+
+.organizer-item:last-child {
+    margin-bottom: 0;
+}
+
+.event-start-label,
+.event-end-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.event-start-time,
+.event-end-time {
+    font-weight: 500;
+    color: #0073aa;
+}
+
+.wp-events-venue-block.error,
+.wp-events-organizer-block.error,
+.wp-events-start-block.error,
+.wp-events-end-block.error {
+    background: #fff2f2;
+    border-left-color: #dc3232;
+    color: #dc3232;
+}
+
+.wp-events-venue-block.empty,
+.wp-events-organizer-block.empty,
+.wp-events-start-block.empty,
+.wp-events-end-block.empty {
+    background: #fff8e1;
+    border-left-color: #f57c00;
+    color: #e65100;
+    font-style: italic;
+}

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "wp-events/event-start",
+    "version": "1.0.0",
+    "title": "Event Start Date/Time",
+    "category": "wp-events",
+    "icon": "clock",
+    "description": "Display event start date and time",
+    "supports": {
+        "html": false
+    },
+    "textdomain": "wp-events",
+    "editorScript": "file:./index.js",
+    "attributes": {
+        "dateFormat": {
+            "type": "string",
+            "default": "full"
+        },
+        "customFormat": {
+            "type": "string",
+            "default": "j. F Y \\k\\l. H:i"
+        },
+        "showLabel": {
+            "type": "boolean",
+            "default": true
+        },
+        "label": {
+            "type": "string",
+            "default": "Starts:"
+        }
+    }
+}

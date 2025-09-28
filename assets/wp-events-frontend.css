@@ -1,0 +1,1080 @@
+@font-face {
+  font-family: 'wp-events';
+  src: url('font/wp-events.eot?70393278');
+  src: url('font/wp-events.eot?70393278#iefix') format('embedded-opentype'),
+       url('font/wp-events.woff2?70393278') format('woff2'),
+       url('font/wp-events.woff?70393278') format('woff'),
+       url('font/wp-events.ttf?70393278') format('truetype'),
+       url('font/wp-events.svg?70393278#wp-events') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'wp-events';
+    src: url('../font/wp-events.svg?70393278#wp-events') format('svg');
+  }
+}
+*/
+[class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "wp-events";
+  font-style: normal;
+  font-weight: normal;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-basket:before { content: '\e800'; }
+.icon-calendar:before { content: '\e801'; }
+.icon-location:before { content: '\e802'; }
+.icon-down-open-mini:before { content: '\e803'; }
+.icon-left-open-mini:before { content: '\e804'; }
+.icon-right-open-mini:before { content: '\e805'; }
+.icon-up-open-mini:before { content: '\e806'; }
+.icon-down-dir:before { content: '\e807'; }
+.icon-left-dir:before { content: '\e808'; }
+.icon-right-dir:before { content: '\e809'; }
+.icon-up-dir:before { content: '\e80a'; }
+.icon-tag:before { content: '\e80b'; }
+.icon-mail:before { content: '\e80c'; }
+.icon-phone:before { content: '\e80d'; }
+.icon-ticket:before { content: '\f145'; }
+.icon-instagram:before { content: '\f16d'; }
+.icon-facebook-official:before { content: '\f230'; }
+.icon-calendar-check-o:before { content: '\f274'; }
+
+
+
+
+/* Typography Support for WP Events Blocks */
+/* Font Family Support */
+.wp-block-wp-events-venue.has-body-font-font-family,
+.wp-block-wp-events-organizer.has-body-font-font-family,
+.wp-block-wp-events-event-start.has-body-font-font-family,
+.wp-block-wp-events-event-end.has-body-font-font-family,
+.wp-block-wp-events-events-list.has-body-font-font-family,
+.wp-block-wp-events-events-carousel.has-body-font-font-family {
+    font-family: var(--wp--preset--font-family--body-font) !important;
+}
+
+.wp-block-wp-events-venue.has-heading-font-font-family,
+.wp-block-wp-events-organizer.has-heading-font-font-family,
+.wp-block-wp-events-event-start.has-heading-font-font-family,
+.wp-block-wp-events-event-end.has-heading-font-font-family,
+.wp-block-wp-events-events-list.has-heading-font-font-family,
+.wp-block-wp-events-events-carousel.has-heading-font-font-family {
+    font-family: var(--wp--preset--font-family--heading-font) !important;
+}
+
+.wp-block-wp-events-venue.has-system-font-font-family,
+.wp-block-wp-events-organizer.has-system-font-font-family,
+.wp-block-wp-events-event-start.has-system-font-font-family,
+.wp-block-wp-events-event-end.has-system-font-font-family,
+.wp-block-wp-events-events-list.has-system-font-font-family,
+.wp-block-wp-events-events-carousel.has-system-font-font-family {
+    font-family: var(--wp--preset--font-family--system-font) !important;
+}
+
+.wp-block-wp-events-venue.has-serif-font-font-family,
+.wp-block-wp-events-organizer.has-serif-font-font-family,
+.wp-block-wp-events-event-start.has-serif-font-font-family,
+.wp-block-wp-events-event-end.has-serif-font-font-family,
+.wp-block-wp-events-events-list.has-serif-font-font-family,
+.wp-block-wp-events-events-carousel.has-serif-font-font-family {
+    font-family: var(--wp--preset--font-family--serif-font) !important;
+}
+
+/* Font Size Support */
+.wp-block-wp-events-venue.has-x-small-font-size,
+.wp-block-wp-events-organizer.has-x-small-font-size,
+.wp-block-wp-events-event-start.has-x-small-font-size,
+.wp-block-wp-events-event-end.has-x-small-font-size,
+.wp-block-wp-events-events-list.has-x-small-font-size,
+.wp-block-wp-events-events-carousel.has-x-small-font-size {
+    font-size: var(--wp--preset--font-size--x-small) !important;
+}
+
+.wp-block-wp-events-venue.has-small-font-size,
+.wp-block-wp-events-organizer.has-small-font-size,
+.wp-block-wp-events-event-start.has-small-font-size,
+.wp-block-wp-events-event-end.has-small-font-size,
+.wp-block-wp-events-events-list.has-small-font-size,
+.wp-block-wp-events-events-carousel.has-small-font-size {
+    font-size: var(--wp--preset--font-size--small) !important;
+}
+
+.wp-block-wp-events-venue.has-normal-font-size,
+.wp-block-wp-events-organizer.has-normal-font-size,
+.wp-block-wp-events-event-start.has-normal-font-size,
+.wp-block-wp-events-event-end.has-normal-font-size,
+.wp-block-wp-events-events-list.has-normal-font-size,
+.wp-block-wp-events-events-carousel.has-normal-font-size {
+    font-size: var(--wp--preset--font-size--normal) !important;
+}
+
+.wp-block-wp-events-venue.has-medium-font-size,
+.wp-block-wp-events-organizer.has-medium-font-size,
+.wp-block-wp-events-event-start.has-medium-font-size,
+.wp-block-wp-events-event-end.has-medium-font-size,
+.wp-block-wp-events-events-list.has-medium-font-size,
+.wp-block-wp-events-events-carousel.has-medium-font-size {
+    font-size: var(--wp--preset--font-size--medium) !important;
+}
+
+.wp-block-wp-events-venue.has-large-font-size,
+.wp-block-wp-events-organizer.has-large-font-size,
+.wp-block-wp-events-event-start.has-large-font-size,
+.wp-block-wp-events-event-end.has-large-font-size,
+.wp-block-wp-events-events-list.has-large-font-size,
+.wp-block-wp-events-events-carousel.has-large-font-size {
+    font-size: var(--wp--preset--font-size--large) !important;
+}
+
+.wp-block-wp-events-venue.has-x-large-font-size,
+.wp-block-wp-events-organizer.has-x-large-font-size,
+.wp-block-wp-events-event-start.has-x-large-font-size,
+.wp-block-wp-events-event-end.has-x-large-font-size,
+.wp-block-wp-events-events-list.has-x-large-font-size,
+.wp-block-wp-events-events-carousel.has-x-large-font-size {
+    font-size: var(--wp--preset--font-size--x-large) !important;
+}
+
+.wp-block-wp-events-venue.has-xx-large-font-size,
+.wp-block-wp-events-organizer.has-xx-large-font-size,
+.wp-block-wp-events-event-start.has-xx-large-font-size,
+.wp-block-wp-events-event-end.has-xx-large-font-size,
+.wp-block-wp-events-events-list.has-xx-large-font-size,
+.wp-block-wp-events-events-carousel.has-xx-large-font-size {
+    font-size: var(--wp--preset--font-size--xx-large) !important;
+}
+
+.wp-block-wp-events-venue.has-xxx-large-font-size,
+.wp-block-wp-events-organizer.has-xxx-large-font-size,
+.wp-block-wp-events-event-start.has-xxx-large-font-size,
+.wp-block-wp-events-event-end.has-xxx-large-font-size,
+.wp-block-wp-events-events-list.has-xxx-large-font-size,
+.wp-block-wp-events-events-carousel.has-xxx-large-font-size {
+    font-size: var(--wp--preset--font-size--xxx-large) !important;
+}
+
+/* Typography Style Support */
+.wp-block-wp-events-venue.has-text-decoration-none,
+.wp-block-wp-events-organizer.has-text-decoration-none,
+.wp-block-wp-events-event-start.has-text-decoration-none,
+.wp-block-wp-events-event-end.has-text-decoration-none,
+.wp-block-wp-events-events-list.has-text-decoration-none,
+.wp-block-wp-events-events-carousel.has-text-decoration-none {
+    text-decoration: none !important;
+}
+
+.wp-block-wp-events-venue.has-text-decoration-underline,
+.wp-block-wp-events-organizer.has-text-decoration-underline,
+.wp-block-wp-events-event-start.has-text-decoration-underline,
+.wp-block-wp-events-event-end.has-text-decoration-underline,
+.wp-block-wp-events-events-list.has-text-decoration-underline,
+.wp-block-wp-events-events-carousel.has-text-decoration-underline {
+    text-decoration: underline !important;
+}
+
+.wp-block-wp-events-venue.has-text-decoration-line-through,
+.wp-block-wp-events-organizer.has-text-decoration-line-through,
+.wp-block-wp-events-event-start.has-text-decoration-line-through,
+.wp-block-wp-events-event-end.has-text-decoration-line-through,
+.wp-block-wp-events-events-list.has-text-decoration-line-through,
+.wp-block-wp-events-events-carousel.has-text-decoration-line-through {
+    text-decoration: line-through !important;
+}
+
+.wp-block-wp-events-venue.has-text-transform-none,
+.wp-block-wp-events-organizer.has-text-transform-none,
+.wp-block-wp-events-event-start.has-text-transform-none,
+.wp-block-wp-events-event-end.has-text-transform-none,
+.wp-block-wp-events-events-list.has-text-transform-none,
+.wp-block-wp-events-events-carousel.has-text-transform-none {
+    text-transform: none !important;
+}
+
+.wp-block-wp-events-venue.has-text-transform-uppercase,
+.wp-block-wp-events-organizer.has-text-transform-uppercase,
+.wp-block-wp-events-event-start.has-text-transform-uppercase,
+.wp-block-wp-events-event-end.has-text-transform-uppercase,
+.wp-block-wp-events-events-list.has-text-transform-uppercase,
+.wp-block-wp-events-events-carousel.has-text-transform-uppercase {
+    text-transform: uppercase !important;
+}
+
+.wp-block-wp-events-venue.has-text-transform-lowercase,
+.wp-block-wp-events-organizer.has-text-transform-lowercase,
+.wp-block-wp-events-event-start.has-text-transform-lowercase,
+.wp-block-wp-events-event-end.has-text-transform-lowercase,
+.wp-block-wp-events-events-list.has-text-transform-lowercase,
+.wp-block-wp-events-events-carousel.has-text-transform-lowercase {
+    text-transform: lowercase !important;
+}
+
+.wp-block-wp-events-venue.has-text-transform-capitalize,
+.wp-block-wp-events-organizer.has-text-transform-capitalize,
+.wp-block-wp-events-event-start.has-text-transform-capitalize,
+.wp-block-wp-events-event-end.has-text-transform-capitalize,
+.wp-block-wp-events-events-list.has-text-transform-capitalize,
+.wp-block-wp-events-events-carousel.has-text-transform-capitalize {
+    text-transform: capitalize !important;
+}
+
+.wp-block-wp-events-venue.has-font-style-normal,
+.wp-block-wp-events-organizer.has-font-style-normal,
+.wp-block-wp-events-event-start.has-font-style-normal,
+.wp-block-wp-events-event-end.has-font-style-normal,
+.wp-block-wp-events-events-list.has-font-style-normal,
+.wp-block-wp-events-events-carousel.has-font-style-normal {
+    font-style: normal !important;
+}
+
+.wp-block-wp-events-venue.has-font-style-italic,
+.wp-block-wp-events-organizer.has-font-style-italic,
+.wp-block-wp-events-event-start.has-font-style-italic,
+.wp-block-wp-events-event-end.has-font-style-italic,
+.wp-block-wp-events-events-list.has-font-style-italic,
+.wp-block-wp-events-events-carousel.has-font-style-italic {
+    font-style: italic !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-light,
+.wp-block-wp-events-organizer.has-font-weight-light,
+.wp-block-wp-events-event-start.has-font-weight-light,
+.wp-block-wp-events-event-end.has-font-weight-light,
+.wp-block-wp-events-events-list.has-font-weight-light,
+.wp-block-wp-events-events-carousel.has-font-weight-light {
+    font-weight: 300 !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-normal,
+.wp-block-wp-events-organizer.has-font-weight-normal,
+.wp-block-wp-events-event-start.has-font-weight-normal,
+.wp-block-wp-events-event-end.has-font-weight-normal,
+.wp-block-wp-events-events-list.has-font-weight-normal,
+.wp-block-wp-events-events-carousel.has-font-weight-normal {
+    font-weight: 400 !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-medium,
+.wp-block-wp-events-organizer.has-font-weight-medium,
+.wp-block-wp-events-event-start.has-font-weight-medium,
+.wp-block-wp-events-event-end.has-font-weight-medium,
+.wp-block-wp-events-events-list.has-font-weight-medium,
+.wp-block-wp-events-events-carousel.has-font-weight-medium {
+    font-weight: 500 !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-semi-bold,
+.wp-block-wp-events-organizer.has-font-weight-semi-bold,
+.wp-block-wp-events-event-start.has-font-weight-semi-bold,
+.wp-block-wp-events-event-end.has-font-weight-semi-bold,
+.wp-block-wp-events-events-list.has-font-weight-semi-bold,
+.wp-block-wp-events-events-carousel.has-font-weight-semi-bold {
+    font-weight: 600 !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-bold,
+.wp-block-wp-events-organizer.has-font-weight-bold,
+.wp-block-wp-events-event-start.has-font-weight-bold,
+.wp-block-wp-events-event-end.has-font-weight-bold,
+.wp-block-wp-events-events-list.has-font-weight-bold,
+.wp-block-wp-events-events-carousel.has-font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.wp-block-wp-events-venue.has-font-weight-extra-bold,
+.wp-block-wp-events-organizer.has-font-weight-extra-bold,
+.wp-block-wp-events-event-start.has-font-weight-extra-bold,
+.wp-block-wp-events-event-end.has-font-weight-extra-bold,
+.wp-block-wp-events-events-list.has-font-weight-extra-bold,
+.wp-block-wp-events-events-carousel.has-font-weight-extra-bold {
+    font-weight: 800 !important;
+}
+
+/* Text Alignment Support for Event Blocks */
+.wp-block-wp-events-organizer.has-text-align-left,
+.wp-events-organizer-heading.has-text-align-left,
+.wp-block-wp-events-organizer-preview {
+    text-align: left;
+}
+
+.wp-block-wp-events-organizer.has-text-align-center,
+.wp-events-organizer-heading.has-text-align-center,
+.wp-block-wp-events-organizer-preview[style*="text-align: center"] {
+    text-align: center;
+}
+
+.wp-block-wp-events-organizer.has-text-align-right,
+.wp-events-organizer-heading.has-text-align-right,
+.wp-block-wp-events-organizer-preview[style*="text-align: right"] {
+    text-align: right;
+}
+
+/* Organizer block preview styling */
+.wp-block-wp-events-organizer-preview {
+    display: block;
+}
+
+.wp-block-wp-events-organizer-preview h2 {
+    margin: 0;
+}
+
+/* Event Archive & Taxonomy Templates */
+.wp-events-archive-page,
+.wp-events-taxonomy-page {
+    padding: 40px 0;
+}
+
+.wp-events-archive-page .container, .wp-events-taxonomy-page .container {
+    width: min(1064px, 95%);
+    margin-inline: auto;
+}
+
+.archive-header,
+.taxonomy-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.archive-title,
+.taxonomy-title {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.archive-description,
+.taxonomy-description {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Filters */
+.events-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: end;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    min-width: 150px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #007cba;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #005a87;
+}
+
+/* Events Grid */
+.events-grid {
+    display: grid;
+    grid-template-rows: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.event-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e1e5e9;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.event-image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1680/406;
+}
+
+.event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.event-card:hover .event-image img {
+    transform: scale(1.05);
+}
+
+.event-content {
+    padding: 20px;
+}
+
+.event-title {
+    margin: 0 0 15px 0;
+    font-size: 1.3rem;
+    line-height: 1.3;
+}
+
+.event-title a {
+    color: #111;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.event-title a:hover {
+    color: var(--primary-color);
+}
+
+.event-categories {
+    margin-bottom: 15px;
+}
+
+.event-category a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.event-meta {
+    margin-bottom: 15px;
+}
+
+.event-date,
+.event-venue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.event-date .dashicons,
+.event-venue .dashicons {
+    color: var(--primary-color);
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.event-excerpt {
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.event-read-more {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.event-read-more:hover {
+    background: var(--contrast-bg-color);
+    color: var(--primary-color);
+}
+
+/* No events message */
+.no-events-found {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 40px 0;
+}
+
+.no-events-found h2 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.no-events-found p {
+    color: #888;
+}
+
+/* Event pagination */
+.wp-events-pagination {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.wp-events-pagination .page-numbers {
+    display: inline-block;
+    margin: 0 0.25rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.wp-events-pagination .page-numbers:hover,
+.wp-events-pagination .page-numbers.current {
+    background: var(--wp--preset--color--primary, #007cba);
+    color: white;
+    border-color: var(--wp--preset--color--primary, #007cba);
+}
+
+.wp-events-pagination .page-numbers.prev,
+.wp-events-pagination .page-numbers.next {
+    font-weight: bold;
+}
+
+/* Single Event Page Styles */
+.event-featured-image {
+    margin-bottom: 1.5rem;
+}
+
+.event-featured-image img {
+    width: 100vw;
+}
+
+.event-main {
+    display: flex;
+    gap: 40px;
+    width: min(1080px, 95%);
+    margin: auto;
+}
+
+.event-post {
+    width: 100%;
+}
+
+/* Event Header */
+.event-header {
+    margin-bottom: 2rem;
+}
+
+.event-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+    line-height: 1.2;
+}
+
+/* Event Meta Information */
+.event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.event-meta > div {
+    display: flex;
+    align-items: start;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.event-meta .dashicons {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.event-date time {
+    font-weight: 600;
+    color: #333;
+}
+
+.event-venue a,
+.event-organizers a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.event-venue a:hover,
+.event-organizers a:hover {
+    text-decoration: underline;
+}
+
+/* Event Taxonomy */
+.event-taxonomy {
+    margin-top: 1rem;
+}
+
+.event-categories,
+.event-tags {
+    margin-bottom: 0.75rem;
+}
+
+.event-categories strong,
+.event-tags strong {
+    margin-right: 0.5rem;
+    color: #333;
+}
+
+.event-category,
+.event-tag {margin-inline: .3rem;}
+
+.event-category a,
+.event-tag a {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.event-category a:hover,
+.event-tag a:hover {background-color: var(--primary-color);color: white;}
+
+.event-tag a {
+    background: #e9ecef;
+}
+
+/* Event Content */
+.event-content {
+    width: 95%;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #333;
+    padding: 1px 20px 20px;
+    margin-inline: auto;
+    margin-top: -64px;
+    background-color: #ffffffa1;
+    z-index: 1;
+    position: relative;
+}
+
+.event-content p {
+    margin-bottom: 1rem;
+}
+
+.event-content h1,
+.event-content h2,
+.event-content h3,
+.event-content h4,
+.event-content h5,
+.event-content h6 {
+    margin-top: 1rem;
+    margin-bottom: 0rem;
+    color: #333;
+}
+
+/* Venue Details */
+.event-venue-details {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--wp--preset--color--primary, #007cba);
+}
+
+.event-venue-details h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.venue-info h4 {
+    margin-bottom: 1rem;
+    color: var(--wp--preset--color--primary, #007cba);
+    font-size: 1.25rem;
+}
+
+.venue-address,
+.venue-contact {
+    margin-bottom: 1rem;
+}
+
+.venue-contact a {
+    color: var(--wp--preset--color--primary, #007cba);
+    text-decoration: none;
+}
+
+.venue-contact a:hover {
+    text-decoration: underline;
+}
+
+/* Event Footer */
+.event-footer {
+    padding-top: 2rem;
+    margin-top: 3rem;
+}
+
+/* Event Navigation */
+.event-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.prev-event,
+.next-event {
+    flex: 1;
+}
+
+.prev-event a,
+.next-event a {
+    display: block;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.prev-event a:hover,
+.next-event a:hover {
+    background: white;
+    border-color: var(--wp--preset--color--primary, #007cba);
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.1);
+}
+
+.next-event {
+    text-align: right;
+}
+
+.nav-subtitle {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.nav-title {
+    display: block;
+    font-weight: 600;
+    color: var(--wp--preset--color--primary, #007cba);
+}
+
+/* Back to Events */
+.back-to-events {
+    text-align: center;
+}
+
+.back-to-events .btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: white;
+    color: var(--wp--preset--color--primary, #007cba);
+    border: 2px solid var(--wp--preset--color--primary, #007cba);
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.back-to-events .btn:hover {
+    background: var(--wp--preset--color--primary, #007cba);
+    color: white;
+}
+
+/* Responsive Design for Single Event */
+@media (max-width: 768px) {
+    .event-title {
+        font-size: 2rem;
+    }
+    
+    .event-meta {
+        font-size: 1rem;
+    }
+    
+    .event-navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .next-event {
+        text-align: left;
+    }
+    
+    .event-venue-details {
+        padding: 1.5rem;
+    }
+    
+    .wp-events-single-page .container {
+        padding: 0 0.5rem;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .events-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-group select {
+        min-width: auto;
+    }
+    
+    .archive-title,
+    .taxonomy-title {
+        font-size: 2rem;
+    }
+    
+    .wp-events-pagination .nav-links {
+        gap: 5px;
+    }
+    
+    .wp-events-pagination .page-numbers {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .event-content {
+        padding: 15px;
+    }
+    
+    .archive-title,
+    .taxonomy-title {
+        font-size: 1.5rem;
+    }
+}
+
+.wp-events-organizer h3 {
+    font-size: 22px;
+    margin-block: 0 5px;
+}
+
+.wp-events-organizer p {
+    margin-block: 0;
+}
+
+.event-content p.arrangor-titel, .event-content p.kategori-titel {
+    margin-block: 0;
+    font-size: 14px;
+}
+
+.kategori-titel {
+    margin-bottom: 0;
+}
+
+.taxonomy-event_category a {
+    text-decoration: none;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: var(--contrast-bg-color);
+    border-radius: 20px;
+}
+
+.taxonomy-event_category .wp-block-post-terms__separator {
+    display: none;
+}
+
+/* Venue and Organizer Blocks */
+.wp-events-start time, .wp-events-end time  {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.wp-events-venue h3 {
+    font-size: 22px;
+    margin-block: 15px 5px;
+}
+
+.dashicons-location-alt:before {
+    content: "ðŸ“";
+}
+
+.venue-directions a {
+    display: inline-block;
+    text-decoration: none;
+    padding: 4px 16px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: 200ms;
+    transform: scale(1);
+}
+
+.venue-directions a:hover {
+    box-shadow: 0 0 20px -8px black;
+    transform: scale(1.05);
+}
+
+.pris-titel, .arrangor-titel, .kategori-titel, .wp-block-wp-events-organizer {
+    margin: 0;
+}
+
+/* Event Price Block */
+.wp-block-wp-events-event-price {
+    margin: 0;
+}
+
+.wp-events-price .price-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.wp-events-price .price-amount {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.wp-events-price .label-bold {
+    font-weight: bold;
+}
+
+.wp-events-price .label-italic {
+    font-style: italic;
+}
+
+/* Text Alignment Support for Price Block */
+.wp-block-wp-events-event-price.has-text-align-left {
+    text-align: left;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.wp-block-wp-events-event-price.has-text-align-center {
+    text-align: center;
+    display: flex;
+    justify-content: flex-center;
+}
+
+.wp-block-wp-events-event-price.has-text-align-right {
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Typography Support for Price Block */
+.wp-block-wp-events-event-price.has-body-font-font-family {
+    font-family: var(--wp--preset--font-family--body-font) !important;
+}
+
+.wp-block-wp-events-event-price.has-heading-font-font-family {
+    font-family: var(--wp--preset--font-family--heading-font) !important;
+}
+
+.wp-block-wp-events-event-price.has-system-font-font-family {
+    font-family: var(--wp--preset--font-family--system-font) !important;
+}
+
+.wp-block-wp-events-event-price.has-serif-font-font-family {
+    font-family: var(--wp--preset--font-family--serif-font) !important;
+}
+
+.wp-block-wp-events-event-price.has-x-small-font-size {
+    font-size: var(--wp--preset--font-size--x-small) !important;
+}
+
+.wp-block-wp-events-event-price.has-small-font-size {
+    font-size: var(--wp--preset--font-size--small) !important;
+}
+
+.wp-block-wp-events-event-price.has-normal-font-size {
+    font-size: var(--wp--preset--font-size--normal) !important;
+}
+
+.wp-block-wp-events-event-price.has-medium-font-size {
+    font-size: var(--wp--preset--font-size--medium) !important;
+}
+
+.wp-block-wp-events-event-price.has-large-font-size {
+    font-size: var(--wp--preset--font-size--large) !important;
+}
+
+.wp-block-wp-events-event-price.has-x-large-font-size {
+    font-size: var(--wp--preset--font-size--x-large) !important;
+}
+
+.wp-block-wp-events-event-price.has-xx-large-font-size {
+    font-size: var(--wp--preset--font-size--xx-large) !important;
+}
+
+.wp-block-wp-events-event-price.has-xxx-large-font-size {
+    font-size: var(--wp--preset--font-size--xxx-large) !important;
+}

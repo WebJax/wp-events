@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "wp-events/event-organizer",
+    "version": "1.0.0",
+    "title": "Event Organizer",
+    "category": "wp-events",
+    "icon": "admin-users",
+    "description": "Display event organizer information",
+    "supports": {
+        "html": false
+    },
+    "textdomain": "wp-events",
+    "editorScript": "file:./index.js",
+    "attributes": {
+        "showContact": {
+            "type": "boolean",
+            "default": false
+        },
+        "linkToOrganizer": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}

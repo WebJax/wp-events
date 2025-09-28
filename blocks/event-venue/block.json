@@ -1,0 +1,29 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "wp-events/event-venue",
+    "version": "1.0.0",
+    "title": "Event Venue",
+    "category": "wp-events",
+    "icon": "location",
+    "description": "Display event venue information",
+    "supports": {
+        "html": false
+    },
+    "textdomain": "wp-events",
+    "editorScript": "file:./index.js",
+    "attributes": {
+        "showAddress": {
+            "type": "boolean",
+            "default": true
+        },
+        "showContact": {
+            "type": "boolean", 
+            "default": false
+        },
+        "linkToVenue": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}
