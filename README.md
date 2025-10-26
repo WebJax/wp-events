@@ -7,7 +7,12 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
 - Relationer: mange-til-mange arrangører, én-til-en venue
 - Gentagelser: daglig, ugentlig, månedlig, årlig
 - JSON-LD Schema.org markup
-- Import fra Tribe Events (WP-CLI og admin)
+- **Avanceret Import fra Tribe Events** (WP-CLI og admin):
+  - Oversigt over alle tilgængelige events
+  - Selektiv import med checkboxes
+  - Status tracking (importerede vs. tilgængelige)
+  - Filtrering efter fremtidige/tidligere events
+  - Import-statistik dashboard
 - Shortcodes: `[events_list]`, `[event id=123]`
 - Gutenberg-blokke: Event-liste, Karusel (Swiper.js)
 - Admin kolonner: Dato, Sted, Arrangør
@@ -16,10 +21,30 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
 1. Upload plugin-mappen til `/wp-content/plugins/wp-events`
 2. Aktivér via WordPress admin
 
+## Import fra The Events Calendar
+
+### Via Admin Interface
+1. Gå til **WP Events → Import from Tribe** i WordPress admin
+2. Se oversigt over alle Tribe Events med statistik
+3. Vælg events ved at sætte flueben
+4. Klik på "Import Selected Events"
+
+Funktioner:
+- **Filtrering**: Alle, Tilgængelige, Importerede, Fremtidige, Tidligere
+- **Status tracking**: Se hvilke events der allerede er importeret
+- **Duplikat-forebyggelse**: Events kan kun importeres én gang
+- **Visual feedback**: Importerede events markeres med ✓
+
+Se [IMPORT-GUIDE.md](IMPORT-GUIDE.md) for detaljeret dokumentation.
+
 ## WP-CLI Import
 Kør:
 ```sh
+# Import alle tilgængelige events
 wp wpevents import-tribe
+
+# Import i batches
+wp wpevents import-tribe --batch=50
 ```
 
 ## Fremtidige udvidelser

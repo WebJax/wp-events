@@ -23,24 +23,304 @@ class WPEvents_Import_Tribe {
     public static function register() {
         add_action( 'admin_menu', [ __CLASS__, 'add_tools_page' ] );
         add_action( 'admin_post_wpevents_import_tribe', [ __CLASS__, 'handle_admin_import' ] );
+        add_action( 'admin_post_wpevents_import_tribe_selected', [ __CLASS__, 'handle_import_selected' ] );
+        add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_assets' ] );
+    }
+
+    public static function enqueue_admin_assets( $hook ) {
+        if ( 'event_page_wpevents-import-tribe' !== $hook ) return;
+        wp_enqueue_style( 'wpevents-import', plugin_dir_url( dirname( __FILE__ ) ) . 'assets/wp-events.css', [], '1.0' );
+        wp_enqueue_script( 'wpevents-import', plugin_dir_url( dirname( __FILE__ ) ) . 'assets/admin.js', [ 'jquery' ], '1.0', true );
     }
 
     public static function add_tools_page() {
-        add_management_page( __( 'WP Events: Import Tribe', 'wp-events' ), __( 'WP Events Import', 'wp-events' ), 'manage_options', 'wpevents-import-tribe', [ __CLASS__, 'render_tools_page' ] );
+        add_submenu_page(
+            'edit.php?post_type=event',
+            __( 'Import from Tribe Events', 'wp-events' ),
+            __( 'Import from Tribe', 'wp-events' ),
+            'manage_options',
+            'wpevents-import-tribe',
+            [ __CLASS__, 'render_tools_page' ]
+        );
     }
 
     public static function render_tools_page() {
         if ( ! post_type_exists( 'tribe_events' ) ) {
             echo '<div class="notice notice-warning"><p>' . esc_html__( 'The Events Calendar not detected (tribe_events CPT missing).', 'wp-events' ) . '</p></div>';
+            return;
         }
-        echo '<div class="wrap"><h1>' . esc_html__( 'Import from The Events Calendar', 'wp-events' ) . '</h1>';
-        echo '<p>' . esc_html__( 'Click the button below to import events into WP Events. For large sites, prefer WP-CLI.', 'wp-events' ) . '</p>';
+
+        // Handle success message
+        if ( isset( $_GET['msg'] ) ) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $_GET['msg'] ) . '</p></div>';
+        }
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__( 'Import from The Events Calendar', 'wp-events' ) . '</h1>';
+
+        // Get statistics
+        $stats = self::get_import_stats();
+        
+        echo '<div class="wpevents-import-stats" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccc; border-radius: 4px;">';
+        echo '<h2>' . esc_html__( 'Import Statistics', 'wp-events' ) . '</h2>';
+        echo '<ul style="list-style: none; padding: 0;">';
+        echo '<li><strong>' . esc_html__( 'Total Tribe Events:', 'wp-events' ) . '</strong> ' . esc_html( $stats['total'] ) . '</li>';
+        echo '<li style="color: #46b450;"><strong>' . esc_html__( 'Already Imported:', 'wp-events' ) . '</strong> ' . esc_html( $stats['imported'] ) . '</li>';
+        echo '<li style="color: #00a0d2;"><strong>' . esc_html__( 'Available to Import:', 'wp-events' ) . '</strong> ' . esc_html( $stats['available'] ) . '</li>';
+        echo '<li><strong>' . esc_html__( 'Future Events:', 'wp-events' ) . '</strong> ' . esc_html( $stats['future'] ) . '</li>';
+        echo '<li><strong>' . esc_html__( 'Past Events:', 'wp-events' ) . '</strong> ' . esc_html( $stats['past'] ) . '</li>';
+        echo '</ul>';
+        echo '</div>';
+
+        // Tabs for filtering
+        $current_filter = isset( $_GET['filter'] ) ? $_GET['filter'] : 'all';
+        echo '<h2 class="nav-tab-wrapper">';
+        echo '<a href="' . esc_url( add_query_arg( 'filter', 'all' ) ) . '" class="nav-tab' . ( 'all' === $current_filter ? ' nav-tab-active' : '' ) . '">' . esc_html__( 'All Events', 'wp-events' ) . ' (' . $stats['total'] . ')</a>';
+        echo '<a href="' . esc_url( add_query_arg( 'filter', 'available' ) ) . '" class="nav-tab' . ( 'available' === $current_filter ? ' nav-tab-active' : '' ) . '">' . esc_html__( 'Available', 'wp-events' ) . ' (' . $stats['available'] . ')</a>';
+        echo '<a href="' . esc_url( add_query_arg( 'filter', 'imported' ) ) . '" class="nav-tab' . ( 'imported' === $current_filter ? ' nav-tab-active' : '' ) . '">' . esc_html__( 'Imported', 'wp-events' ) . ' (' . $stats['imported'] . ')</a>';
+        echo '<a href="' . esc_url( add_query_arg( 'filter', 'future' ) ) . '" class="nav-tab' . ( 'future' === $current_filter ? ' nav-tab-active' : '' ) . '">' . esc_html__( 'Future', 'wp-events' ) . ' (' . $stats['future'] . ')</a>';
+        echo '<a href="' . esc_url( add_query_arg( 'filter', 'past' ) ) . '" class="nav-tab' . ( 'past' === $current_filter ? ' nav-tab-active' : '' ) . '">' . esc_html__( 'Past', 'wp-events' ) . ' (' . $stats['past'] . ')</a>';
+        echo '</h2>';
+
+        // Get events list
+        $events = self::get_tribe_events( $current_filter );
+
+        if ( empty( $events ) ) {
+            echo '<p>' . esc_html__( 'No events found.', 'wp-events' ) . '</p>';
+        } else {
+            // Bulk import form
+            echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" id="wpevents-import-form">';
+            wp_nonce_field( 'wpevents_import_tribe_selected' );
+            echo '<input type="hidden" name="action" value="wpevents_import_tribe_selected" />';
+            
+            echo '<div class="wpevents-import-table-actions">';
+            echo '<button type="button" id="select-all-events" class="button">' . esc_html__( 'Select All', 'wp-events' ) . '</button> ';
+            echo '<button type="button" id="deselect-all-events" class="button">' . esc_html__( 'Deselect All', 'wp-events' ) . '</button> ';
+            echo '<button type="submit" class="button button-primary">' . esc_html__( 'Import Selected Events', 'wp-events' ) . '</button>';
+            echo '<span style="margin-left: auto; color: #666;"><span id="selected-count">0</span> ' . esc_html__( 'selected', 'wp-events' ) . '</span>';
+            echo '</div>';
+
+            echo '<table class="wp-list-table widefat fixed striped">';
+            echo '<thead><tr>';
+            echo '<th class="check-column"><input type="checkbox" id="select-all" /></th>';
+            echo '<th>' . esc_html__( 'Event Title', 'wp-events' ) . '</th>';
+            echo '<th>' . esc_html__( 'Start Date', 'wp-events' ) . '</th>';
+            echo '<th>' . esc_html__( 'End Date', 'wp-events' ) . '</th>';
+            echo '<th>' . esc_html__( 'Venue', 'wp-events' ) . '</th>';
+            echo '<th>' . esc_html__( 'Status', 'wp-events' ) . '</th>';
+            echo '<th>' . esc_html__( 'Actions', 'wp-events' ) . '</th>';
+            echo '</tr></thead>';
+            echo '<tbody>';
+
+            foreach ( $events as $event ) {
+                $is_imported = ! empty( $event['imported_id'] );
+                $row_class = $is_imported ? 'wpevents-imported' : '';
+                
+                echo '<tr class="' . esc_attr( $row_class ) . '">';
+                echo '<td class="check-column">';
+                if ( ! $is_imported ) {
+                    echo '<input type="checkbox" name="event_ids[]" value="' . esc_attr( $event['id'] ) . '" class="event-checkbox" />';
+                } else {
+                    echo '<span style="color: #ddd;">—</span>';
+                }
+                echo '</td>';
+                echo '<td><strong>' . esc_html( $event['title'] ) . '</strong></td>';
+                echo '<td>' . esc_html( $event['start_formatted'] ) . '</td>';
+                echo '<td>' . esc_html( $event['end_formatted'] ) . '</td>';
+                echo '<td>' . esc_html( $event['venue'] ) . '</td>';
+                echo '<td>';
+                if ( $is_imported ) {
+                    echo '<span class="event-status-imported">✓ ' . esc_html__( 'Imported', 'wp-events' ) . '</span> ';
+                    echo '<a href="' . esc_url( get_edit_post_link( $event['imported_id'] ) ) . '" target="_blank">' . esc_html__( '(Edit)', 'wp-events' ) . '</a>';
+                } else {
+                    echo '<span class="event-status-available">' . esc_html__( 'Available', 'wp-events' ) . '</span>';
+                }
+                echo '</td>';
+                echo '<td>';
+                echo '<a href="' . esc_url( get_edit_post_link( $event['id'] ) ) . '" target="_blank" class="button button-small">' . esc_html__( 'View Original', 'wp-events' ) . '</a>';
+                echo '</td>';
+                echo '</tr>';
+            }
+
+            echo '</tbody></table>';
+            echo '</form>';
+        }
+
+        // Quick import all button
+        echo '<hr style="margin: 40px 0;" />';
+        echo '<h2>' . esc_html__( 'Quick Import (Legacy)', 'wp-events' ) . '</h2>';
+        echo '<p>' . esc_html__( 'Import all available events in batch. For large sites, prefer WP-CLI.', 'wp-events' ) . '</p>';
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
         wp_nonce_field( 'wpevents_import_tribe' );
         echo '<input type="hidden" name="action" value="wpevents_import_tribe" />';
         echo '<p><label>' . esc_html__( 'Batch size', 'wp-events' ) . ' <input type="number" name="batch" value="50" min="1" max="500" /></label></p>';
-        submit_button( __( 'Run Import', 'wp-events' ) );
-        echo '</form></div>';
+        submit_button( __( 'Import All Available', 'wp-events' ), 'secondary' );
+        echo '</form>';
+
+        echo '</div>';
+
+        // JavaScript for select all/deselect all and counting
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            function updateCount() {
+                var count = $('.event-checkbox:checked').length;
+                $('#selected-count').text(count);
+            }
+            
+            $('#select-all').on('change', function() {
+                $('.event-checkbox').prop('checked', this.checked);
+                updateCount();
+            });
+            
+            $('#select-all-events').on('click', function() {
+                $('.event-checkbox').prop('checked', true);
+                $('#select-all').prop('checked', true);
+                updateCount();
+            });
+            
+            $('#deselect-all-events').on('click', function() {
+                $('.event-checkbox').prop('checked', false);
+                $('#select-all').prop('checked', false);
+                updateCount();
+            });
+            
+            $('.event-checkbox').on('change', function() {
+                updateCount();
+                // Update select-all checkbox state
+                var allChecked = $('.event-checkbox').length === $('.event-checkbox:checked').length;
+                $('#select-all').prop('checked', allChecked);
+            });
+            
+            // Confirm before importing
+            $('#wpevents-import-form').on('submit', function(e) {
+                var count = $('.event-checkbox:checked').length;
+                if (count === 0) {
+                    alert('<?php echo esc_js( __( 'Please select at least one event to import.', 'wp-events' ) ); ?>');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                if (!confirm('<?php echo esc_js( __( 'Are you sure you want to import ', 'wp-events' ) ); ?>' + count + '<?php echo esc_js( __( ' event(s)?', 'wp-events' ) ); ?>')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Initialize count
+            updateCount();
+        });
+        </script>
+        <?php
+    }
+
+    protected static function get_import_stats() {
+        $args = [
+            'post_type' => 'tribe_events',
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+        ];
+        $query = new WP_Query( $args );
+        $total = $query->post_count;
+        $imported = 0;
+        $future = 0;
+        $past = 0;
+        $now = current_time( 'timestamp' );
+
+        foreach ( $query->posts as $tribe_id ) {
+            if ( get_post_meta( $tribe_id, '_wpevents_imported', true ) ) {
+                $imported++;
+            }
+            $start = get_post_meta( $tribe_id, '_EventStartDate', true );
+            if ( ! $start ) {
+                $start = get_post_meta( $tribe_id, 'tribe_event_start_date', true );
+            }
+            if ( $start && strtotime( $start ) > $now ) {
+                $future++;
+            } else {
+                $past++;
+            }
+        }
+
+        return [
+            'total' => $total,
+            'imported' => $imported,
+            'available' => $total - $imported,
+            'future' => $future,
+            'past' => $past,
+        ];
+    }
+
+    protected static function get_tribe_events( $filter = 'all' ) {
+        $args = [
+            'post_type' => 'tribe_events',
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'orderby' => 'meta_value',
+            'meta_key' => '_EventStartDate',
+            'order' => 'DESC',
+        ];
+
+        $now = current_time( 'timestamp' );
+        
+        // Apply meta query based on filter
+        if ( 'future' === $filter ) {
+            $args['meta_query'] = [
+                [
+                    'key' => '_EventStartDate',
+                    'value' => current_time( 'mysql' ),
+                    'compare' => '>=',
+                    'type' => 'DATETIME',
+                ]
+            ];
+            $args['order'] = 'ASC';
+        } elseif ( 'past' === $filter ) {
+            $args['meta_query'] = [
+                [
+                    'key' => '_EventStartDate',
+                    'value' => current_time( 'mysql' ),
+                    'compare' => '<',
+                    'type' => 'DATETIME',
+                ]
+            ];
+        }
+
+        $query = new WP_Query( $args );
+        $events = [];
+
+        foreach ( $query->posts as $post_id ) {
+            $imported_id = get_post_meta( $post_id, '_wpevents_imported', true );
+            
+            // Apply imported/available filter
+            if ( 'imported' === $filter && ! $imported_id ) continue;
+            if ( 'available' === $filter && $imported_id ) continue;
+
+            $start = get_post_meta( $post_id, '_EventStartDate', true );
+            if ( ! $start ) {
+                $start = get_post_meta( $post_id, 'tribe_event_start_date', true );
+            }
+            $end = get_post_meta( $post_id, '_EventEndDate', true );
+            if ( ! $end ) {
+                $end = get_post_meta( $post_id, 'tribe_event_end_date', true );
+            }
+
+            $venue_id = get_post_meta( $post_id, '_EventVenueID', true );
+            $venue_name = $venue_id ? get_the_title( $venue_id ) : '-';
+
+            $events[] = [
+                'id' => $post_id,
+                'title' => get_the_title( $post_id ),
+                'start' => $start,
+                'start_formatted' => $start ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $start ) ) : '-',
+                'end' => $end,
+                'end_formatted' => $end ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $end ) ) : '-',
+                'venue' => $venue_name,
+                'imported_id' => $imported_id,
+            ];
+        }
+
+        return $events;
     }
 
     public static function handle_admin_import() {
@@ -48,19 +328,72 @@ class WPEvents_Import_Tribe {
         $batch = isset( $_POST['batch'] ) ? absint( $_POST['batch'] ) : 50;
         $result = self::run_import( $batch );
         $msg = sprintf( 'Imported: %d, Skipped: %d', $result['imported'], $result['skipped'] );
-        wp_safe_redirect( add_query_arg( [ 'page' => 'wpevents-import-tribe', 'msg' => rawurlencode( $msg ) ], admin_url( 'tools.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => 'wpevents-import-tribe', 'msg' => rawurlencode( $msg ) ], admin_url( 'edit.php?post_type=event' ) ) );
+        exit;
+    }
+
+    public static function handle_import_selected() {
+        check_admin_referer( 'wpevents_import_tribe_selected' );
+        
+        if ( ! isset( $_POST['event_ids'] ) || ! is_array( $_POST['event_ids'] ) ) {
+            wp_safe_redirect( add_query_arg( [ 'page' => 'wpevents-import-tribe', 'msg' => rawurlencode( 'No events selected.' ) ], admin_url( 'edit.php?post_type=event' ) ) );
+            exit;
+        }
+
+        $event_ids = array_map( 'absint', $_POST['event_ids'] );
+        $imported = 0;
+        $skipped = 0;
+
+        foreach ( $event_ids as $tribe_id ) {
+            // Check if already imported
+            if ( get_post_meta( $tribe_id, '_wpevents_imported', true ) ) {
+                $skipped++;
+                continue;
+            }
+
+            $new_id = self::import_single( $tribe_id );
+            if ( $new_id ) {
+                $imported++;
+                update_post_meta( $tribe_id, '_wpevents_imported', $new_id );
+            } else {
+                $skipped++;
+            }
+        }
+
+        $msg = sprintf( __( 'Successfully imported %d event(s). Skipped: %d', 'wp-events' ), $imported, $skipped );
+        wp_safe_redirect( add_query_arg( [ 'page' => 'wpevents-import-tribe', 'msg' => rawurlencode( $msg ) ], admin_url( 'edit.php?post_type=event' ) ) );
         exit;
     }
 
 
 
-    public static function run_import( $batch = 0 ) {
+    public static function run_import( $batch = 0, $filter = 'available' ) {
         $args = [
             'post_type' => 'tribe_events',
             'post_status' => 'any',
             'posts_per_page' => $batch > 0 ? $batch : -1,
             'fields' => 'ids',
+            'orderby' => 'meta_value',
+            'meta_key' => '_EventStartDate',
+            'order' => 'ASC',
         ];
+
+        // Only import events that haven't been imported yet
+        if ( 'available' === $filter ) {
+            $args['meta_query'] = [
+                'relation' => 'OR',
+                [
+                    'key' => '_wpevents_imported',
+                    'compare' => 'NOT EXISTS',
+                ],
+                [
+                    'key' => '_wpevents_imported',
+                    'value' => '',
+                    'compare' => '=',
+                ]
+            ];
+        }
+
         $q = new WP_Query( $args );
         $imported = 0; $skipped = 0;
         foreach ( $q->posts as $tribe_id ) {
@@ -69,15 +402,29 @@ class WPEvents_Import_Tribe {
             if ( $new_id ) { $imported++; update_post_meta( $tribe_id, '_wpevents_imported', $new_id ); }
             else { $skipped++; }
         }
-        return [ 'imported' => $imported, 'skipped' => $skipped ];
+        return [ 'imported' => $imported, 'skipped' => $skipped, 'total' => $q->post_count ];
     }
 
     protected static function import_single( $tribe_id ) {
         $title = get_the_title( $tribe_id );
         $content = get_post_field( 'post_content', $tribe_id );
-        $start = get_post_meta( $tribe_id, 'tribe_event_start_date', true );
-        $end   = get_post_meta( $tribe_id, 'tribe_event_end_date', true );
-        $currency = get_post_meta( $tribe_id, 'EventCurrencySymbol', true );
+        
+        // Try both meta keys for start/end dates
+        $start = get_post_meta( $tribe_id, '_EventStartDate', true );
+        if ( ! $start ) {
+            $start = get_post_meta( $tribe_id, 'tribe_event_start_date', true );
+        }
+        $end = get_post_meta( $tribe_id, '_EventEndDate', true );
+        if ( ! $end ) {
+            $end = get_post_meta( $tribe_id, 'tribe_event_end_date', true );
+        }
+        
+        $currency = get_post_meta( $tribe_id, '_EventCurrencySymbol', true );
+        if ( ! $currency ) {
+            $currency = get_post_meta( $tribe_id, 'EventCurrencySymbol', true );
+        }
+        
+        $cost = get_post_meta( $tribe_id, '_EventCost', true );
 
         $postarr = [
             'post_type' => 'event',
@@ -94,6 +441,7 @@ class WPEvents_Import_Tribe {
 
         if ( $start ) update_post_meta( $event_id, 'event_start', WPEvents_CPT::sanitize_iso8601( $start ) );
         if ( $end ) update_post_meta( $event_id, 'event_end', WPEvents_CPT::sanitize_iso8601( $end ) );
+        if ( $cost ) update_post_meta( $event_id, 'event_price', floatval( $cost ) );
         if ( $currency ) update_post_meta( $event_id, 'event_currency', strtoupper( $currency ) );
 
         // Map venue

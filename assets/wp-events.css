@@ -105,3 +105,58 @@
     color: #e65100;
     font-style: italic;
 }
+
+/* Import page styles */
+.wpevents-import-stats {
+    background: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.wpevents-import-stats h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.wpevents-import-stats ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.wpevents-import-stats li {
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 3px;
+}
+
+.wpevents-imported {
+    background-color: #f0f9ff !important;
+}
+
+.wpevents-import-table-actions {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.event-status-imported {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.event-status-available {
+    color: #00a0d2;
+    font-weight: 600;
+}
