@@ -121,7 +121,7 @@ class WPEvents_Import_Tribe {
                 if ( ! $is_imported ) {
                     echo '<input type="checkbox" name="event_ids[]" value="' . esc_attr( $event['id'] ) . '" class="event-checkbox" />';
                 } else {
-                    echo '<span style="color: #ddd;">—</span>';
+                    echo '<span style="color: #ddd;">&mdash;</span>';
                 }
                 echo '</td>';
                 echo '<td><strong>' . esc_html( $event['title'] ) . '</strong></td>';
@@ -130,7 +130,7 @@ class WPEvents_Import_Tribe {
                 echo '<td>' . esc_html( $event['venue'] ) . '</td>';
                 echo '<td>';
                 if ( $is_imported ) {
-                    echo '<span class="event-status-imported">✓ ' . esc_html__( 'Imported', 'wp-events' ) . '</span> ';
+                    echo '<span class="event-status-imported">&#10003; ' . esc_html__( 'Imported', 'wp-events' ) . '</span> ';
                     echo '<a href="' . esc_url( get_edit_post_link( $event['imported_id'] ) ) . '" target="_blank">' . esc_html__( '(Edit)', 'wp-events' ) . '</a>';
                 } else {
                     echo '<span class="event-status-available">' . esc_html__( 'Available', 'wp-events' ) . '</span>';
