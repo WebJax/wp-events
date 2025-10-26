@@ -289,7 +289,8 @@ class WPEvents_Import_Tribe {
         $query = new WP_Query( $args );
         $events = [];
 
-        foreach ( $query->posts as $post_id ) {
+        foreach ( $query->posts as $post ) {
+            $post_id = $post->ID;
             $imported_id = get_post_meta( $post_id, '_wpevents_imported', true );
             
             // Apply imported/available filter
