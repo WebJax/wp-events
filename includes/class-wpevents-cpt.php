@@ -125,7 +125,7 @@ class WPEvents_CPT {
             ],
             'public' => true,
             'show_in_rest' => true,
-            'supports' => [ 'title' ],
+            'supports' => [ 'title', 'thumbnail' ],
             'rewrite' => [ 'slug' => 'venues' ],
             'show_in_menu' => 'edit.php?post_type=event',
             'taxonomies' => [ 'venue_category' ],
