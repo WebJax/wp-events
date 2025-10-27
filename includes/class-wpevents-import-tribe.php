@@ -14,9 +14,28 @@ if ( defined( 'WP_CLI' ) && class_exists( 'WP_CLI' ) ) {
             /** @disregard P1009 Undefined type */
             WP_CLI::success( sprintf( 'Imported: %d, Skipped: %d', $res['imported'], $res['skipped'] ) );
         }
+
+        public static function reset_command( $args, $assoc_args ) {
+            if ( ! post_type_exists( 'tribe_events' ) ) {
+                /** @disregard P1009 Undefined type */
+                WP_CLI::error( 'CPT tribe_events not found. Is The Events Calendar active?' );
+            }
+            
+            $confirm = isset( $assoc_args['yes'] ) ? true : false;
+            if ( ! $confirm ) {
+                /** @disregard P1009 Undefined type */
+                WP_CLI::confirm( 'This will reset all import statistics. Previously imported events will NOT be deleted, but can be re-imported. Continue?' );
+            }
+            
+            $result = WPEvents_Import_Tribe::reset_import_stats();
+            /** @disregard P1009 Undefined type */
+            WP_CLI::success( sprintf( 'Reset %d import markers. Events can now be re-imported.', $result ) );
+        }
     }
     /** @disregard P1009 Undefined type */
     WP_CLI::add_command( 'wpevents import-tribe', [ 'WPEvents_Import_Tribe_CLI', 'import_command' ] );
+    /** @disregard P1009 Undefined type */
+    WP_CLI::add_command( 'wpevents reset-import', [ 'WPEvents_Import_Tribe_CLI', 'reset_command' ] );
 }
 
 class WPEvents_Import_Tribe {
@@ -366,6 +385,26 @@ class WPEvents_Import_Tribe {
         exit;
     }
 
+    /**
+     * Reset all import statistics
+     * Removes _wpevents_imported meta from all tribe_events posts
+     * 
+     * @return int Number of import markers removed
+     */
+    public static function reset_import_stats() {
+        global $wpdb;
+        
+        // Delete all _wpevents_imported meta entries
+        $result = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                '_wpevents_imported'
+            )
+        );
+        
+        return $result ? absint( $result ) : 0;
+    }
+
 
 
     public static function run_import( $batch = 0, $filter = 'available' ) {
@@ -407,8 +446,12 @@ class WPEvents_Import_Tribe {
     }
 
     protected static function import_single( $tribe_id ) {
+        $tribe_post = get_post( $tribe_id );
         $title = get_the_title( $tribe_id );
         $content = get_post_field( 'post_content', $tribe_id );
+        
+        // Convert classic content to Gutenberg blocks
+        $content = self::convert_to_blocks( $content );
         
         // Try both meta keys for start/end dates
         $start = get_post_meta( $tribe_id, '_EventStartDate', true );
@@ -432,6 +475,10 @@ class WPEvents_Import_Tribe {
             'post_status' => 'publish',
             'post_title' => $title,
             'post_content' => $content,
+            'post_date' => $tribe_post->post_date,
+            'post_date_gmt' => $tribe_post->post_date_gmt,
+            'post_modified' => $tribe_post->post_modified,
+            'post_modified_gmt' => $tribe_post->post_modified_gmt,
         ];
         $event_id = wp_insert_post( $postarr );
         if ( is_wp_error( $event_id ) || ! $event_id ) return 0;
@@ -452,6 +499,18 @@ class WPEvents_Import_Tribe {
         // Map organizers (can be multiple)
         $org_ids = self::map_or_create_organizers( $tribe_id );
         if ( $org_ids ) update_post_meta( $event_id, 'event_organizer', $org_ids );
+
+        // Import categories from tribe_events_cat to event_category
+        $tribe_cats = wp_get_object_terms( $tribe_id, 'tribe_events_cat', [ 'fields' => 'names' ] );
+        if ( ! is_wp_error( $tribe_cats ) && ! empty( $tribe_cats ) ) {
+            wp_set_object_terms( $event_id, $tribe_cats, 'event_category', false );
+        }
+
+        // Import tags from post_tag to event_tag
+        $tribe_tags = wp_get_object_terms( $tribe_id, 'post_tag', [ 'fields' => 'names' ] );
+        if ( ! is_wp_error( $tribe_tags ) && ! empty( $tribe_tags ) ) {
+            wp_set_object_terms( $event_id, $tribe_tags, 'event_tag', false );
+        }
 
         // Reference back
         update_post_meta( $event_id, '_tribe_event_id', $tribe_id );
@@ -479,8 +538,12 @@ class WPEvents_Import_Tribe {
         $new_id = wp_insert_post( [ 'post_type' => 'venue', 'post_status' => 'publish', 'post_title' => $name ] );
         if ( $new_id && ! is_wp_error( $new_id ) ) {
             update_post_meta( $new_id, 'venue_address', get_post_meta( $venue_id, '_VenueAddress', true ) );
+            update_post_meta( $new_id, 'venue_city', get_post_meta( $venue_id, '_VenueCity', true ) );
+            update_post_meta( $new_id, 'venue_postal_code', get_post_meta( $venue_id, '_VenueZip', true ) );
+            update_post_meta( $new_id, 'venue_country', get_post_meta( $venue_id, '_VenueCountry', true ) );
             update_post_meta( $new_id, 'venue_phone', get_post_meta( $venue_id, '_VenuePhone', true ) );
             update_post_meta( $new_id, 'venue_website', get_post_meta( $venue_id, '_VenueURL', true ) );
+            update_post_meta( $new_id, 'venue_show_directions', 1 ); // Enable directions by default
             return $new_id;
         }
         return 0;
@@ -515,6 +578,148 @@ class WPEvents_Import_Tribe {
             }
         }
         return $result;
+    }
+
+    /**
+     * Convert classic editor content to Gutenberg blocks
+     * 
+     * @param string $content Classic editor content (HTML)
+     * @return string Gutenberg block content
+     */
+    protected static function convert_to_blocks( $content ) {
+        if ( empty( $content ) ) {
+            return '';
+        }
+
+        // Check if content already has blocks
+        if ( has_blocks( $content ) ) {
+            return $content;
+        }
+
+        // Split content into paragraphs and other elements
+        $blocks = [];
+        
+        // Use WordPress core function to convert classic content to blocks
+        // This handles paragraphs, headings, lists, images, etc.
+        $converted = wp_filter_content_tags( $content );
+        
+        // Parse HTML and convert to blocks
+        $dom = new DOMDocument();
+        @$dom->loadHTML( '<?xml encoding="UTF-8">' . $converted, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+        
+        $body = $dom->getElementsByTagName('body')->item(0);
+        if ( ! $body ) {
+            // If parsing fails, wrap in paragraph blocks
+            return self::wrap_in_paragraph_blocks( $content );
+        }
+        
+        foreach ( $body->childNodes as $node ) {
+            $block = self::convert_node_to_block( $node );
+            if ( $block ) {
+                $blocks[] = $block;
+            }
+        }
+        
+        return implode( "\n\n", $blocks );
+    }
+
+    /**
+     * Convert a DOM node to a Gutenberg block
+     */
+    protected static function convert_node_to_block( $node ) {
+        if ( $node->nodeType === XML_TEXT_NODE ) {
+            $text = trim( $node->textContent );
+            if ( empty( $text ) ) {
+                return '';
+            }
+            return '<!-- wp:paragraph -->' . "\n" . '<p>' . esc_html( $text ) . '</p>' . "\n" . '<!-- /wp:paragraph -->';
+        }
+        
+        if ( $node->nodeType !== XML_ELEMENT_NODE ) {
+            return '';
+        }
+        
+        $tag = strtolower( $node->nodeName );
+        $html = $node->ownerDocument->saveHTML( $node );
+        
+        // Handle different HTML elements
+        switch ( $tag ) {
+            case 'p':
+                return '<!-- wp:paragraph -->' . "\n" . $html . "\n" . '<!-- /wp:paragraph -->';
+            
+            case 'h1':
+            case 'h2':
+            case 'h3':
+            case 'h4':
+            case 'h5':
+            case 'h6':
+                $level = intval( substr( $tag, 1 ) );
+                return '<!-- wp:heading {"level":' . $level . '} -->' . "\n" . $html . "\n" . '<!-- /wp:heading -->';
+            
+            case 'ul':
+                return '<!-- wp:list -->' . "\n" . $html . "\n" . '<!-- /wp:list -->';
+            
+            case 'ol':
+                return '<!-- wp:list {"ordered":true} -->' . "\n" . $html . "\n" . '<!-- /wp:list -->';
+            
+            case 'blockquote':
+                return '<!-- wp:quote -->' . "\n" . $html . "\n" . '<!-- /wp:quote -->';
+            
+            case 'img':
+                $src = $node->getAttribute('src');
+                $alt = $node->getAttribute('alt');
+                $id = $node->getAttribute('data-id') ?: '';
+                return '<!-- wp:image ' . ( $id ? '{"id":' . intval( $id ) . '}' : '' ) . ' -->' . "\n" . 
+                       '<figure class="wp-block-image">' . $html . '</figure>' . "\n" . 
+                       '<!-- /wp:image -->';
+            
+            case 'figure':
+                if ( $node->getElementsByTagName('img')->length > 0 ) {
+                    return '<!-- wp:image -->' . "\n" . $html . "\n" . '<!-- /wp:image -->';
+                }
+                return '<!-- wp:paragraph -->' . "\n" . '<p>' . $html . '</p>' . "\n" . '<!-- /wp:paragraph -->';
+            
+            case 'pre':
+            case 'code':
+                return '<!-- wp:code -->' . "\n" . '<pre class="wp-block-code"><code>' . esc_html( $node->textContent ) . '</code></pre>' . "\n" . '<!-- /wp:code -->';
+            
+            case 'table':
+                return '<!-- wp:table -->' . "\n" . '<figure class="wp-block-table">' . $html . '</figure>' . "\n" . '<!-- /wp:table -->';
+            
+            default:
+                // For other elements, wrap in paragraph
+                return '<!-- wp:paragraph -->' . "\n" . '<p>' . $html . '</p>' . "\n" . '<!-- /wp:paragraph -->';
+        }
+    }
+
+    /**
+     * Fallback: wrap content in paragraph blocks
+     */
+    protected static function wrap_in_paragraph_blocks( $content ) {
+        // Split by double line breaks
+        $paragraphs = preg_split( '/\n\s*\n/', $content );
+        $blocks = [];
+        
+        foreach ( $paragraphs as $para ) {
+            $para = trim( $para );
+            if ( empty( $para ) ) {
+                continue;
+            }
+            
+            // Check if it's a heading
+            if ( preg_match( '/^<h([1-6])[^>]*>(.*?)<\/h\1>$/is', $para, $matches ) ) {
+                $level = $matches[1];
+                $blocks[] = '<!-- wp:heading {"level":' . $level . '} -->' . "\n" . $para . "\n" . '<!-- /wp:heading -->';
+            } else {
+                // Wrap in paragraph if not already
+                if ( ! preg_match( '/^<p[^>]*>/', $para ) ) {
+                    $para = '<p>' . $para . '</p>';
+                }
+                $blocks[] = '<!-- wp:paragraph -->' . "\n" . $para . "\n" . '<!-- /wp:paragraph -->';
+            }
+        }
+        
+        return implode( "\n\n", $blocks );
     }
 }
 

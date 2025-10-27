@@ -629,10 +629,43 @@
 
 /* Event Meta Information */
 .event-meta {
-    display: flex;
-    flex-direction: column;
+    background-color: #f9f9f9;
+    display: grid;
+    grid-template-areas:
+        'date date'
+        'venue organizer'
+        'venue taxonomy';
     gap: 0.75rem;
     margin-bottom: 1.5rem;
+    padding-block: 1.5rem;
+    padding-inline: 1rem;
+    justify-content: space-between;
+}
+
+.event-date {
+    grid-area: date;
+}
+
+.event-venue {
+    grid-area: venue;
+}
+
+i.icon-location:before {
+    margin-left: -.2rem;
+}
+
+i.icon-location:before {
+    margin-left: -.2rem;
+}
+
+.event-organizers {
+    grid-area: organizer;
+    flex-direction: column;
+}
+
+.event-taxonomy {
+    grid-area: taxonomy;
+    flex-direction: column;
 }
 
 .event-meta > div {
