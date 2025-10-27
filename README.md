@@ -50,6 +50,7 @@ wp wpevents import-tribe --batch=50
 ## Fremtidige udvidelser
 - iCal eksport
 - WooCommerce billet-integration
+- mulighed for arrangører kan logge ind og oprette/ændre/slette egne events
 
 
 # WP Events Template System
