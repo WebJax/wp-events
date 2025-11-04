@@ -104,37 +104,36 @@ get_header(); ?>
                                 ?>
                             </div>
                         <?php endif; ?>
+                        <?php if ( ( $categories && ! is_wp_error( $categories ) ) || ( $tags && ! is_wp_error( $tags ) ) ) : ?>
+                            <div class="event-taxonomy">
+                                <?php if ( $categories && ! is_wp_error( $categories ) ) : ?>
+                                    <div class="event-categories">
+                                        <strong><?php esc_html_e( 'Kategorier:', 'wp-events' ); ?></strong>
+                                        <?php foreach ( $categories as $category ) : ?>
+                                            <span class="event-category">
+                                                <a href="<?php echo get_term_link( $category ); ?>">
+                                                    <?php echo esc_html( $category->name ); ?>
+                                                </a>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if ( $tags && ! is_wp_error( $tags ) ) : ?>
+                                    <div class="event-tags">
+                                        <strong><?php esc_html_e( 'Tags:', 'wp-events' ); ?></strong>
+                                        <?php foreach ( $tags as $tag ) : ?>
+                                            <span class="event-tag">
+                                                <a href="<?php echo get_term_link( $tag ); ?>">
+                                                    #<?php echo esc_html( $tag->name ); ?>
+                                                </a>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                    
-                    <?php if ( ( $categories && ! is_wp_error( $categories ) ) || ( $tags && ! is_wp_error( $tags ) ) ) : ?>
-                        <div class="event-taxonomy">
-                            <?php if ( $categories && ! is_wp_error( $categories ) ) : ?>
-                                <div class="event-categories">
-                                    <strong><?php esc_html_e( 'Kategorier:', 'wp-events' ); ?></strong>
-                                    <?php foreach ( $categories as $category ) : ?>
-                                        <span class="event-category">
-                                            <a href="<?php echo get_term_link( $category ); ?>">
-                                                <?php echo esc_html( $category->name ); ?>
-                                            </a>
-                                        </span>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                            
-                            <?php if ( $tags && ! is_wp_error( $tags ) ) : ?>
-                                <div class="event-tags">
-                                    <strong><?php esc_html_e( 'Tags:', 'wp-events' ); ?></strong>
-                                    <?php foreach ( $tags as $tag ) : ?>
-                                        <span class="event-tag">
-                                            <a href="<?php echo get_term_link( $tag ); ?>">
-                                                #<?php echo esc_html( $tag->name ); ?>
-                                            </a>
-                                        </span>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
                 </header>
 
                 <div class="event-content">
