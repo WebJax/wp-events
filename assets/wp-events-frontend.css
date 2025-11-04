@@ -709,6 +709,7 @@ i.icon-location:before {
 
 .event-categories strong,
 .event-tags strong {
+    display: block;
     margin-right: 0.5rem;
     color: #333;
 }
