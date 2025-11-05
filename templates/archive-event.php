@@ -36,50 +36,13 @@ get_header(); ?>
             <?php endif; ?>
         </header>
 
-        <!-- Filter options -->
-        <div class="events-filters">
-            <div class="filter-group">
-                <label for="event-category-filter"><?php esc_html_e( 'Kategori:', 'wp-events' ); ?></label>
-                <select id="event-category-filter" name="event_category">
-                    <option value=""><?php esc_html_e( 'Alle kategorier', 'wp-events' ); ?></option>
-                    <?php
-                    $categories = get_terms( array(
-                        'taxonomy' => 'event_category',
-                        'hide_empty' => true,
-                    ) );
-                    if ( $categories && ! is_wp_error( $categories ) ) :
-                        foreach ( $categories as $category ) :
-                            $selected = isset( $_GET['event_category'] ) && $_GET['event_category'] === $category->slug ? 'selected' : '';
-                            ?>
-                            <option value="<?php echo esc_attr( $category->slug ); ?>" <?php echo $selected; ?>>
-                                <?php echo esc_html( $category->name ); ?> (<?php echo $category->count; ?>)
-                            </option>
-                            <?php
-                        endforeach;
-                    endif;
-                    ?>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="event-time-filter"><?php esc_html_e( 'Tid:', 'wp-events' ); ?></label>
-                <select id="event-time-filter" name="time_filter">
-                    <option value="upcoming" <?php selected( isset( $_GET['time_filter'] ) ? $_GET['time_filter'] : 'upcoming', 'upcoming' ); ?>>
-                        <?php esc_html_e( 'Kommende events', 'wp-events' ); ?>
-                    </option>
-                    <option value="past" <?php selected( isset( $_GET['time_filter'] ) ? $_GET['time_filter'] : '', 'past' ); ?>>
-                        <?php esc_html_e( 'Tidligere events', 'wp-events' ); ?>
-                    </option>
-                    <option value="all" <?php selected( isset( $_GET['time_filter'] ) ? $_GET['time_filter'] : '', 'all' ); ?>>
-                        <?php esc_html_e( 'Alle events', 'wp-events' ); ?>
-                    </option>
-                </select>
-            </div>
-
-            <button type="button" id="apply-filters" class="btn btn-primary">
-                <?php esc_html_e( 'Anvend filtre', 'wp-events' ); ?>
-            </button>
-        </div>
+        <?php 
+        // Include event filters
+        get_template_part( 'wp-events/parts/event-filters' );
+        if ( ! locate_template( 'wp-events/parts/event-filters.php' ) ) {
+            include WPEVENTS_PLUGIN_DIR . 'templates/parts/event-filters.php';
+        }
+        ?>
 
         <div class="wp-events-archive">
             <?php if ( have_posts() ) : ?>
@@ -216,37 +179,5 @@ get_header(); ?>
         </div>
     </div>
 </div>
-
-<script>
-// Simple filter functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const applyButton = document.getElementById('apply-filters');
-    const categorySelect = document.getElementById('event-category-filter');
-    const timeSelect = document.getElementById('event-time-filter');
-    
-    if (applyButton) {
-        applyButton.addEventListener('click', function() {
-            const category = categorySelect.value;
-            const timeFilter = timeSelect.value;
-            
-            let url = new URL(window.location);
-            
-            if (category) {
-                url.searchParams.set('event_category', category);
-            } else {
-                url.searchParams.delete('event_category');
-            }
-            
-            if (timeFilter && timeFilter !== 'upcoming') {
-                url.searchParams.set('time_filter', timeFilter);
-            } else {
-                url.searchParams.delete('time_filter');
-            }
-            
-            window.location = url;
-        });
-    }
-});
-</script>
 
 <?php get_footer(); ?>

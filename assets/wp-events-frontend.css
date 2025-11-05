@@ -385,6 +385,7 @@
 }
 
 /* Filters */
+.wp-events-filters,
 .events-filters {
     display: flex;
     flex-wrap: wrap;
@@ -396,16 +397,33 @@
     border-radius: 8px;
 }
 
+.event-filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    width: 100%;
+}
+
 .filter-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    flex: 1 1 auto;
+    min-width: 150px;
 }
 
 .filter-group label {
     font-weight: 600;
     color: #555;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-group label i {
+    color: var(--primary-color, #007cba);
 }
 
 .filter-group select {
@@ -414,6 +432,13 @@
     border-radius: 4px;
     background: white;
     min-width: 150px;
+    font-size: 1rem;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .btn {
@@ -423,15 +448,30 @@
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .btn-primary {
-    background: #007cba;
+    background: var(--primary-color, #007cba);
     color: white;
 }
 
 .btn-primary:hover {
     background: #005a87;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    color: white;
 }
 
 /* Events Grid */
@@ -642,8 +682,9 @@
     justify-content: space-between;
 }
 
-.event-date {
+.event-meta .event-date {
     grid-area: date;
+    font-size: 1.8rem;
 }
 
 .event-venue {
@@ -704,7 +745,7 @@ i.icon-location:before {
 
 .event-categories,
 .event-tags {
-    margin-bottom: 0.75rem;
+    margin-block: 0.75rem;
 }
 
 .event-categories strong,

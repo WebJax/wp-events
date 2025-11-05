@@ -31,6 +31,14 @@ get_header(); ?>
             <?php endif; ?>
         </header>
 
+        <?php 
+        // Include event filters
+        get_template_part( 'wp-events/parts/event-filters' );
+        if ( ! locate_template( 'wp-events/parts/event-filters.php' ) ) {
+            include WPEVENTS_PLUGIN_DIR . 'templates/parts/event-filters.php';
+        }
+        ?>
+
         <div class="wp-events-archive">
             <?php if ( have_posts() ) : ?>
                 <div class="events-grid">

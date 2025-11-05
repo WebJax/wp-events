@@ -22,6 +22,7 @@ require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-schema.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-shortcodes.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-admin.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-recurrence.php';
+require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-filters.php';
 // Load clean blocks class instead
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-blocks-clean.php';
 if ( file_exists( WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-import-tribe.php' ) ) {

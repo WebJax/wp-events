@@ -506,6 +506,11 @@ class WPEvents_Blocks_Clean {
             if ( ! $template ) {
                 $template = WPEVENTS_PLUGIN_DIR . 'templates/' . $default_file;
             }
+            
+            // Enqueue frontend assets for our templates
+            if ( strpos( $template, 'wp-events' ) !== false || strpos( $template, WPEVENTS_PLUGIN_DIR ) !== false ) {
+                add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_frontend_assets' ], 20 );
+            }
         }
 
         return $template;
@@ -515,16 +520,18 @@ class WPEvents_Blocks_Clean {
      * Get the default filename for a template.
      */
     private static function get_template_loader_default_file() {
-        if ( is_singular( 'event' ) ) {
+        if ( is_single() && get_post_type() === 'event' ) {
             $default_file = 'single-event.php';
+        } elseif ( is_single() && get_post_type() === 'venue' ) {
+            $default_file = 'single-venue.php';
+        } elseif ( is_single() && get_post_type() === 'organizer' ) {
+            $default_file = 'single-organizer.php';
         } elseif ( is_post_type_archive( 'event' ) ) {
             $default_file = 'archive-event.php';
         } elseif ( is_tax( 'event_category' ) ) {
-            $object = get_queried_object();
-            $default_file = 'taxonomy-event_category-' . $object->slug . '.php';
+            $default_file = 'taxonomy-event_category.php';
         } elseif ( is_tax( 'event_tag' ) ) {
-            $object = get_queried_object();
-            $default_file = 'taxonomy-event_tag-' . $object->slug . '.php';
+            $default_file = 'taxonomy-event_tag.php';
         } else {
             $default_file = '';
         }
@@ -542,12 +549,12 @@ class WPEvents_Blocks_Clean {
         if ( is_tax( 'event_category' ) || is_tax( 'event_tag' ) ) {
             $object = get_queried_object();
 
-            // Look for specific term template first
-            $templates[] = 'wp-events/' . $template;
+            // Look for specific term template first (e.g., taxonomy-event_category-udstilling.php)
+            $specific_template = str_replace( '.php', '-' . $object->slug . '.php', $template );
+            $templates[] = 'wp-events/' . $specific_template;
             
-            // Then general taxonomy template
-            $taxonomy = str_replace( '-' . $object->slug . '.php', '.php', $template );
-            $templates[] = 'wp-events/' . $taxonomy;
+            // Then general taxonomy template (e.g., taxonomy-event_category.php)
+            $templates[] = 'wp-events/' . $template;
         } else {
             $templates[] = 'wp-events/' . $template;
         }
