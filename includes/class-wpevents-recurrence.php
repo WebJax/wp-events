@@ -22,13 +22,14 @@ class WPEvents_Recurrence {
         if ( ! $start_ts || ! $until_ts ) return;
 
         // Avoid duplicates: delete existing occurrences
-        $existing = get_children( [
+        $existing_query = new WP_Query( [
             'post_type' => 'event',
-            'post_parent' => $post_id,
+            'meta_key' => '_recurrence_parent',
+            'meta_value' => $post_id,
             'posts_per_page' => -1,
             'fields' => 'ids',
         ] );
-        foreach ( $existing as $cid ) {
+        foreach ( $existing_query->posts as $cid ) {
             wp_delete_post( $cid, true );
         }
 
@@ -39,13 +40,16 @@ class WPEvents_Recurrence {
                 $new_start = wp_date( DATE_ATOM, $cursor, wp_timezone() );
                 $new_end = $end_ts ? wp_date( DATE_ATOM, $cursor + ( $end_ts - $start_ts ), wp_timezone() ) : '';
 
+                // Add occurrence date to title to differentiate from parent
+                $occurrence_date = wp_date( 'j. F Y', $cursor, wp_timezone() );
+                $title_with_date = $post->post_title . ' (' . $occurrence_date . ')';
+
                 $child_id = wp_insert_post( [
                     'post_type' => 'event',
                     'post_status' => 'publish',
-                    'post_title' => $post->post_title,
+                    'post_title' => $title_with_date,
                     'post_content' => $post->post_content,
                     'post_excerpt' => $post->post_excerpt,
-                    'post_parent' => $post_id,
                 ] );
                 if ( $child_id && ! is_wp_error( $child_id ) ) {
                     // Copy time information
@@ -53,6 +57,7 @@ class WPEvents_Recurrence {
                     if ( $new_end ) update_post_meta( $child_id, 'event_end', $new_end );
                     update_post_meta( $child_id, 'is_occurrence', true );
                     update_post_meta( $child_id, 'occurrence_of', $post_id );
+                    update_post_meta( $child_id, '_recurrence_parent', $post_id );
                     
                     // Copy taxonomies (categories and tags)
                     $categories = wp_get_object_terms( $post_id, 'event_category', array( 'fields' => 'ids' ) );
