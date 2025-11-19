@@ -29,10 +29,21 @@ class WPEvents_Schema {
 
         $location = null;
         if ( $venue_id ) {
+            $address = get_post_meta( $venue_id, 'venue_address', true );
+            $city = get_post_meta( $venue_id, 'venue_city', true );
+            $postal = get_post_meta( $venue_id, 'venue_postal_code', true );
+            $country = get_post_meta( $venue_id, 'venue_country', true );
+
             $location = [
                 '@type' => 'Place',
                 'name' => get_the_title( $venue_id ),
-                'address' => get_post_meta( $venue_id, 'venue_address', true ),
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => $address,
+                    'addressLocality' => $city,
+                    'postalCode' => $postal,
+                    'addressCountry' => $country
+                ],
                 'telephone' => get_post_meta( $venue_id, 'venue_phone', true ),
                 'url' => get_post_meta( $venue_id, 'venue_website', true ),
             ];

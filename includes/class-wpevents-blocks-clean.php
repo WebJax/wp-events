@@ -481,6 +481,20 @@ class WPEvents_Blocks_Clean {
             [],
             WPEVENTS_VERSION
         );
+
+        // Enqueue Swiper for carousel block
+        if ( has_block( 'wp-events/events-carousel' ) ) {
+            wp_enqueue_style( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', [], '11.0.0' );
+            wp_enqueue_script( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', [], '11.0.0', true );
+            
+            wp_enqueue_script(
+                'wp-events-frontend-js',
+                WPEVENTS_PLUGIN_URL . 'assets/wp-events-frontend.js',
+                [ 'swiper' ],
+                WPEVENTS_VERSION,
+                true
+            );
+        }
     }
     
     /**
@@ -779,13 +793,13 @@ class WPEvents_Blocks_Clean {
             'post_status' => 'publish',
             'meta_query' => array(
                 array(
-                    'key' => '_event_start_date',
+                    'key' => 'event_start',
                     'value' => current_time('Y-m-d'),
                     'compare' => '>=',
                     'type' => 'DATE'
                 )
             ),
-            'meta_key' => '_event_start_date',
+            'meta_key' => 'event_start',
             'orderby' => 'meta_value',
             'order' => 'ASC'
         );
@@ -802,8 +816,9 @@ class WPEvents_Blocks_Clean {
         
         $output = '<div ' . $wrapper_attributes . '>';
         foreach ($events as $event) {
-            $start_date = get_post_meta($event->ID, '_event_start_date', true);
-            $venue = get_post_meta($event->ID, '_event_venue', true);
+            $start_date = get_post_meta($event->ID, 'event_start', true);
+            $venue_id = get_post_meta($event->ID, 'event_venue', true);
+            $venue = $venue_id ? get_the_title($venue_id) : '';
             
             $output .= '<div class="event-item">';
             $output .= '<h3><a href="' . get_permalink($event->ID) . '">' . get_the_title($event->ID) . '</a></h3>';
@@ -829,13 +844,13 @@ class WPEvents_Blocks_Clean {
             'post_status' => 'publish',
             'meta_query' => array(
                 array(
-                    'key' => '_event_start_date',
+                    'key' => 'event_start',
                     'value' => current_time('Y-m-d'),
                     'compare' => '>=',
                     'type' => 'DATE'
                 )
             ),
-            'meta_key' => '_event_start_date',
+            'meta_key' => 'event_start',
             'orderby' => 'meta_value',
             'order' => 'ASC'
         );
@@ -843,7 +858,7 @@ class WPEvents_Blocks_Clean {
         $events = get_posts($args);
         
         $wrapper_attributes = get_block_wrapper_attributes( array(
-            'class' => 'wp-events-carousel'
+            'class' => 'wp-events-carousel swiper'
         ) );
 
         if (empty($events)) {
@@ -851,13 +866,15 @@ class WPEvents_Blocks_Clean {
         }
         
         $output = '<div ' . $wrapper_attributes . '>';
-        $output .= '<div class="carousel-wrapper">';
+        $output .= '<div class="swiper-wrapper">';
         foreach ($events as $event) {
-            $start_date = get_post_meta($event->ID, '_event_start_date', true);
-            $venue = get_post_meta($event->ID, '_event_venue', true);
+            $start_date = get_post_meta($event->ID, 'event_start', true);
+            $venue_id = get_post_meta($event->ID, 'event_venue', true);
+            $venue = $venue_id ? get_the_title($venue_id) : '';
             $featured_image = get_the_post_thumbnail($event->ID, 'medium');
             
-            $output .= '<div class="carousel-item">';
+            $output .= '<div class="swiper-slide">';
+            $output .= '<div class="event-card">';
             if ($featured_image) {
                 $output .= '<div class="event-image">' . $featured_image . '</div>';
             }
@@ -871,9 +888,19 @@ class WPEvents_Blocks_Clean {
             }
             $output .= '</div>';
             $output .= '</div>';
+            $output .= '</div>';
         }
-        $output .= '</div>';
-        $output .= '</div>';
+        $output .= '</div>'; // .swiper-wrapper
+        
+        if ( ! empty( $attributes['showDots'] ) ) {
+            $output .= '<div class="swiper-pagination"></div>';
+        }
+        if ( ! empty( $attributes['showArrows'] ) ) {
+            $output .= '<div class="swiper-button-next"></div>';
+            $output .= '<div class="swiper-button-prev"></div>';
+        }
+        
+        $output .= '</div>'; // .swiper
         
         return $output;
     }
