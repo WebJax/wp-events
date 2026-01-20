@@ -689,6 +689,8 @@
 
 .event-venue {
     grid-area: venue;
+    align-items: self-start;
+    margin-left: .5rem;
 }
 
 i.icon-location:before {
@@ -701,19 +703,17 @@ i.icon-location:before {
 
 .event-organizers {
     grid-area: organizer;
+    display: flex;
     flex-direction: column;
+    align-items: flex-end;
 }
 
 .event-taxonomy {
     grid-area: taxonomy;
-    flex-direction: column;
-}
-
-.event-meta > div {
     display: flex;
-    align-items: start;
-    font-size: 1.1rem;
-    color: #333;
+    margin-top: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .event-meta .dashicons {
@@ -733,30 +733,30 @@ i.icon-location:before {
     font-weight: 500;
 }
 
+.event-organizers a {
+    margin-right: .3rem;
+}
+
 .event-venue a:hover,
 .event-organizers a:hover {
     text-decoration: underline;
 }
 
-/* Event Taxonomy */
-.event-taxonomy {
-    margin-top: 1rem;
-}
-
 .event-categories,
 .event-tags {
-    margin-block: 0.75rem;
+    margin-block: 0rem;
+    text-align: end;
+    width: 75%;
 }
 
 .event-categories strong,
 .event-tags strong {
     display: block;
-    margin-right: 0.5rem;
     color: #333;
 }
 
 .event-category,
-.event-tag {margin-inline: .3rem;}
+.event-tag {margin-inline: .3rem;line-height: 2;}
 
 .event-category a,
 .event-tag a {
