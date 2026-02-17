@@ -39,18 +39,12 @@ get_header(); ?>
 
         <?php 
         // Include view switcher
-        get_template_part( 'wp-events/parts/view-switcher' );
-        if ( ! locate_template( 'wp-events/parts/view-switcher.php' ) ) {
-            include WPEVENTS_PLUGIN_DIR . 'templates/parts/view-switcher.php';
-        }
+        wpevents_get_template_part( 'parts/view-switcher' );
         ?>
 
         <?php 
         // Include event filters
-        get_template_part( 'wp-events/parts/event-filters' );
-        if ( ! locate_template( 'wp-events/parts/event-filters.php' ) ) {
-            include WPEVENTS_PLUGIN_DIR . 'templates/parts/event-filters.php';
-        }
+        wpevents_get_template_part( 'parts/event-filters' );
         ?>
 
         <div class="wp-events-archive">
@@ -58,10 +52,7 @@ get_header(); ?>
                 <div class="events-compact-container">
                     <?php while ( have_posts() ) : the_post(); 
                         // Load compact card template
-                        get_template_part( 'wp-events/parts/event-card-compact' );
-                        if ( ! locate_template( 'wp-events/parts/event-card-compact.php' ) ) {
-                            include WPEVENTS_PLUGIN_DIR . 'templates/parts/event-card-compact.php';
-                        }
+                        wpevents_get_template_part( 'parts/event-card', 'compact' );
                     endwhile; ?>
                 </div>
 

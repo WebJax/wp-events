@@ -20,12 +20,30 @@ if ( ! is_post_type_archive( 'event' ) ) {
 // Get current view
 $current_view = isset( $_GET['view'] ) ? sanitize_text_field( $_GET['view'] ) : 'grid';
 
+// Only allow valid view values
+$allowed_views = array( 'grid', 'list', 'calendar', 'compact' );
+if ( ! in_array( $current_view, $allowed_views, true ) ) {
+    $current_view = 'grid';
+}
+
 // Build base URL
 $base_url = get_post_type_archive_link( 'event' );
 
-// Preserve query parameters
-$query_params = $_GET;
-unset( $query_params['view'] ); // Remove view param, we'll add it back
+// Preserve query parameters (sanitized)
+$query_params = array();
+if ( ! empty( $_GET ) ) {
+    foreach ( $_GET as $key => $value ) {
+        // Skip view parameter, we'll add it back
+        if ( $key === 'view' ) {
+            continue;
+        }
+        // Only preserve known safe parameters
+        $safe_params = array( 'event_category', 'timeframe', 'sort', 'paged' );
+        if ( in_array( $key, $safe_params, true ) ) {
+            $query_params[ sanitize_key( $key ) ] = sanitize_text_field( $value );
+        }
+    }
+}
 
 // Build query string for other params
 $query_string = http_build_query( $query_params );
