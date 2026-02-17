@@ -37,6 +37,14 @@ get_header(); ?>
         </header>
 
         <?php 
+        // Include view switcher
+        get_template_part( 'wp-events/parts/view-switcher' );
+        if ( ! locate_template( 'wp-events/parts/view-switcher.php' ) ) {
+            include WPEVENTS_PLUGIN_DIR . 'templates/parts/view-switcher.php';
+        }
+        ?>
+
+        <?php 
         // Include event filters
         get_template_part( 'wp-events/parts/event-filters' );
         if ( ! locate_template( 'wp-events/parts/event-filters.php' ) ) {

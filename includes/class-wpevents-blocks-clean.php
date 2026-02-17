@@ -541,7 +541,15 @@ class WPEvents_Blocks_Clean {
         } elseif ( is_single() && get_post_type() === 'organizer' ) {
             $default_file = 'single-organizer.php';
         } elseif ( is_post_type_archive( 'event' ) ) {
-            $default_file = 'archive-event.php';
+            // Check for view parameter to load alternative templates
+            $view = isset( $_GET['view'] ) ? sanitize_text_field( $_GET['view'] ) : '';
+            $allowed_views = array( 'list', 'calendar', 'compact' );
+            
+            if ( $view && in_array( $view, $allowed_views ) ) {
+                $default_file = 'archive-event-' . $view . '.php';
+            } else {
+                $default_file = 'archive-event.php';
+            }
         } elseif ( is_tax( 'event_category' ) ) {
             $default_file = 'taxonomy-event_category.php';
         } elseif ( is_tax( 'event_tag' ) ) {
