@@ -17,6 +17,7 @@ define( 'WPEVENTS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPEVENTS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Includes
+require_once WPEVENTS_PLUGIN_DIR . 'includes/template-functions.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-cpt.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-schema.php';
 require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-shortcodes.php';
