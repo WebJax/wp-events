@@ -7,13 +7,16 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
 - Relationer: mange-til-mange arrangører, én-til-en venue
 - Gentagelser: daglig, ugentlig, månedlig, årlig
 - JSON-LD Schema.org markup
+- **iCal Eksport**: Download events i iCalendar format (.ics fil)
+- **WooCommerce Integration**: Sælg billetter gennem WooCommerce
+- **Arrangør Login**: Arrangører kan logge ind og administrere egne events
 - **Avanceret Import fra Tribe Events** (WP-CLI og admin):
   - Oversigt over alle tilgængelige events
   - Selektiv import med checkboxes
   - Status tracking (importerede vs. tilgængelige)
   - Filtrering efter fremtidige/tidligere events
   - Import-statistik dashboard
-- Shortcodes: `[events_list]`, `[event id=123]`
+- Shortcodes: `[events_list]`, `[event id=123]`, `[organizer_dashboard]`, `[event_submission_form]`
 - Gutenberg-blokke: Event-liste, Karusel (Swiper.js)
 - Admin kolonner: Dato, Sted, Arrangør
 
@@ -47,10 +50,77 @@ wp wpevents import-tribe
 wp wpevents import-tribe --batch=50
 ```
 
+## iCal Eksport
+
+Events kan eksporteres i iCalendar format (.ics) til kalenderapps.
+
+### Funktioner
+- **Download knap**: Automatisk "Add to Calendar" knap på event sider
+- **REST API**: `/wp-json/wp-events/v1/ical/{event_id}` - Hent iCal for enkelt event
+- **Feed**: `/wp-json/wp-events/v1/ical/feed` - Hent alle kommende events som iCal feed
+- **Direkte download**: `?ical_download=1&event_id=123` på event URL
+
+### Brug
+1. Besøg en event side
+2. Klik på "Add to Calendar" knappen
+3. Åbn .ics filen i din kalender app (Google Calendar, Apple Calendar, Outlook)
+
+## WooCommerce Integration
+
+Sælg billetter til events gennem WooCommerce.
+
+### Opsætning
+1. Installér og aktivér WooCommerce plugin
+2. Opret et produkt i WooCommerce til billetter
+3. I event editor, find "Ticket Settings" meta box:
+   - Aktivér "Enable ticket sales"
+   - Vælg WooCommerce produkt
+   - Sæt event kapacitet (max deltagere)
+4. Gem event
+
+### Funktioner
+- **Automatisk ticket knap**: Vises på event sider
+- **Kapacitetsstyring**: Synkroniserer med produkt lager
+- **Order tracking**: Events linkes til orders
+- **Deltagerliste**: Attendee info gemmes på orders
+- **Udsolgt beskeder**: Vises automatisk når kapacitet nået
+
+## Arrangør Login & Administration
+
+System til at lade arrangører logge ind og administrere egne events.
+
+### Brugerroller
+- **Event Organizer**: Ny rolle kun til event administration
+- Kan oprette, redigere og slette egne events
+- Kan ikke tilgå andet admin indhold
+
+### Opsætning
+1. Opret bruger med "Event Organizer" rolle
+2. I event editor, find "Assigned Organizers" meta box
+3. Vælg hvilke brugere der kan administrere eventet
+4. Gem event
+
+### Shortcodes for Organizers
+```php
+// Dashboard med liste af egne events
+[organizer_dashboard]
+
+// Frontend formular til at indsende events
+[event_submission_form]
+```
+
+### Frontend Event Indsendelse
+1. Tilføj `[event_submission_form]` shortcode til en side
+2. Arrangører logger ind
+3. Udfylder formular med event detaljer
+4. Event oprettes med status "pending" (afventer godkendelse)
+5. Admin gennemgår og publicerer event
+
 ## Fremtidige udvidelser
-- iCal eksport
-- WooCommerce billet-integration
-- mulighed for arrangører kan logge ind og oprette/ændre/slette egne events
+- Email notifikationer til deltagere
+- Påmindelse for kommende events
+- Deltagerregistrering uden WooCommerce
+- Integration med flere betalingsgateways
 
 
 # WP Events Template System
