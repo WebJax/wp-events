@@ -163,12 +163,34 @@ Dette plugin inkluderer et fleksibelt template system der automatisk håndterer 
 
 ## Tilgængelige Templates
 
-### 1. Archive Template (`archive-event.php`)
-Viser en liste af alle events med:
+### 1. Archive Templates
+
+Plugin'et tilbyder **fire forskellige visningsformater** for event-arkivet:
+
+#### Standard Grid View (`archive-event.php`)
+- Standard visning med event cards i grid layout
 - Filtrering efter kategori og tidspunkt
 - Paginering
 - Event cards med billede, titel, tidspunkt og sted
 - Responsive design
+
+#### Calendar/Grid View (`archive-event-calendar.php`)
+- 3-kolonne grid layout (ligner kalender visning)
+- Større event cards med mere information
+- Ideel til månedlig oversigt
+- Tilgås via: `/events/?view=calendar`
+
+#### List View (`archive-event-list.php`)
+- Horisontale event cards med dato badge
+- Detaljeret information i liste format
+- Bedre til at scanne gennem mange events
+- Tilgås via: `/events/?view=list`
+
+#### Compact View (`archive-event-compact.php`)
+- Kompakt liste med minimal information
+- Hurtig oversigt over kommende events
+- Perfekt til sidebars eller widgets
+- Tilgås via: `/events/?view=compact`
 
 ### 2. Taxonomy Templates
 - `taxonomy-event_category.php` - Events i en specifik kategori
@@ -178,6 +200,24 @@ Begge viser:
 - Event cards med samme layout som archive
 - Kategori/tag beskrivelse
 - Paginering
+
+### 3. Template Parts (Genanvendelige komponenter)
+
+#### Event Cards
+- `parts/event-card-grid.php` - Standard grid card
+- `parts/event-card-list.php` - Horizontal list card med dato badge
+- `parts/event-card-compact.php` - Kompakt card med minimal info
+
+#### UI Komponenter
+- `parts/event-filters.php` - Filtrering (kategori, tidspunkt, sortering)
+- `parts/view-switcher.php` - Skift mellem visningsformater
+
+## Visningsskifter (View Switcher)
+
+Brugere kan nemt skifte mellem de forskellige visninger via:
+- **View Switcher UI** - Vises øverst på event arkiv sider
+- **URL parameter** - Tilføj `?view=list`, `?view=calendar` eller `?view=compact` til URL'en
+- **Standard visning** - Grid/kalender visning hvis ingen parameter er sat
 
 ## Hvordan man overskriver templates
 
@@ -191,8 +231,11 @@ Begge viser:
 wp-content/themes/dit-tema/
 └── wp-events/
     ├── archive-event.php
+    ├── archive-event-list.php
     ├── taxonomy-event_category.php
-    └── taxonomy-event_tag.php
+    └── parts/
+        ├── event-card-grid.php
+        └── view-switcher.php
 ```
 
 ### Prioritet:
