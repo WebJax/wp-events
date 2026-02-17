@@ -29,6 +29,11 @@ if ( file_exists( WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-import-tribe.ph
     require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-import-tribe.php';
 }
 
+// New features
+require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-ical.php';
+require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-woocommerce.php';
+require_once WPEVENTS_PLUGIN_DIR . 'includes/class-wpevents-organizer-capabilities.php';
+
 add_action( 'init', function() {
     WPEvents_CPT::register();
     
@@ -62,11 +67,20 @@ add_action( 'wp_head', function() {
 
 add_action( 'plugins_loaded', function() {
     WPEvents_Blocks_Clean::init();
+    
+    // Initialize new features
+    WPEvents_iCal::init();
+    WPEvents_WooCommerce::init();
+    WPEvents_Organizer_Capabilities::init();
 });
 
 register_activation_hook( __FILE__, function() {
     // Register CPTs before flushing
     WPEvents_CPT::register();
+    
+    // Add organizer role
+    WPEvents_Organizer_Capabilities::add_organizer_role();
+    
     flush_rewrite_rules();
 });
 
