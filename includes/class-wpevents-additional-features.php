@@ -334,7 +334,7 @@ class WPEvents_Additional_Features {
         $event_id = absint($_POST['event_id']);
         $name = sanitize_text_field($_POST['reg_name']);
         $email = sanitize_email($_POST['reg_email']);
-        $phone = sanitize_text_field($_POST['reg_phone']);
+        $phone = isset($_POST['reg_phone']) ? preg_replace('/[^0-9+\-\(\)\s]/', '', $_POST['reg_phone']) : '';
         $notes = sanitize_textarea_field($_POST['reg_notes']);
         
         if (!$event_id || !$name || !$email) {

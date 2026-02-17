@@ -211,7 +211,7 @@ class WPEvents_Organizer_Capabilities {
             return;
         }
         
-        global $pagenow;
+        global $pagenow, $wpdb;
         if ($pagenow !== 'edit.php' || !isset($_GET['post_type']) || $_GET['post_type'] !== 'event') {
             return;
         }
@@ -225,19 +225,21 @@ class WPEvents_Organizer_Capabilities {
         
         // Event organizers only see their assigned events
         if (in_array('event_organizer', $user->roles)) {
-            $query->set('meta_query', [
-                'relation' => 'OR',
-                [
-                    'key' => 'assigned_organizer_users',
-                    'value' => sprintf(':"%d";', $user->ID),
-                    'compare' => 'LIKE'
-                ],
-                [
-                    'key' => 'assigned_organizer_users',
-                    'value' => sprintf('i:%d;', $user->ID),
-                    'compare' => 'LIKE'
-                ]
-            ]);
+            // Use a more precise query for organizer assignment
+            $assigned_event_ids = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
+                WHERE meta_key = 'assigned_organizer_users' 
+                AND (meta_value LIKE %s OR meta_value LIKE %s)",
+                '%i:' . $user->ID . ';%',
+                '%s:"' . $user->ID . '";%'
+            ));
+            
+            if (!empty($assigned_event_ids)) {
+                $query->set('post__in', $assigned_event_ids);
+            } else {
+                // No events assigned, show none
+                $query->set('post__in', [0]);
+            }
         }
     }
     
@@ -260,27 +262,23 @@ class WPEvents_Organizer_Capabilities {
             'meta_key' => 'event_start',
             'order' => 'ASC'
         ];
+        global $wpdb;
+        $assigned_event_ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
+            WHERE meta_key = 'assigned_organizer_users' 
+            AND (meta_value LIKE %s OR meta_value LIKE %s)",
+            '%i:' . $user_id . ';%',
+            '%s:"' . $user_id . '";%'
+        ));
         
-        // Also get events where user is assigned
-        $meta_query = [
-            'relation' => 'OR',
-            [
-                'key' => 'assigned_organizer_users',
-                'value' => sprintf(':"%d";', $user_id),
-                'compare' => 'LIKE'
-            ],
-            [
-                'key' => 'assigned_organizer_users',
-                'value' => sprintf('i:%d;', $user_id),
-                'compare' => 'LIKE'
-            ]
-        ];
-        
-        $assigned_events = get_posts([
-            'post_type' => 'event',
-            'posts_per_page' => -1,
-            'meta_query' => $meta_query
-        ]);
+        $assigned_events = [];
+        if (!empty($assigned_event_ids)) {
+            $assigned_events = get_posts([
+                'post_type' => 'event',
+                'posts_per_page' => -1,
+                'post__in' => $assigned_event_ids
+            ]);
+        }
         
         $my_events = get_posts($args);
         $all_events = array_unique(array_merge($my_events, $assigned_events), SORT_REGULAR);
