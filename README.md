@@ -10,6 +10,8 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
 - **iCal Eksport**: Download events i iCalendar format (.ics fil)
 - **WooCommerce Integration**: Sælg billetter gennem WooCommerce
 - **Arrangør Login**: Arrangører kan logge ind og administrere egne events
+- **Event Status**: Cancelled, Postponed, Sold Out, Completed badges
+- **Registration/RSVP**: Indbygget tilmeldings-system med kapacitetsstyring
 - **Avanceret Import fra Tribe Events** (WP-CLI og admin):
   - Oversigt over alle tilgængelige events
   - Selektiv import med checkboxes
@@ -18,7 +20,7 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
   - Import-statistik dashboard
 - Shortcodes: `[events_list]`, `[event id=123]`, `[organizer_dashboard]`, `[event_submission_form]`
 - Gutenberg-blokke: Event-liste, Karusel (Swiper.js)
-- Admin kolonner: Dato, Sted, Arrangør
+- Admin kolonner: Dato, Sted, Arrangør, Status
 
 ## Installation
 1. Upload plugin-mappen til `/wp-content/plugins/wp-events`
@@ -115,6 +117,38 @@ System til at lade arrangører logge ind og administrere egne events.
 3. Udfylder formular med event detaljer
 4. Event oprettes med status "pending" (afventer godkendelse)
 5. Admin gennemgår og publicerer event
+
+## Event Status & Badges
+
+Events kan tildeles forskellige statuser der vises som badges:
+- **Scheduled**: Normal status (ingen badge)
+- **Cancelled**: Aflyst event (rød badge)
+- **Postponed**: Udsat til senere (gul badge)
+- **Rescheduled**: Omlagt til ny dato (blå badge)
+- **Sold Out**: Udsolgt (grå badge)
+- **Completed**: Afsluttet event (grøn badge)
+
+Badges vises automatisk på event titler i arkiver og på event sider.
+
+## Registration/RSVP System
+
+Indbygget tilmeldings-system uden behov for ekstra plugins.
+
+### Opsætning
+1. I event editor, find "Registration Settings" meta box
+2. Aktivér "Enable Registration"
+3. Vælg indstillinger:
+   - **Maximum Attendees**: Maksimalt antal deltagere (0 = ubegrænset)
+   - **Registration Deadline**: Sidste frist for tilmelding
+   - **Require Approval**: Kræv admin godkendelse af tilmeldinger
+
+### Funktioner
+- **Frontend formular**: Vises automatisk på event sider
+- **Email bekræftelse**: Automatisk sendt til deltagere
+- **Kapacitetsstyring**: Lukker tilmelding ved fuldt event
+- **Admin oversigt**: Se alle tilmeldinger i event editor
+- **Status tracking**: Pending eller Confirmed status
+- **Deltagerinfo**: Navn, email, telefon, noter
 
 ## Fremtidige udvidelser
 - Email notifikationer til deltagere
