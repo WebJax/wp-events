@@ -23,6 +23,10 @@ class WPEvents_WooCommerce {
         // Display ticket purchase button on event pages
         add_filter('the_content', [__CLASS__, 'add_ticket_button']);
         
+        // Add event info to cart items
+        add_filter('woocommerce_add_cart_item_data', [__CLASS__, 'add_event_to_cart_item'], 10, 3);
+        add_filter('woocommerce_get_cart_item_from_session', [__CLASS__, 'get_cart_item_from_session'], 10, 2);
+        
         // Add event info to order
         add_action('woocommerce_checkout_create_order_line_item', [__CLASS__, 'add_event_to_order_item'], 10, 4);
         
@@ -190,8 +194,7 @@ class WPEvents_WooCommerce {
         $button_html .= '<p><strong>' . __('Price:', 'wp-events') . '</strong> ' . $product->get_price_html() . '</p>';
         
         $add_to_cart_url = add_query_arg([
-            'add-to-cart' => $product_id,
-            'event_id' => $event_id
+            'add-to-cart' => $product_id
         ], wc_get_cart_url());
         
         $button_html .= '<a href="' . esc_url($add_to_cart_url) . '" class="button wp-events-buy-ticket" style="display: inline-block; padding: 12px 24px; background: #0073aa; color: white; text-decoration: none; border-radius: 3px; font-weight: bold;">';
@@ -203,14 +206,50 @@ class WPEvents_WooCommerce {
     }
     
     /**
+     * Add event ID to cart item data
+     */
+    public static function add_event_to_cart_item($cart_item_data, $product_id, $variation_id) {
+        // Check if this product is linked to an event
+        global $wpdb;
+        $event_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} 
+            WHERE meta_key = 'ticket_product_id' 
+            AND meta_value = %d 
+            LIMIT 1",
+            $product_id
+        ));
+        
+        if ($event_id) {
+            $cart_item_data['event_id'] = absint($event_id);
+        }
+        
+        return $cart_item_data;
+    }
+    
+    /**
+     * Get cart item from session
+     */
+    public static function get_cart_item_from_session($cart_item, $values) {
+        if (isset($values['event_id'])) {
+            $cart_item['event_id'] = $values['event_id'];
+        }
+        return $cart_item;
+    }
+    
+    /**
      * Get number of tickets sold for an event
      */
     protected static function get_tickets_sold($event_id) {
         global $wpdb;
         
+        // Only count completed and processing orders
         $count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-            WHERE meta_key = '_event_id' AND meta_value = %d",
+            "SELECT COUNT(*) FROM {$wpdb->prefix}woocommerce_order_itemmeta oim
+            INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON oim.order_item_id = oi.order_item_id
+            INNER JOIN {$wpdb->posts} p ON oi.order_id = p.ID
+            WHERE oim.meta_key = '_event_id' 
+            AND oim.meta_value = %d
+            AND p.post_status IN ('wc-completed', 'wc-processing')",
             $event_id
         ));
         
@@ -221,8 +260,9 @@ class WPEvents_WooCommerce {
      * Add event info to order item
      */
     public static function add_event_to_order_item($item, $cart_item_key, $values, $order) {
-        if (isset($_GET['event_id'])) {
-            $event_id = absint($_GET['event_id']);
+        // Get event_id from cart item data, not from $_GET
+        if (isset($values['event_id'])) {
+            $event_id = absint($values['event_id']);
             $item->add_meta_data('_event_id', $event_id, true);
             $item->add_meta_data(__('Event', 'wp-events'), get_the_title($event_id), true);
             
@@ -303,12 +343,16 @@ class WPEvents_WooCommerce {
      * Save attendee data to order
      */
     public static function save_attendee_data($order_id) {
-        if (isset($_POST['attendee_name'])) {
-            update_post_meta($order_id, 'attendee_name', sanitize_text_field($_POST['attendee_name']));
-        }
-        
-        if (isset($_POST['attendee_email'])) {
-            update_post_meta($order_id, 'attendee_email', sanitize_email($_POST['attendee_email']));
+        // WooCommerce handles nonce verification during checkout
+        // We only process if this is a legitimate checkout request
+        if (!is_admin() && did_action('woocommerce_checkout_process')) {
+            if (isset($_POST['attendee_name'])) {
+                update_post_meta($order_id, 'attendee_name', sanitize_text_field($_POST['attendee_name']));
+            }
+            
+            if (isset($_POST['attendee_email'])) {
+                update_post_meta($order_id, 'attendee_email', sanitize_email($_POST['attendee_email']));
+            }
         }
     }
     
