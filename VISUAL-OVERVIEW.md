@@ -253,7 +253,7 @@ Alle views inkluderer en view switcher øverst:
 - Sidebars og widgets
 - Mobile enheder
 - Hurtig oversigt
-- Platzbegrænsede områder
+- Pladsbegrænsede områder
 
 ---
 

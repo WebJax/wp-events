@@ -52,9 +52,14 @@ $url_separator = $query_string ? '&' : '';
 // View options
 $views = array(
     'grid' => array(
-        'label' => __( 'Kalender', 'wp-events' ),
+        'label' => __( 'Rutenett', 'wp-events' ),
         'icon' => 'icon-calendar',
         'url' => $base_url . ( $query_string ? '?' . $query_string : '' ),
+    ),
+    'calendar' => array(
+        'label' => __( 'Kalender', 'wp-events' ),
+        'icon' => 'icon-calendar',
+        'url' => $base_url . '?view=calendar' . ( $query_string ? $url_separator . $query_string : '' ),
     ),
     'list' => array(
         'label' => __( 'Liste', 'wp-events' ),
@@ -74,10 +79,13 @@ $views = array(
     <div class="view-switcher-buttons">
         <?php foreach ( $views as $view_key => $view_data ) : 
             $is_active = ( $view_key === $current_view ) ? 'active' : '';
+            $is_current = ( $view_key === $current_view );
         ?>
             <a href="<?php echo esc_url( $view_data['url'] ); ?>" 
                class="view-switcher-button <?php echo esc_attr( $is_active ); ?>"
-               title="<?php echo esc_attr( $view_data['label'] ); ?>">
+               title="<?php echo esc_attr( $view_data['label'] ); ?>"
+               aria-label="<?php echo esc_attr( $view_data['label'] ); ?>"
+               <?php if ( $is_current ) : ?>aria-current="page"<?php endif; ?>>
                 <span class="<?php echo esc_attr( $view_data['icon'] ); ?>"></span>
                 <span class="view-label"><?php echo esc_html( $view_data['label'] ); ?></span>
             </a>
