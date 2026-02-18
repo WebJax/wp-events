@@ -71,7 +71,7 @@ $categories = get_the_terms( $event_id, 'event_category' );
             <div class="event-categories">
                 <?php foreach ( $categories as $category ) : ?>
                     <span class="event-category">
-                        <a href="<?php echo get_term_link( $category ); ?>">
+                        <a href="<?php echo esc_url( get_term_link( $category ) ); ?>">
                             <?php echo esc_html( $category->name ); ?>
                         </a>
                     </span>
