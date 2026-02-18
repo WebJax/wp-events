@@ -43,25 +43,24 @@ class WPEvents_Organizer_Capabilities {
      * Add event organizer role
      */
     public static function add_organizer_role() {
-        if (get_role('event_organizer')) {
-            return; // Role already exists
+        // Ensure the event_organizer role exists
+        if (!get_role('event_organizer')) {
+            add_role('event_organizer', __('Event Organizer', 'wp-events'), [
+                'read' => true,
+                'edit_posts' => true,
+                'delete_posts' => true,
+                'publish_posts' => true,
+                'upload_files' => true,
+                // Custom capabilities for events
+                'edit_events' => true,
+                'edit_published_events' => true,
+                'publish_events' => true,
+                'delete_events' => true,
+                'delete_published_events' => true,
+            ]);
         }
         
-        add_role('event_organizer', __('Event Organizer', 'wp-events'), [
-            'read' => true,
-            'edit_posts' => false,
-            'delete_posts' => false,
-            'publish_posts' => false,
-            'upload_files' => true,
-            // Custom capabilities for events
-            'edit_events' => true,
-            'edit_published_events' => true,
-            'publish_events' => true,
-            'delete_events' => true,
-            'delete_published_events' => true,
-        ]);
-        
-        // Add capabilities to administrator and editor
+        // Always ensure admin and editor have required caps
         $admin = get_role('administrator');
         $editor = get_role('editor');
         
@@ -79,10 +78,10 @@ class WPEvents_Organizer_Capabilities {
         ];
         
         foreach ($caps as $cap) {
-            if ($admin) {
+            if ($admin && !$admin->has_cap($cap)) {
                 $admin->add_cap($cap);
             }
-            if ($editor) {
+            if ($editor && !$editor->has_cap($cap)) {
                 $editor->add_cap($cap);
             }
         }
@@ -109,23 +108,38 @@ class WPEvents_Organizer_Capabilities {
             return $caps;
         }
         
-        // Admins and editors can edit all events
+        // Map meta capability to corresponding primitive capability
+        $required_cap = 'edit_events';
+        switch ($cap) {
+            case 'delete_event':
+                $required_cap = 'delete_events';
+                break;
+            case 'publish_event':
+                $required_cap = 'publish_events';
+                break;
+            case 'edit_event':
+            default:
+                $required_cap = 'edit_events';
+                break;
+        }
+        
+        // Admins and editors can manage all events
         $user = get_userdata($user_id);
         if ($user && (in_array('administrator', $user->roles) || in_array('editor', $user->roles))) {
-            return ['edit_events'];
+            return [$required_cap];
         }
         
         // Check if user is assigned as organizer for this event
         $assigned_organizers = get_post_meta($post_id, 'assigned_organizer_users', true);
         
         if (is_array($assigned_organizers) && in_array($user_id, $assigned_organizers)) {
-            // User is assigned organizer - allow editing
-            return ['edit_events'];
+            // User is assigned organizer - allow relevant action
+            return [$required_cap];
         }
         
         // Check if user created the event
-        if ($post->post_author == $user_id) {
-            return ['edit_events'];
+        if ($post->post_author === $user_id) {
+            return [$required_cap];
         }
         
         // Default deny
@@ -404,6 +418,11 @@ class WPEvents_Organizer_Capabilities {
             wp_die(__('You must be logged in to submit events', 'wp-events'));
         }
         
+        // Ensure user has permission to submit events
+        if (!current_user_can('edit_events')) {
+            wp_die(__('You do not have permission to submit events', 'wp-events'));
+        }
+        
         $user_id = get_current_user_id();
         
         // Create event post
@@ -421,15 +440,17 @@ class WPEvents_Organizer_Capabilities {
             wp_die(__('Failed to create event', 'wp-events'));
         }
         
-        // Save event meta
+        // Save event meta using ISO8601 format
         if (!empty($_POST['event_start'])) {
             $start = sanitize_text_field($_POST['event_start']);
-            update_post_meta($event_id, 'event_start', date('Y-m-d H:i:s', strtotime($start)));
+            $start_iso = WPEvents_CPT::sanitize_iso8601($start);
+            update_post_meta($event_id, 'event_start', $start_iso);
         }
         
         if (!empty($_POST['event_end'])) {
             $end = sanitize_text_field($_POST['event_end']);
-            update_post_meta($event_id, 'event_end', date('Y-m-d H:i:s', strtotime($end)));
+            $end_iso = WPEvents_CPT::sanitize_iso8601($end);
+            update_post_meta($event_id, 'event_end', $end_iso);
         }
         
         if (!empty($_POST['event_price'])) {
@@ -440,7 +461,11 @@ class WPEvents_Organizer_Capabilities {
         update_post_meta($event_id, 'assigned_organizer_users', [$user_id]);
         
         // Redirect to success page or back to form
-        wp_redirect(add_query_arg('event_submitted', '1', wp_get_referer()));
+        $redirect_url = wp_get_referer();
+        if (!$redirect_url) {
+            $redirect_url = home_url();
+        }
+        wp_safe_redirect(add_query_arg('event_submitted', '1', $redirect_url));
         exit;
     }
     
