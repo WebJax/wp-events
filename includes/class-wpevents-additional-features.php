@@ -224,9 +224,13 @@ class WPEvents_Additional_Features {
         }
         
         if (isset($_POST['registration_deadline'])) {
-            $deadline = sanitize_text_field($_POST['registration_deadline']);
-            if ($deadline) {
-                $deadline = date('Y-m-d H:i:s', strtotime($deadline));
+            $deadline_input = sanitize_text_field($_POST['registration_deadline']);
+            $deadline = '';
+            if ($deadline_input !== '') {
+                $timestamp = strtotime($deadline_input);
+                if ($timestamp !== false) {
+                    $deadline = date('Y-m-d H:i:s', $timestamp);
+                }
             }
             update_post_meta($post_id, 'registration_deadline', $deadline);
         }
@@ -331,14 +335,35 @@ class WPEvents_Additional_Features {
             wp_die(__('Security check failed', 'wp-events'));
         }
         
-        $event_id = absint($_POST['event_id']);
-        $name = sanitize_text_field($_POST['reg_name']);
-        $email = sanitize_email($_POST['reg_email']);
+        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        $name = isset($_POST['reg_name']) ? sanitize_text_field($_POST['reg_name']) : '';
+        $email = isset($_POST['reg_email']) ? sanitize_email($_POST['reg_email']) : '';
         $phone = isset($_POST['reg_phone']) ? preg_replace('/[^0-9+\-\(\)\s]/', '', $_POST['reg_phone']) : '';
-        $notes = sanitize_textarea_field($_POST['reg_notes']);
+        $notes = isset($_POST['reg_notes']) ? sanitize_textarea_field($_POST['reg_notes']) : '';
         
         if (!$event_id || !$name || !$email) {
             wp_die(__('Required fields missing', 'wp-events'));
+        }
+        
+        // Validate that the event exists and is an event post type
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event') {
+            wp_die(__('Invalid event.', 'wp-events'));
+        }
+        
+        // Ensure registration is enabled for this event
+        $enable_registration = get_post_meta($event_id, 'enable_registration', true);
+        if ($enable_registration !== '1') {
+            wp_die(__('Registration for this event is closed.', 'wp-events'));
+        }
+        
+        // Check registration deadline
+        $registration_deadline = get_post_meta($event_id, 'registration_deadline', true);
+        if (!empty($registration_deadline)) {
+            $deadline_ts = strtotime($registration_deadline);
+            if ($deadline_ts && current_time('timestamp') > $deadline_ts) {
+                wp_die(__('Registration for this event has ended.', 'wp-events'));
+            }
         }
         
         // Check capacity again
@@ -384,7 +409,7 @@ class WPEvents_Additional_Features {
         wp_mail($email, $subject, $message);
         
         // Redirect back with success message
-        wp_redirect(add_query_arg('registered', '1', get_permalink($event_id)));
+        wp_safe_redirect(add_query_arg('registered', '1', get_permalink($event_id)));
         exit;
     }
     
@@ -471,7 +496,11 @@ class WPEvents_Additional_Features {
      */
     public static function enqueue_frontend_styles() {
         if (is_singular('event') || is_post_type_archive('event') || is_tax(['event_category', 'event_tag'])) {
-            wp_add_inline_style('wp-block-library', '
+            // Register a lightweight plugin-owned stylesheet handle to reliably attach inline styles
+            wp_register_style('wpevents-frontend-styles', false, array(), null);
+            wp_enqueue_style('wpevents-frontend-styles');
+            
+            wp_add_inline_style('wpevents-frontend-styles', '
                 .event-badge {
                     display: inline-block;
                     padding: 2px 8px;

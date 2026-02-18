@@ -83,9 +83,10 @@ class WPEvents_WooCommerce {
                 <?php
                 $products = get_posts([
                     'post_type' => 'product',
-                    'posts_per_page' => -1,
+                    'posts_per_page' => 50,
                     'orderby' => 'title',
-                    'order' => 'ASC'
+                    'order' => 'ASC',
+                    'no_found_rows' => true,
                 ]);
                 
                 foreach ($products as $product) {
@@ -209,18 +210,52 @@ class WPEvents_WooCommerce {
      * Add event ID to cart item data
      */
     public static function add_event_to_cart_item($cart_item_data, $product_id, $variation_id) {
-        // Check if this product is linked to an event
         global $wpdb;
-        $event_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} 
-            WHERE meta_key = 'ticket_product_id' 
-            AND meta_value = %d 
-            LIMIT 1",
-            $product_id
-        ));
         
-        if ($event_id) {
-            $cart_item_data['event_id'] = absint($event_id);
+        $event_id = 0;
+        
+        // Prefer an explicitly provided event ID from the add-to-cart request, if available
+        if (isset($_REQUEST['wpevents_event_id'])) {
+            $requested_event_id = absint($_REQUEST['wpevents_event_id']);
+            
+            if ($requested_event_id > 0) {
+                // Validate that the requested event is actually linked to this product
+                $linked_event_id = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "SELECT post_id FROM {$wpdb->postmeta} 
+                         WHERE post_id = %d 
+                         AND meta_key = 'ticket_product_id' 
+                         AND meta_value = %d",
+                        $requested_event_id,
+                        $product_id
+                    )
+                );
+                
+                if ($linked_event_id) {
+                    $event_id = (int) $linked_event_id;
+                }
+            }
+        }
+        
+        // If no valid explicit event was provided, fall back to inferring it from postmeta,
+        // but only when there is exactly one unambiguous match for this product
+        if (!$event_id) {
+            $event_ids = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
+                     WHERE meta_key = 'ticket_product_id' 
+                     AND meta_value = %d",
+                    $product_id
+                )
+            );
+            
+            if (is_array($event_ids) && count($event_ids) === 1) {
+                $event_id = (int) $event_ids[0];
+            }
+        }
+        
+        if ($event_id > 0) {
+            $cart_item_data['event_id'] = $event_id;
         }
         
         return $cart_item_data;
@@ -242,13 +277,17 @@ class WPEvents_WooCommerce {
     protected static function get_tickets_sold($event_id) {
         global $wpdb;
         
-        // Only count completed and processing orders
+        // Sum quantities from completed and processing orders
         $count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}woocommerce_order_itemmeta oim
-            INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON oim.order_item_id = oi.order_item_id
+            "SELECT COALESCE(SUM(CAST(qty_meta.meta_value AS UNSIGNED)), 0)
+            FROM {$wpdb->prefix}woocommerce_order_itemmeta event_meta
+            INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON event_meta.order_item_id = oi.order_item_id
             INNER JOIN {$wpdb->posts} p ON oi.order_id = p.ID
-            WHERE oim.meta_key = '_event_id' 
-            AND oim.meta_value = %d
+            INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta qty_meta 
+                ON qty_meta.order_item_id = event_meta.order_item_id
+                AND qty_meta.meta_key = '_qty'
+            WHERE event_meta.meta_key = '_event_id'
+            AND event_meta.meta_value = %d
             AND p.post_status IN ('wc-completed', 'wc-processing')",
             $event_id
         ));
@@ -370,9 +409,15 @@ class WPEvents_WooCommerce {
     public static function sync_ticket_stock($event_id) {
         $enable_tickets = get_post_meta($event_id, 'enable_tickets', true);
         $product_id = get_post_meta($event_id, 'ticket_product_id', true);
-        $capacity = get_post_meta($event_id, 'ticket_capacity', true);
+        $capacity_raw = get_post_meta($event_id, 'ticket_capacity', true);
         
-        if ($enable_tickets !== '1' || !$product_id || !$capacity) {
+        // Only proceed when tickets are enabled and a product is linked
+        if ($enable_tickets !== '1' || !$product_id) {
+            return;
+        }
+        
+        // If capacity is not set at all, do not change stock settings
+        if ($capacity_raw === '' || $capacity_raw === false) {
             return;
         }
         
@@ -381,7 +426,18 @@ class WPEvents_WooCommerce {
             return;
         }
         
-        // Update product stock to match capacity
+        // Normalize capacity to integer
+        $capacity = (int) $capacity_raw;
+        
+        // Capacity 0 means unlimited tickets: disable stock management and ensure product is in stock
+        if ($capacity === 0) {
+            $product->set_manage_stock(false);
+            $product->set_stock_status('instock');
+            $product->save();
+            return;
+        }
+        
+        // Update product stock to match limited capacity
         $sold = self::get_tickets_sold($event_id);
         $remaining = max(0, $capacity - $sold);
         

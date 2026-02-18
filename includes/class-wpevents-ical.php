@@ -42,8 +42,28 @@ class WPEvents_iCal {
         }
         
         $event_id = get_query_var('event_id');
-        if (!$event_id || get_post_type($event_id) !== 'event') {
+        if (!$event_id) {
             return;
+        }
+        
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event') {
+            return;
+        }
+        
+        // Ensure the event is publicly viewable or the current user can read it
+        $is_published = ($event->post_status === 'publish');
+        $is_password_protected = post_password_required($event);
+        $can_read = current_user_can('read_post', $event_id);
+        
+        if ((!$is_published || $is_password_protected) && !$can_read) {
+            status_header(404);
+            nocache_headers();
+            wp_die(
+                esc_html__('Event not found.', 'wp-events'),
+                esc_html__('Event not found', 'wp-events'),
+                array('response' => 404)
+            );
         }
         
         self::send_ical_file($event_id);
@@ -57,7 +77,11 @@ class WPEvents_iCal {
         $ical_content = self::generate_ical($event_id);
         
         if (!$ical_content) {
-            wp_die('Event not found');
+            wp_die(
+                esc_html__('Event not found.', 'wp-events'),
+                esc_html__('Event not found', 'wp-events'),
+                array('response' => 404)
+            );
         }
         
         $filename = sanitize_title(get_the_title($event_id)) . '.ics';
@@ -233,6 +257,21 @@ class WPEvents_iCal {
      */
     public static function rest_get_ical($request) {
         $event_id = $request['id'];
+        
+        // Check post status and permissions
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event') {
+            return new WP_Error('no_event', 'Event not found', ['status' => 404]);
+        }
+        
+        $is_published = ($event->post_status === 'publish');
+        $is_password_protected = post_password_required($event);
+        $can_read = current_user_can('read_post', $event_id);
+        
+        if ((!$is_published || $is_password_protected) && !$can_read) {
+            return new WP_Error('forbidden', 'Event not accessible', ['status' => 403]);
+        }
+        
         $ical = self::generate_ical($event_id);
         
         if (!$ical) {
@@ -250,6 +289,7 @@ class WPEvents_iCal {
     public static function rest_get_feed($request) {
         $args = [
             'post_type' => 'event',
+            'post_status' => 'publish',
             'posts_per_page' => 50,
             'meta_key' => 'event_start',
             'orderby' => 'meta_value',
@@ -257,14 +297,20 @@ class WPEvents_iCal {
             'meta_query' => [
                 [
                     'key' => 'event_start',
-                    'value' => current_time('mysql'),
+                    'value' => current_time(DATE_ATOM),
                     'compare' => '>=',
-                    'type' => 'DATETIME'
+                    'type' => 'CHAR'
                 ]
-            ]
+            ],
+            'has_password' => false  // Exclude password-protected events
         ];
         
         $events = get_posts($args);
+        
+        // Further filter to exclude password-protected events (in case has_password doesn't work)
+        $events = array_filter($events, function($event) {
+            return !post_password_required($event);
+        });
         
         if (empty($events)) {
             return new WP_Error('no_events', 'No upcoming events found', ['status' => 404]);
