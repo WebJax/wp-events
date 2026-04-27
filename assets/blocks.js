@@ -199,124 +199,13 @@
         }
     });
 
-    // Event Start Time Block
-    blocks.registerBlockType('wp-events/event-start', {
-        title: __('Event Start Time', 'wp-events'),
-        icon: 'clock',
+    // Event Schedule Block
+    blocks.registerBlockType('wp-events/event-schedule', {
+        title: __('Event Schedule', 'wp-events'),
+        icon: 'calendar-alt',
         category: 'wp-events',
-        description: __('Display event start date and time', 'wp-events'),
-        
-        supports: {
-            align: ['left', 'center', 'right'],
-            anchor: true,
-            className: true,
-            color: {
-                gradients: true,
-                link: true,
-                __experimentalDefaultControls: {
-                    background: true,
-                    text: true
-                }
-            },
-            spacing: {
-                margin: true,
-                padding: true,
-                __experimentalDefaultControls: {
-                    margin: false,
-                    padding: false
-                }
-            },
-            typography: {
-                fontSize: true,
-                fontFamily: true,
-                fontStyle: true,
-                fontWeight: true,
-                letterSpacing: true,
-                lineHeight: true,
-                textDecoration: true,
-                textTransform: true,
-                __experimentalDefaultControls: {
-                    fontSize: true
-                }
-            }
-        },
-        
-        attributes: {
-            showLabel: {
-                type: 'boolean',
-                default: true
-            },
-            customLabel: {
-                type: 'string',
-                default: 'Start:'
-            },
-            labelBold: {
-                type: 'boolean',
-                default: false
-            },
-            labelItalic: {
-                type: 'boolean',
-                default: false
-            }
-        },
-        
-        edit: function(props) {
-            var attributes = props.attributes;
-            var setAttributes = props.setAttributes;
-            
-            return [
-                el(InspectorControls, null,
-                    el(PanelBody, { title: __('Start Time Settings', 'wp-events') },
-                        el(ToggleControl, {
-                            label: __('Show Label', 'wp-events'),
-                            checked: attributes.showLabel,
-                            onChange: function(value) {
-                                setAttributes({ showLabel: value });
-                            }
-                        }),
-                        attributes.showLabel && el(TextControl, {
-                            label: __('Custom Label', 'wp-events'),
-                            value: attributes.customLabel,
-                            onChange: function(value) {
-                                setAttributes({ customLabel: value });
-                            },
-                            help: __('Enter custom text for the label', 'wp-events')
-                        }),
-                        attributes.showLabel && el(ToggleControl, {
-                            label: __('Bold Label', 'wp-events'),
-                            checked: attributes.labelBold,
-                            onChange: function(value) {
-                                setAttributes({ labelBold: value });
-                            }
-                        }),
-                        attributes.showLabel && el(ToggleControl, {
-                            label: __('Italic Label', 'wp-events'),
-                            checked: attributes.labelItalic,
-                            onChange: function(value) {
-                                setAttributes({ labelItalic: value });
-                            }
-                        })
-                    )
-                ),
-                el(serverSideRender, {
-                    block: 'wp-events/event-start',
-                    attributes: attributes
-                })
-            ];
-        },
-        
-        save: function() {
-            return null; // Server-side rendered
-        }
-    });
+        description: __('Display event date and time in one schedule block', 'wp-events'),
 
-    // Event End Time Block
-    blocks.registerBlockType('wp-events/event-end', {
-        title: __('Event End Time', 'wp-events'),
-        icon: 'clock',
-        category: 'wp-events',
-        description: __('Display event end date and time', 'wp-events'),
-        
         supports: {
             align: ['left', 'center', 'right'],
             anchor: true,
@@ -351,15 +240,31 @@
                 }
             }
         },
-        
+
         attributes: {
+            displayMode: {
+                type: 'string',
+                default: 'combined'
+            },
+            timeSeparator: {
+                type: 'string',
+                default: '–'
+            },
+            dateFormat: {
+                type: 'string',
+                default: 'j. F Y'
+            },
+            timeFormat: {
+                type: 'string',
+                default: 'H:i'
+            },
             showLabel: {
                 type: 'boolean',
-                default: true
+                default: false
             },
             customLabel: {
                 type: 'string',
-                default: 'Slut:'
+                default: ''
             },
             labelBold: {
                 type: 'boolean',
@@ -370,14 +275,47 @@
                 default: false
             }
         },
-        
+
         edit: function(props) {
             var attributes = props.attributes;
             var setAttributes = props.setAttributes;
-            
+
             return [
                 el(InspectorControls, null,
-                    el(PanelBody, { title: __('End Time Settings', 'wp-events') },
+                    el(PanelBody, { title: __('Schedule Settings', 'wp-events') },
+                        el(SelectControl, {
+                            label: __('Display Mode', 'wp-events'),
+                            value: attributes.displayMode,
+                            options: [
+                                { label: __('Combined', 'wp-events'), value: 'combined' },
+                                { label: __('Start Only', 'wp-events'), value: 'start-only' },
+                                { label: __('End Only', 'wp-events'), value: 'end-only' }
+                            ],
+                            onChange: function(value) {
+                                setAttributes({ displayMode: value });
+                            }
+                        }),
+                        el(TextControl, {
+                            label: __('Time Separator', 'wp-events'),
+                            value: attributes.timeSeparator,
+                            onChange: function(value) {
+                                setAttributes({ timeSeparator: value });
+                            }
+                        }),
+                        el(TextControl, {
+                            label: __('Date Format', 'wp-events'),
+                            value: attributes.dateFormat,
+                            onChange: function(value) {
+                                setAttributes({ dateFormat: value });
+                            }
+                        }),
+                        el(TextControl, {
+                            label: __('Time Format', 'wp-events'),
+                            value: attributes.timeFormat,
+                            onChange: function(value) {
+                                setAttributes({ timeFormat: value });
+                            }
+                        }),
                         el(ToggleControl, {
                             label: __('Show Label', 'wp-events'),
                             checked: attributes.showLabel,
@@ -390,8 +328,7 @@
                             value: attributes.customLabel,
                             onChange: function(value) {
                                 setAttributes({ customLabel: value });
-                            },
-                            help: __('Enter custom text for the label', 'wp-events')
+                            }
                         }),
                         attributes.showLabel && el(ToggleControl, {
                             label: __('Bold Label', 'wp-events'),
@@ -410,12 +347,12 @@
                     )
                 ),
                 el(serverSideRender, {
-                    block: 'wp-events/event-end',
+                    block: 'wp-events/event-schedule',
                     attributes: attributes
                 })
             ];
         },
-        
+
         save: function() {
             return null; // Server-side rendered
         }

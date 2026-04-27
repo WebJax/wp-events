@@ -79,8 +79,7 @@
 /* Font Family Support */
 .wp-block-wp-events-venue.has-body-font-font-family,
 .wp-block-wp-events-organizer.has-body-font-font-family,
-.wp-block-wp-events-event-start.has-body-font-font-family,
-.wp-block-wp-events-event-end.has-body-font-font-family,
+.wp-block-wp-events-event-schedule.has-body-font-font-family,
 .wp-block-wp-events-events-list.has-body-font-font-family,
 .wp-block-wp-events-events-carousel.has-body-font-font-family {
     font-family: var(--wp--preset--font-family--body-font) !important;
@@ -88,8 +87,7 @@
 
 .wp-block-wp-events-venue.has-heading-font-font-family,
 .wp-block-wp-events-organizer.has-heading-font-font-family,
-.wp-block-wp-events-event-start.has-heading-font-font-family,
-.wp-block-wp-events-event-end.has-heading-font-font-family,
+.wp-block-wp-events-event-schedule.has-heading-font-font-family,
 .wp-block-wp-events-events-list.has-heading-font-font-family,
 .wp-block-wp-events-events-carousel.has-heading-font-font-family {
     font-family: var(--wp--preset--font-family--heading-font) !important;
@@ -97,8 +95,7 @@
 
 .wp-block-wp-events-venue.has-system-font-font-family,
 .wp-block-wp-events-organizer.has-system-font-font-family,
-.wp-block-wp-events-event-start.has-system-font-font-family,
-.wp-block-wp-events-event-end.has-system-font-font-family,
+.wp-block-wp-events-event-schedule.has-system-font-font-family,
 .wp-block-wp-events-events-list.has-system-font-font-family,
 .wp-block-wp-events-events-carousel.has-system-font-font-family {
     font-family: var(--wp--preset--font-family--system-font) !important;
@@ -106,8 +103,7 @@
 
 .wp-block-wp-events-venue.has-serif-font-font-family,
 .wp-block-wp-events-organizer.has-serif-font-font-family,
-.wp-block-wp-events-event-start.has-serif-font-font-family,
-.wp-block-wp-events-event-end.has-serif-font-font-family,
+.wp-block-wp-events-event-schedule.has-serif-font-font-family,
 .wp-block-wp-events-events-list.has-serif-font-font-family,
 .wp-block-wp-events-events-carousel.has-serif-font-font-family {
     font-family: var(--wp--preset--font-family--serif-font) !important;
@@ -116,8 +112,7 @@
 /* Font Size Support */
 .wp-block-wp-events-venue.has-x-small-font-size,
 .wp-block-wp-events-organizer.has-x-small-font-size,
-.wp-block-wp-events-event-start.has-x-small-font-size,
-.wp-block-wp-events-event-end.has-x-small-font-size,
+.wp-block-wp-events-event-schedule.has-x-small-font-size,
 .wp-block-wp-events-events-list.has-x-small-font-size,
 .wp-block-wp-events-events-carousel.has-x-small-font-size {
     font-size: var(--wp--preset--font-size--x-small) !important;
@@ -125,8 +120,7 @@
 
 .wp-block-wp-events-venue.has-small-font-size,
 .wp-block-wp-events-organizer.has-small-font-size,
-.wp-block-wp-events-event-start.has-small-font-size,
-.wp-block-wp-events-event-end.has-small-font-size,
+.wp-block-wp-events-event-schedule.has-small-font-size,
 .wp-block-wp-events-events-list.has-small-font-size,
 .wp-block-wp-events-events-carousel.has-small-font-size {
     font-size: var(--wp--preset--font-size--small) !important;
@@ -134,8 +128,7 @@
 
 .wp-block-wp-events-venue.has-normal-font-size,
 .wp-block-wp-events-organizer.has-normal-font-size,
-.wp-block-wp-events-event-start.has-normal-font-size,
-.wp-block-wp-events-event-end.has-normal-font-size,
+.wp-block-wp-events-event-schedule.has-normal-font-size,
 .wp-block-wp-events-events-list.has-normal-font-size,
 .wp-block-wp-events-events-carousel.has-normal-font-size {
     font-size: var(--wp--preset--font-size--normal) !important;
@@ -143,8 +136,7 @@
 
 .wp-block-wp-events-venue.has-medium-font-size,
 .wp-block-wp-events-organizer.has-medium-font-size,
-.wp-block-wp-events-event-start.has-medium-font-size,
-.wp-block-wp-events-event-end.has-medium-font-size,
+.wp-block-wp-events-event-schedule.has-medium-font-size,
 .wp-block-wp-events-events-list.has-medium-font-size,
 .wp-block-wp-events-events-carousel.has-medium-font-size {
     font-size: var(--wp--preset--font-size--medium) !important;
@@ -152,8 +144,7 @@
 
 .wp-block-wp-events-venue.has-large-font-size,
 .wp-block-wp-events-organizer.has-large-font-size,
-.wp-block-wp-events-event-start.has-large-font-size,
-.wp-block-wp-events-event-end.has-large-font-size,
+.wp-block-wp-events-event-schedule.has-large-font-size,
 .wp-block-wp-events-events-list.has-large-font-size,
 .wp-block-wp-events-events-carousel.has-large-font-size {
     font-size: var(--wp--preset--font-size--large) !important;
@@ -161,8 +152,7 @@
 
 .wp-block-wp-events-venue.has-x-large-font-size,
 .wp-block-wp-events-organizer.has-x-large-font-size,
-.wp-block-wp-events-event-start.has-x-large-font-size,
-.wp-block-wp-events-event-end.has-x-large-font-size,
+.wp-block-wp-events-event-schedule.has-x-large-font-size,
 .wp-block-wp-events-events-list.has-x-large-font-size,
 .wp-block-wp-events-events-carousel.has-x-large-font-size {
     font-size: var(--wp--preset--font-size--x-large) !important;
@@ -170,8 +160,7 @@
 
 .wp-block-wp-events-venue.has-xx-large-font-size,
 .wp-block-wp-events-organizer.has-xx-large-font-size,
-.wp-block-wp-events-event-start.has-xx-large-font-size,
-.wp-block-wp-events-event-end.has-xx-large-font-size,
+.wp-block-wp-events-event-schedule.has-xx-large-font-size,
 .wp-block-wp-events-events-list.has-xx-large-font-size,
 .wp-block-wp-events-events-carousel.has-xx-large-font-size {
     font-size: var(--wp--preset--font-size--xx-large) !important;
@@ -179,8 +168,7 @@
 
 .wp-block-wp-events-venue.has-xxx-large-font-size,
 .wp-block-wp-events-organizer.has-xxx-large-font-size,
-.wp-block-wp-events-event-start.has-xxx-large-font-size,
-.wp-block-wp-events-event-end.has-xxx-large-font-size,
+.wp-block-wp-events-event-schedule.has-xxx-large-font-size,
 .wp-block-wp-events-events-list.has-xxx-large-font-size,
 .wp-block-wp-events-events-carousel.has-xxx-large-font-size {
     font-size: var(--wp--preset--font-size--xxx-large) !important;
@@ -189,8 +177,7 @@
 /* Typography Style Support */
 .wp-block-wp-events-venue.has-text-decoration-none,
 .wp-block-wp-events-organizer.has-text-decoration-none,
-.wp-block-wp-events-event-start.has-text-decoration-none,
-.wp-block-wp-events-event-end.has-text-decoration-none,
+.wp-block-wp-events-event-schedule.has-text-decoration-none,
 .wp-block-wp-events-events-list.has-text-decoration-none,
 .wp-block-wp-events-events-carousel.has-text-decoration-none {
     text-decoration: none !important;
@@ -198,8 +185,7 @@
 
 .wp-block-wp-events-venue.has-text-decoration-underline,
 .wp-block-wp-events-organizer.has-text-decoration-underline,
-.wp-block-wp-events-event-start.has-text-decoration-underline,
-.wp-block-wp-events-event-end.has-text-decoration-underline,
+.wp-block-wp-events-event-schedule.has-text-decoration-underline,
 .wp-block-wp-events-events-list.has-text-decoration-underline,
 .wp-block-wp-events-events-carousel.has-text-decoration-underline {
     text-decoration: underline !important;
@@ -207,8 +193,7 @@
 
 .wp-block-wp-events-venue.has-text-decoration-line-through,
 .wp-block-wp-events-organizer.has-text-decoration-line-through,
-.wp-block-wp-events-event-start.has-text-decoration-line-through,
-.wp-block-wp-events-event-end.has-text-decoration-line-through,
+.wp-block-wp-events-event-schedule.has-text-decoration-line-through,
 .wp-block-wp-events-events-list.has-text-decoration-line-through,
 .wp-block-wp-events-events-carousel.has-text-decoration-line-through {
     text-decoration: line-through !important;
@@ -216,8 +201,7 @@
 
 .wp-block-wp-events-venue.has-text-transform-none,
 .wp-block-wp-events-organizer.has-text-transform-none,
-.wp-block-wp-events-event-start.has-text-transform-none,
-.wp-block-wp-events-event-end.has-text-transform-none,
+.wp-block-wp-events-event-schedule.has-text-transform-none,
 .wp-block-wp-events-events-list.has-text-transform-none,
 .wp-block-wp-events-events-carousel.has-text-transform-none {
     text-transform: none !important;
@@ -225,8 +209,7 @@
 
 .wp-block-wp-events-venue.has-text-transform-uppercase,
 .wp-block-wp-events-organizer.has-text-transform-uppercase,
-.wp-block-wp-events-event-start.has-text-transform-uppercase,
-.wp-block-wp-events-event-end.has-text-transform-uppercase,
+.wp-block-wp-events-event-schedule.has-text-transform-uppercase,
 .wp-block-wp-events-events-list.has-text-transform-uppercase,
 .wp-block-wp-events-events-carousel.has-text-transform-uppercase {
     text-transform: uppercase !important;
@@ -234,8 +217,7 @@
 
 .wp-block-wp-events-venue.has-text-transform-lowercase,
 .wp-block-wp-events-organizer.has-text-transform-lowercase,
-.wp-block-wp-events-event-start.has-text-transform-lowercase,
-.wp-block-wp-events-event-end.has-text-transform-lowercase,
+.wp-block-wp-events-event-schedule.has-text-transform-lowercase,
 .wp-block-wp-events-events-list.has-text-transform-lowercase,
 .wp-block-wp-events-events-carousel.has-text-transform-lowercase {
     text-transform: lowercase !important;
@@ -243,8 +225,7 @@
 
 .wp-block-wp-events-venue.has-text-transform-capitalize,
 .wp-block-wp-events-organizer.has-text-transform-capitalize,
-.wp-block-wp-events-event-start.has-text-transform-capitalize,
-.wp-block-wp-events-event-end.has-text-transform-capitalize,
+.wp-block-wp-events-event-schedule.has-text-transform-capitalize,
 .wp-block-wp-events-events-list.has-text-transform-capitalize,
 .wp-block-wp-events-events-carousel.has-text-transform-capitalize {
     text-transform: capitalize !important;
@@ -252,8 +233,7 @@
 
 .wp-block-wp-events-venue.has-font-style-normal,
 .wp-block-wp-events-organizer.has-font-style-normal,
-.wp-block-wp-events-event-start.has-font-style-normal,
-.wp-block-wp-events-event-end.has-font-style-normal,
+.wp-block-wp-events-event-schedule.has-font-style-normal,
 .wp-block-wp-events-events-list.has-font-style-normal,
 .wp-block-wp-events-events-carousel.has-font-style-normal {
     font-style: normal !important;
@@ -261,8 +241,7 @@
 
 .wp-block-wp-events-venue.has-font-style-italic,
 .wp-block-wp-events-organizer.has-font-style-italic,
-.wp-block-wp-events-event-start.has-font-style-italic,
-.wp-block-wp-events-event-end.has-font-style-italic,
+.wp-block-wp-events-event-schedule.has-font-style-italic,
 .wp-block-wp-events-events-list.has-font-style-italic,
 .wp-block-wp-events-events-carousel.has-font-style-italic {
     font-style: italic !important;
@@ -270,8 +249,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-light,
 .wp-block-wp-events-organizer.has-font-weight-light,
-.wp-block-wp-events-event-start.has-font-weight-light,
-.wp-block-wp-events-event-end.has-font-weight-light,
+.wp-block-wp-events-event-schedule.has-font-weight-light,
 .wp-block-wp-events-events-list.has-font-weight-light,
 .wp-block-wp-events-events-carousel.has-font-weight-light {
     font-weight: 300 !important;
@@ -279,8 +257,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-normal,
 .wp-block-wp-events-organizer.has-font-weight-normal,
-.wp-block-wp-events-event-start.has-font-weight-normal,
-.wp-block-wp-events-event-end.has-font-weight-normal,
+.wp-block-wp-events-event-schedule.has-font-weight-normal,
 .wp-block-wp-events-events-list.has-font-weight-normal,
 .wp-block-wp-events-events-carousel.has-font-weight-normal {
     font-weight: 400 !important;
@@ -288,8 +265,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-medium,
 .wp-block-wp-events-organizer.has-font-weight-medium,
-.wp-block-wp-events-event-start.has-font-weight-medium,
-.wp-block-wp-events-event-end.has-font-weight-medium,
+.wp-block-wp-events-event-schedule.has-font-weight-medium,
 .wp-block-wp-events-events-list.has-font-weight-medium,
 .wp-block-wp-events-events-carousel.has-font-weight-medium {
     font-weight: 500 !important;
@@ -297,8 +273,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-semi-bold,
 .wp-block-wp-events-organizer.has-font-weight-semi-bold,
-.wp-block-wp-events-event-start.has-font-weight-semi-bold,
-.wp-block-wp-events-event-end.has-font-weight-semi-bold,
+.wp-block-wp-events-event-schedule.has-font-weight-semi-bold,
 .wp-block-wp-events-events-list.has-font-weight-semi-bold,
 .wp-block-wp-events-events-carousel.has-font-weight-semi-bold {
     font-weight: 600 !important;
@@ -306,8 +281,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-bold,
 .wp-block-wp-events-organizer.has-font-weight-bold,
-.wp-block-wp-events-event-start.has-font-weight-bold,
-.wp-block-wp-events-event-end.has-font-weight-bold,
+.wp-block-wp-events-event-schedule.has-font-weight-bold,
 .wp-block-wp-events-events-list.has-font-weight-bold,
 .wp-block-wp-events-events-carousel.has-font-weight-bold {
     font-weight: 700 !important;
@@ -315,8 +289,7 @@
 
 .wp-block-wp-events-venue.has-font-weight-extra-bold,
 .wp-block-wp-events-organizer.has-font-weight-extra-bold,
-.wp-block-wp-events-event-start.has-font-weight-extra-bold,
-.wp-block-wp-events-event-end.has-font-weight-extra-bold,
+.wp-block-wp-events-event-schedule.has-font-weight-extra-bold,
 .wp-block-wp-events-events-list.has-font-weight-extra-bold,
 .wp-block-wp-events-events-carousel.has-font-weight-extra-bold {
     font-weight: 800 !important;
