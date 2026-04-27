@@ -18,6 +18,12 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
   - Status tracking (importerede vs. tilgængelige)
   - Filtrering efter fremtidige/tidligere events
   - Import-statistik dashboard
+  - **Venues importeres automatisk**: Adresse, by, postnummer, land, telefon og website overføres
+  - **Arrangører importeres automatisk**: Telefon, website og email overføres
+  - Kategorier og tags overføres (tribe_events_cat → event_category, post_tag → event_tag)
+  - Udvalgt billede (featured image) overføres
+  - Pris og valuta overføres
+  - Indhold konverteres automatisk til Gutenberg-blokke
 - Shortcodes: `[events_list]`, `[event id=123]`, `[organizer_dashboard]`, `[event_submission_form]`
 - Gutenberg-blokke: Event-liste, Karusel (Swiper.js)
 - Admin kolonner: Dato, Sted, Arrangør, Status
@@ -40,16 +46,36 @@ Funktioner:
 - **Duplikat-forebyggelse**: Events kan kun importeres én gang
 - **Visual feedback**: Importerede events markeres med ✓
 
+### Hvad importeres?
+For hvert event overføres følgende data automatisk:
+
+| Data | Detaljer |
+|------|----------|
+| Titel og indhold | Indhold konverteres til Gutenberg-blokke |
+| Start- og sluttidspunkt | Fra `_EventStartDate` / `_EventEndDate` |
+| Udvalgt billede | Kopieres fra Tribe event |
+| Pris og valuta | Fra `_EventCost` / `_EventCurrencySymbol` |
+| **Venue** | Oprettes som `venue`-CPT med adresse, by, postnummer, land, telefon og website. Eksisterende venues genbruges (duplikat-forebyggelse). |
+| **Arrangører** | Oprettes som `organizer`-CPT med telefon, website og email. Understøtter flere arrangører pr. event. |
+| Kategorier | `tribe_events_cat` → `event_category` |
+| Tags | `post_tag` → `event_tag` |
+
 Se [IMPORT-GUIDE.md](IMPORT-GUIDE.md) for detaljeret dokumentation.
 
 ## WP-CLI Import
 Kør:
 ```sh
-# Import alle tilgængelige events
+# Import alle tilgængelige events (inkl. venues og arrangører)
 wp wpevents import-tribe
 
 # Import i batches
 wp wpevents import-tribe --batch=50
+
+# Nulstil import-statistik (events slettes ikke, men kan importeres igen)
+wp wpevents reset-import
+
+# Nulstil uden bekræftelsesprompt
+wp wpevents reset-import --yes
 ```
 
 ## iCal Eksport
