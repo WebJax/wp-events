@@ -19,60 +19,64 @@ class WPEvents_Organizer_Capabilities {
 	 * Initialize organizer capabilities
 	 */
 	public static function init() {
-		// Add organizer role on plugin activation
-		add_action('init', [__CLASS__, 'add_organizer_role']);
+		// Add organizer role on plugin activation.
+		add_action( 'init', array( __CLASS__, 'add_organizer_role' ) );
 
-		// Filter event editing capabilities
-		add_filter('map_meta_cap', [__CLASS__, 'map_event_capabilities'], 10, 4);
+		// Filter event editing capabilities.
+		add_filter( 'map_meta_cap', array( __CLASS__, 'map_event_capabilities' ), 10, 4 );
 
-		// Add organizer assignment meta box
-		add_action('add_meta_boxes_event', [__CLASS__, 'add_organizer_assignment_box']);
-		add_action('save_post_event', [__CLASS__, 'save_organizer_assignment']);
+		// Add organizer assignment meta box.
+		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_organizer_assignment_box' ) );
+		add_action( 'save_post_event', array( __CLASS__, 'save_organizer_assignment' ) );
 
-		// Add organizer dashboard shortcode
-		add_shortcode('organizer_dashboard', [__CLASS__, 'render_organizer_dashboard']);
-		add_shortcode('event_submission_form', [__CLASS__, 'render_submission_form']);
+		// Add organizer dashboard shortcode.
+		add_shortcode( 'organizer_dashboard', array( __CLASS__, 'render_organizer_dashboard' ) );
+		add_shortcode( 'event_submission_form', array( __CLASS__, 'render_submission_form' ) );
 
-		// Handle frontend event submission
-		add_action('admin_post_submit_event', [__CLASS__, 'handle_event_submission']);
-		add_action('admin_post_nopriv_submit_event', [__CLASS__, 'handle_event_submission']);
+		// Handle frontend event submission.
+		add_action( 'admin_post_submit_event', array( __CLASS__, 'handle_event_submission' ) );
+		add_action( 'admin_post_nopriv_submit_event', array( __CLASS__, 'handle_event_submission' ) );
 
-		// Restrict admin event list for organizers
-		add_filter('pre_get_posts', [__CLASS__, 'filter_events_for_organizers']);
+		// Restrict admin event list for organizers.
+		add_filter( 'pre_get_posts', array( __CLASS__, 'filter_events_for_organizers' ) );
 
-		// Add organizer profile link
-		add_action('show_user_profile', [__CLASS__, 'show_organizer_profile_fields']);
-		add_action('edit_user_profile', [__CLASS__, 'show_organizer_profile_fields']);
-		add_action('personal_options_update', [__CLASS__, 'save_organizer_profile_fields']);
-		add_action('edit_user_profile_update', [__CLASS__, 'save_organizer_profile_fields']);
+		// Add organizer profile link.
+		add_action( 'show_user_profile', array( __CLASS__, 'show_organizer_profile_fields' ) );
+		add_action( 'edit_user_profile', array( __CLASS__, 'show_organizer_profile_fields' ) );
+		add_action( 'personal_options_update', array( __CLASS__, 'save_organizer_profile_fields' ) );
+		add_action( 'edit_user_profile_update', array( __CLASS__, 'save_organizer_profile_fields' ) );
 	}
 
 	/**
 	 * Add event organizer role
 	 */
 	public static function add_organizer_role() {
-		// Ensure the event_organizer role exists
-		if (!get_role('event_organizer')) {
-			add_role('event_organizer', __('Event Organizer', 'wp-events'), [
-				'read' => true,
-				'edit_posts' => true,
-				'delete_posts' => true,
-				'publish_posts' => true,
-				'upload_files' => true,
-				// Custom capabilities for events
-				'edit_events' => true,
-				'edit_published_events' => true,
-				'publish_events' => true,
-				'delete_events' => true,
-				'delete_published_events' => true,
-			]);
+		// Ensure the event_organizer role exists.
+		if ( ! get_role( 'event_organizer' ) ) {
+			add_role(
+				'event_organizer',
+				__( 'Event Organizer', 'wp-events' ),
+				array(
+					'read'                    => true,
+					'edit_posts'              => true,
+					'delete_posts'            => true,
+					'publish_posts'           => true,
+					'upload_files'            => true,
+					// Custom capabilities for events.
+					'edit_events'             => true,
+					'edit_published_events'   => true,
+					'publish_events'          => true,
+					'delete_events'           => true,
+					'delete_published_events' => true,
+				)
+			);
 		}
 
-		// Always ensure admin and editor have required caps
-		$admin = get_role('administrator');
-		$editor = get_role('editor');
+		// Always ensure admin and editor have required caps.
+		$admin  = get_role( 'administrator' );
+		$editor = get_role( 'editor' );
 
-		$caps = [
+		$caps = array(
 			'edit_events',
 			'edit_others_events',
 			'edit_published_events',
@@ -82,15 +86,15 @@ class WPEvents_Organizer_Capabilities {
 			'delete_published_events',
 			'read_private_events',
 			'edit_private_events',
-			'delete_private_events'
-		];
+			'delete_private_events',
+		);
 
-		foreach ($caps as $cap) {
-			if ($admin && !$admin->has_cap($cap)) {
-				$admin->add_cap($cap);
+		foreach ( $caps as $cap ) {
+			if ( $admin && ! $admin->has_cap( $cap ) ) {
+				$admin->add_cap( $cap );
 			}
-			if ($editor && !$editor->has_cap($cap)) {
-				$editor->add_cap($cap);
+			if ( $editor && ! $editor->has_cap( $cap ) ) {
+				$editor->add_cap( $cap );
 			}
 		}
 	}
@@ -98,27 +102,27 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Map event capabilities based on organizer assignment
 	 */
-	public static function map_event_capabilities($caps, $cap, $user_id, $args) {
-		// Only handle event capabilities
-		if (!in_array($cap, ['edit_event', 'delete_event', 'publish_event'])) {
+	public static function map_event_capabilities( $caps, $cap, $user_id, $args ) {
+		// Only handle event capabilities.
+		if ( ! in_array( $cap, array( 'edit_event', 'delete_event', 'publish_event' ), true ) ) {
 			return $caps;
 		}
 
-		// If no specific event, use default capabilities
-		if (empty($args[0])) {
+		// If no specific event, use default capabilities.
+		if ( empty( $args[0] ) ) {
 			return $caps;
 		}
 
 		$post_id = $args[0];
-		$post = get_post($post_id);
+		$post    = get_post( $post_id );
 
-		if (!$post || $post->post_type !== 'event') {
+		if ( ! $post || 'event' !== $post->post_type ) {
 			return $caps;
 		}
 
-		// Map meta capability to corresponding primitive capability
+		// Map meta capability to corresponding primitive capability.
 		$required_cap = 'edit_events';
-		switch ($cap) {
+		switch ( $cap ) {
 			case 'delete_event':
 				$required_cap = 'delete_events';
 				break;
@@ -131,26 +135,26 @@ class WPEvents_Organizer_Capabilities {
 				break;
 		}
 
-		// Admins and editors can manage all events
-		$user = get_userdata($user_id);
-		if ($user && (in_array('administrator', $user->roles) || in_array('editor', $user->roles))) {
-			return [$required_cap];
+		// Admins and editors can manage all events.
+		$user = get_userdata( $user_id );
+		if ( $user && ( in_array( 'administrator', $user->roles, true ) || in_array( 'editor', $user->roles, true ) ) ) {
+			return array( $required_cap );
 		}
 
-		// Check if user is assigned as organizer for this event
-		$assigned_organizers = get_post_meta($post_id, 'assigned_organizer_users', true);
+		// Check if user is assigned as organizer for this event.
+		$assigned_organizers = get_post_meta( $post_id, 'assigned_organizer_users', true );
 
-		if (is_array($assigned_organizers) && in_array($user_id, $assigned_organizers)) {
-			// User is assigned organizer - allow relevant action
-			return [$required_cap];
+		if ( is_array( $assigned_organizers ) && in_array( $user_id, $assigned_organizers, true ) ) {
+			// User is assigned organizer - allow relevant action.
+			return array( $required_cap );
 		}
 
-		// Check if user created the event
-		if ($post->post_author === $user_id) {
-			return [$required_cap];
+		// Check if user created the event.
+		if ( $post->post_author === $user_id ) {
+			return array( $required_cap );
 		}
 
-		// Default deny
+		// Default deny.
 		return $caps;
 	}
 
@@ -160,8 +164,8 @@ class WPEvents_Organizer_Capabilities {
 	public static function add_organizer_assignment_box() {
 		add_meta_box(
 			'wpevents_organizer_assignment',
-			__('Assigned Organizers (Users)', 'wp-events'),
-			[__CLASS__, 'render_organizer_assignment_box'],
+			__( 'Assigned Organizers (Users)', 'wp-events' ),
+			array( __CLASS__, 'render_organizer_assignment_box' ),
 			'event',
 			'side',
 			'high'
@@ -171,35 +175,37 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Render organizer assignment meta box
 	 */
-	public static function render_organizer_assignment_box($post) {
-		wp_nonce_field('wpevents_organizer_assignment', 'wpevents_organizer_assignment_nonce');
+	public static function render_organizer_assignment_box( $post ) {
+		wp_nonce_field( 'wpevents_organizer_assignment', 'wpevents_organizer_assignment_nonce' );
 
-		$assigned_organizers = get_post_meta($post->ID, 'assigned_organizer_users', true);
-		if (!is_array($assigned_organizers)) {
-			$assigned_organizers = [];
+		$assigned_organizers = get_post_meta( $post->ID, 'assigned_organizer_users', true );
+		if ( ! is_array( $assigned_organizers ) ) {
+			$assigned_organizers = array();
 		}
 
-		// Get users with event_organizer role
-		$organizers = get_users([
-			'role__in' => ['event_organizer', 'administrator', 'editor']
-		]);
+		// Get users with event_organizer role.
+		$organizers = get_users(
+			array(
+				'role__in' => array( 'event_organizer', 'administrator', 'editor' ),
+			)
+		);
 
 		echo '<p>' . esc_html__( 'Select users who can manage this event:', 'wp-events' ) . '</p>';
 
-		foreach ($organizers as $organizer) {
-			$checked = in_array($organizer->ID, $assigned_organizers) ? 'checked' : '';
+		foreach ( $organizers as $organizer ) {
+			$checked = in_array( $organizer->ID, $assigned_organizers, true ) ? 'checked' : '';
 			printf(
 				'<label style="display: block; margin-bottom: 5px;">
                     <input type="checkbox" name="assigned_organizers[]" value="%d" %s> %s (%s)
                 </label>',
 				$organizer->ID,
 				$checked,
-				esc_html($organizer->display_name),
-				esc_html($organizer->user_email)
+				esc_html( $organizer->display_name ),
+				esc_html( $organizer->user_email )
 			);
 		}
 
-		if (empty($organizers)) {
+		if ( empty( $organizers ) ) {
 			echo '<p><em>' . esc_html__( 'No organizers found. Create users with Event Organizer role.', 'wp-events' ) . '</em></p>';
 		}
 	}
@@ -207,60 +213,62 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Save organizer assignment
 	 */
-	public static function save_organizer_assignment($post_id) {
-		if (!isset($_POST['wpevents_organizer_assignment_nonce']) || 
-			!wp_verify_nonce($_POST['wpevents_organizer_assignment_nonce'], 'wpevents_organizer_assignment')) {
+	public static function save_organizer_assignment( $post_id ) {
+		if ( ! isset( $_POST['wpevents_organizer_assignment_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_organizer_assignment_nonce'] ) ), 'wpevents_organizer_assignment' ) ) {
 			return;
 		}
 
-		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
 
-		if (!current_user_can('edit_post', $post_id)) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		$assigned_organizers = isset($_POST['assigned_organizers']) ? array_map('absint', $_POST['assigned_organizers']) : [];
-		update_post_meta($post_id, 'assigned_organizer_users', $assigned_organizers);
+		$assigned_organizers = isset( $_POST['assigned_organizers'] ) ? array_map( 'absint', $_POST['assigned_organizers'] ) : array();
+		update_post_meta( $post_id, 'assigned_organizer_users', $assigned_organizers );
 	}
 
 	/**
 	 * Filter events in admin for organizers
 	 */
-	public static function filter_events_for_organizers($query) {
-		if (!is_admin() || !$query->is_main_query()) {
+	public static function filter_events_for_organizers( $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
 
 		global $pagenow, $wpdb;
-		if ($pagenow !== 'edit.php' || !isset($_GET['post_type']) || $_GET['post_type'] !== 'event') {
+		if ( 'edit.php' !== $pagenow || ! isset( $_GET['post_type'] ) || 'event' !== sanitize_key( wp_unslash( $_GET['post_type'] ) ) ) {
 			return;
 		}
 
 		$user = wp_get_current_user();
 
-		// Admins and editors see all events
-		if (in_array('administrator', $user->roles) || in_array('editor', $user->roles)) {
+		// Admins and editors see all events.
+		if ( in_array( 'administrator', $user->roles, true ) || in_array( 'editor', $user->roles, true ) ) {
 			return;
 		}
 
-		// Event organizers only see their assigned events
-		if (in_array('event_organizer', $user->roles)) {
-			// Use a more precise query for organizer assignment
-			$assigned_event_ids = $wpdb->get_col($wpdb->prepare(
-				"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
+		// Event organizers only see their assigned events.
+		if ( in_array( 'event_organizer', $user->roles, true ) ) {
+			// Use a more precise query for organizer assignment.
+			$assigned_event_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
                 WHERE meta_key = 'assigned_organizer_users' 
                 AND (meta_value LIKE %s OR meta_value LIKE %s)",
-				'%i:' . $user->ID . ';%',
-				'%s:"' . $user->ID . '";%'
-			));
+					'%i:' . $user->ID . ';%',
+					'%s:"' . $user->ID . '";%'
+				)
+			);
 
-			if (!empty($assigned_event_ids)) {
-				$query->set('post__in', $assigned_event_ids);
+			if ( ! empty( $assigned_event_ids ) ) {
+				$query->set( 'post__in', $assigned_event_ids );
 			} else {
-				// No events assigned, show none
-				$query->set('post__in', [0]);
+				// No events assigned, show none.
+				$query->set( 'post__in', array( 0 ) );
 			}
 		}
 	}
@@ -268,42 +276,46 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Render organizer dashboard shortcode
 	 */
-	public static function render_organizer_dashboard($atts) {
-		if (!is_user_logged_in()) {
+	public static function render_organizer_dashboard( $atts ) {
+		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'Please log in to view your dashboard.', 'wp-events' ) . '</p>';
 		}
 
 		$user_id = get_current_user_id();
 
-		// Get user's events
-		$args = [
-			'post_type' => 'event',
-			'author' => $user_id,
+		// Get user's events.
+		$args = array(
+			'post_type'      => 'event',
+			'author'         => $user_id,
 			'posts_per_page' => -1,
-			'orderby' => 'meta_value',
-			'meta_key' => 'event_start',
-			'order' => 'ASC'
-		];
+			'orderby'        => 'meta_value',
+			'meta_key'       => 'event_start',
+			'order'          => 'ASC',
+		);
 		global $wpdb;
-		$assigned_event_ids = $wpdb->get_col($wpdb->prepare(
-			"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
+		$assigned_event_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
             WHERE meta_key = 'assigned_organizer_users' 
             AND (meta_value LIKE %s OR meta_value LIKE %s)",
-			'%i:' . $user_id . ';%',
-			'%s:"' . $user_id . '";%'
-		));
+				'%i:' . $user_id . ';%',
+				'%s:"' . $user_id . '";%'
+			)
+		);
 
-		$assigned_events = [];
-		if (!empty($assigned_event_ids)) {
-			$assigned_events = get_posts([
-				'post_type' => 'event',
-				'posts_per_page' => -1,
-				'post__in' => $assigned_event_ids
-			]);
+		$assigned_events = array();
+		if ( ! empty( $assigned_event_ids ) ) {
+			$assigned_events = get_posts(
+				array(
+					'post_type'      => 'event',
+					'posts_per_page' => -1,
+					'post__in'       => $assigned_event_ids,
+				)
+			);
 		}
 
-		$my_events = get_posts($args);
-		$all_events = array_unique(array_merge($my_events, $assigned_events), SORT_REGULAR);
+		$my_events  = get_posts( $args );
+		$all_events = array_unique( array_merge( $my_events, $assigned_events ), SORT_REGULAR );
 
 		ob_start();
 		?>
@@ -316,7 +328,7 @@ class WPEvents_Organizer_Capabilities {
 				</a>
 			</p>
 
-			<?php if (empty($all_events)) : ?>
+			<?php if ( empty( $all_events ) ) : ?>
 				<p><?php esc_html_e( 'You have no events yet.', 'wp-events' ); ?></p>
 			<?php else : ?>
 				<table class="wp-list-table widefat fixed striped" style="margin-top: 20px;">
@@ -329,23 +341,23 @@ class WPEvents_Organizer_Capabilities {
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ($all_events as $event) : ?>
+						<?php foreach ( $all_events as $event ) : ?>
 							<?php
-							$start = get_post_meta($event->ID, 'event_start', true);
-							$edit_url = admin_url('post.php?post=' . $event->ID . '&action=edit');
+							$start    = get_post_meta( $event->ID, 'event_start', true );
+							$edit_url = admin_url( 'post.php?post=' . $event->ID . '&action=edit' );
 							?>
 							<tr>
-								<td><strong><?php echo esc_html($event->post_title); ?></strong></td>
+								<td><strong><?php echo esc_html( $event->post_title ); ?></strong></td>
 								<td>
 									<?php
-									if ($start) {
-										echo date_i18n(get_option('date_format'), strtotime($start));
+									if ( $start ) {
+										echo date_i18n( get_option( 'date_format' ), strtotime( $start ) );
 									}
 									?>
 								</td>
-								<td><?php echo ucfirst($event->post_status); ?></td>
+								<td><?php echo ucfirst( $event->post_status ); ?></td>
 								<td>
-									<a href="<?php echo esc_url($edit_url); ?>"><?php esc_html_e( 'Edit', 'wp-events' ); ?></a> |
+									<a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'wp-events' ); ?></a> |
 									<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" target="_blank"><?php esc_html_e( 'View', 'wp-events' ); ?></a>
 								</td>
 							</tr>
@@ -362,8 +374,8 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Render event submission form shortcode
 	 */
-	public static function render_submission_form($atts) {
-		if (!is_user_logged_in()) {
+	public static function render_submission_form( $atts ) {
+		if ( ! is_user_logged_in() ) {
 			return '<p>' . esc_html__( 'Please log in to submit an event.', 'wp-events' ) . '</p>';
 		}
 
@@ -373,7 +385,7 @@ class WPEvents_Organizer_Capabilities {
 			<h2><?php esc_html_e( 'Submit New Event', 'wp-events' ); ?></h2>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
-				<?php wp_nonce_field('submit_event', 'event_submission_nonce'); ?>
+				<?php wp_nonce_field( 'submit_event', 'event_submission_nonce' ); ?>
 				<input type="hidden" name="action" value="submit_event">
 
 				<p>
@@ -402,7 +414,7 @@ class WPEvents_Organizer_Capabilities {
 				</p>
 
 				<p>
-					<input type="submit" value="<?php esc_attr_e('Submit Event', 'wp-events'); ?>" class="button button-primary">
+					<input type="submit" value="<?php esc_attr_e( 'Submit Event', 'wp-events' ); ?>" class="button button-primary">
 				</p>
 
 				<p><small><?php esc_html_e( 'Your event will be reviewed before being published.', 'wp-events' ); ?></small></p>
@@ -417,78 +429,79 @@ class WPEvents_Organizer_Capabilities {
 	 * Handle frontend event submission
 	 */
 	public static function handle_event_submission() {
-		if (!isset($_POST['event_submission_nonce']) || 
-			!wp_verify_nonce($_POST['event_submission_nonce'], 'submit_event')) {
+		if ( ! isset( $_POST['event_submission_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['event_submission_nonce'] ) ), 'submit_event' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'wp-events' ) );
 		}
 
-		if (!is_user_logged_in()) {
+		if ( ! is_user_logged_in() ) {
 			wp_die( esc_html__( 'You must be logged in to submit events', 'wp-events' ) );
 		}
 
-		// Ensure user has permission to submit events
-		if (!current_user_can('edit_events')) {
+		// Ensure user has permission to submit events.
+		if ( ! current_user_can( 'edit_events' ) ) {
 			wp_die( esc_html__( 'You do not have permission to submit events', 'wp-events' ) );
 		}
 
 		$user_id = get_current_user_id();
 
-		// Create event post
-		$event_data = [
-			'post_title' => sanitize_text_field($_POST['event_title']),
-			'post_content' => wp_kses_post($_POST['event_content']),
-			'post_type' => 'event',
-			'post_status' => 'pending', // Require review
-			'post_author' => $user_id
-		];
+		// Create event post.
+		$event_data = array(
+			'post_title'   => isset( $_POST['event_title'] ) ? sanitize_text_field( wp_unslash( $_POST['event_title'] ) ) : '',
+			'post_content' => isset( $_POST['event_content'] ) ? wp_kses_post( wp_unslash( $_POST['event_content'] ) ) : '',
+			'post_type'    => 'event',
+			'post_status'  => 'pending', // Require review
+			'post_author'  => $user_id,
+		);
 
-		$event_id = wp_insert_post($event_data);
+		$event_id = wp_insert_post( $event_data );
 
-		if (is_wp_error($event_id)) {
+		if ( is_wp_error( $event_id ) ) {
 			wp_die( esc_html__( 'Failed to create event', 'wp-events' ) );
 		}
 
-		// Save event meta using ISO8601 format
-		if (!empty($_POST['event_start'])) {
-			$start = sanitize_text_field($_POST['event_start']);
-			$start_iso = WPEvents_CPT::sanitize_iso8601($start);
-			update_post_meta($event_id, 'event_start', $start_iso);
+		// Save event meta using ISO8601 format.
+		if ( ! empty( $_POST['event_start'] ) ) {
+			$start     = sanitize_text_field( wp_unslash( $_POST['event_start'] ) );
+			$start_iso = WPEvents_CPT::sanitize_iso8601( $start );
+			update_post_meta( $event_id, 'event_start', $start_iso );
 		}
 
-		if (!empty($_POST['event_end'])) {
-			$end = sanitize_text_field($_POST['event_end']);
-			$end_iso = WPEvents_CPT::sanitize_iso8601($end);
-			update_post_meta($event_id, 'event_end', $end_iso);
+		if ( ! empty( $_POST['event_end'] ) ) {
+			$end     = sanitize_text_field( wp_unslash( $_POST['event_end'] ) );
+			$end_iso = WPEvents_CPT::sanitize_iso8601( $end );
+			update_post_meta( $event_id, 'event_end', $end_iso );
 		}
 
-		if (!empty($_POST['event_price'])) {
-			update_post_meta($event_id, 'event_price', floatval($_POST['event_price']));
+		if ( ! empty( $_POST['event_price'] ) ) {
+			update_post_meta( $event_id, 'event_price', floatval( sanitize_text_field( wp_unslash( $_POST['event_price'] ) ) ) );
 		}
 
-		// Assign user as organizer
-		update_post_meta($event_id, 'assigned_organizer_users', [$user_id]);
+		// Assign user as organizer.
+		update_post_meta( $event_id, 'assigned_organizer_users', array( $user_id ) );
 
-		// Redirect to success page or back to form
+		// Redirect to success page or back to form.
 		$redirect_url = wp_get_referer();
-		if (!$redirect_url) {
+		if ( ! $redirect_url ) {
 			$redirect_url = home_url();
 		}
-		wp_safe_redirect(add_query_arg('event_submitted', '1', $redirect_url));
+		wp_safe_redirect( add_query_arg( 'event_submitted', '1', $redirect_url ) );
 		exit;
 	}
 
 	/**
 	 * Show organizer profile fields
 	 */
-	public static function show_organizer_profile_fields($user) {
-		if (!current_user_can('edit_user', $user->ID)) {
+	public static function show_organizer_profile_fields( $user ) {
+		if ( ! current_user_can( 'edit_user', $user->ID ) ) {
 			return;
 		}
 
-		$organizer_post_id = get_user_meta($user->ID, 'organizer_post_id', true);
+		$organizer_post_id = get_user_meta( $user->ID, 'organizer_post_id', true );
 
 		?>
 		<h3><?php esc_html_e( 'Event Organizer Settings', 'wp-events' ); ?></h3>
+		<?php wp_nonce_field( 'wpevents_organizer_profile', 'wpevents_organizer_profile_nonce' ); ?>
 		<table class="form-table">
 			<tr>
 				<th><label for="organizer_post_id"><?php esc_html_e( 'Link to Organizer Post', 'wp-events' ); ?></label></th>
@@ -496,19 +509,21 @@ class WPEvents_Organizer_Capabilities {
 					<select name="organizer_post_id" id="organizer_post_id">
 						<option value=""><?php esc_html_e( '-- None --', 'wp-events' ); ?></option>
 						<?php
-						$organizers = get_posts([
-							'post_type' => 'organizer',
-							'posts_per_page' => -1,
-							'orderby' => 'title',
-							'order' => 'ASC'
-						]);
+						$organizers = get_posts(
+							array(
+								'post_type'      => 'organizer',
+								'posts_per_page' => -1,
+								'orderby'        => 'title',
+								'order'          => 'ASC',
+							)
+						);
 
-						foreach ($organizers as $org) {
+						foreach ( $organizers as $org ) {
 							printf(
 								'<option value="%d" %s>%s</option>',
 								$org->ID,
-								selected($organizer_post_id, $org->ID, false),
-								esc_html($org->post_title)
+								selected( $organizer_post_id, $org->ID, false ),
+								esc_html( $org->post_title )
 							);
 						}
 						?>
@@ -523,13 +538,17 @@ class WPEvents_Organizer_Capabilities {
 	/**
 	 * Save organizer profile fields
 	 */
-	public static function save_organizer_profile_fields($user_id) {
-		if (!current_user_can('edit_user', $user_id)) {
+	public static function save_organizer_profile_fields( $user_id ) {
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
 		}
 
-		if (isset($_POST['organizer_post_id'])) {
-			update_user_meta($user_id, 'organizer_post_id', absint($_POST['organizer_post_id']));
+		if ( ! isset( $_POST['wpevents_organizer_profile_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_organizer_profile_nonce'] ) ), 'wpevents_organizer_profile' ) ) {
+			return;
+		}
+
+		if ( isset( $_POST['organizer_post_id'] ) ) {
+			update_user_meta( $user_id, 'organizer_post_id', absint( $_POST['organizer_post_id'] ) );
 		}
 	}
 }

@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param WP_Query $query The WordPress query object
  */
 function wpevents_apply_query_filters( $query ) {
-	// Only apply on main query for event archives and taxonomies
+	// Only apply on main query for event archives and taxonomies.
 	if ( ! $query->is_main_query() ) {
 		return;
 	}
@@ -27,17 +27,17 @@ function wpevents_apply_query_filters( $query ) {
 		return;
 	}
 
-	// Get filter parameters
-	$timeframe = isset( $_GET['timeframe'] ) ? sanitize_text_field( $_GET['timeframe'] ) : 'all';
-	$sort      = isset( $_GET['sort'] ) ? sanitize_text_field( $_GET['sort'] ) : 'asc';
-	$category  = isset( $_GET['event_category'] ) ? sanitize_text_field( $_GET['event_category'] ) : '';
+	// Get filter parameters.
+	$timeframe = isset( $_GET['timeframe'] ) ? sanitize_text_field( wp_unslash( $_GET['timeframe'] ) ) : 'all';
+	$sort      = isset( $_GET['sort'] ) ? sanitize_text_field( wp_unslash( $_GET['sort'] ) ) : 'asc';
+	$category  = isset( $_GET['event_category'] ) ? sanitize_text_field( wp_unslash( $_GET['event_category'] ) ) : '';
 
-	// Set ordering
+	// Set ordering.
 	$query->set( 'meta_key', 'event_start' );
 	$query->set( 'orderby', 'meta_value' );
 	$query->set( 'order', strtoupper( $sort ) );
 
-	// Apply timeframe filter
+	// Apply timeframe filter.
 	$meta_query = array();
 	$now        = current_time( 'mysql' );
 
@@ -113,5 +113,5 @@ function wpevents_apply_query_filters( $query ) {
 	}
 }
 
-// Hook into pre_get_posts
+// Hook into pre_get_posts.
 add_action( 'pre_get_posts', 'wpevents_apply_query_filters' );

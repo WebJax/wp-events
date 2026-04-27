@@ -276,7 +276,7 @@ class WPEvents_Blocks {
 		}
 
 		$venue = get_post( $venue_id );
-		if ( ! $venue || $venue->post_status !== 'publish' ) {
+		if ( ! $venue || 'publish' !== $venue->post_status ) {
 			return '<div class="wp-events-venue-block error">' . esc_html__( 'Venue not found.', 'wp-events' ) . '</div>';
 		}
 
@@ -342,7 +342,7 @@ class WPEvents_Blocks {
 
 		foreach ( $organizer_ids as $organizer_id ) {
 			$organizer = get_post( $organizer_id );
-			if ( ! $organizer || $organizer->post_status !== 'publish' ) {
+			if ( ! $organizer || 'publish' !== $organizer->post_status ) {
 				continue;
 			}
 
@@ -456,7 +456,7 @@ class WPEvents_Blocks {
 		}
 
 		// Check if we should hide date part if same day as start
-		if ( $hideIfSameDay && $dateFormat === 'full' ) {
+		if ( $hideIfSameDay && 'full' === $dateFormat ) {
 			$start_date = get_post_meta( $post_id, 'event_start', true );
 			if ( $start_date ) {
 				$start_timestamp = strtotime( $start_date );

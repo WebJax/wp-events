@@ -19,29 +19,29 @@ class WPEvents_Additional_Features {
 	 * Initialize additional features
 	 */
 	public static function init() {
-		// Add event status meta box
+		// Add event status meta box.
 		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_event_status_box' ) );
 		add_action( 'save_post_event', array( __CLASS__, 'save_event_status' ) );
 
-		// Add registration/RSVP functionality
+		// Add registration/RSVP functionality.
 		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_registration_box' ) );
 		add_action( 'save_post_event', array( __CLASS__, 'save_registration_settings' ) );
 
-		// Display registration form on event pages
+		// Display registration form on event pages.
 		add_filter( 'the_content', array( __CLASS__, 'add_registration_form' ) );
 
-		// Handle registration submissions
+		// Handle registration submissions.
 		add_action( 'admin_post_event_registration', array( __CLASS__, 'handle_registration' ) );
 		add_action( 'admin_post_nopriv_event_registration', array( __CLASS__, 'handle_registration' ) );
 
-		// Add event badges/labels
+		// Add event badges/labels.
 		add_filter( 'the_title', array( __CLASS__, 'add_event_status_badge' ), 10, 2 );
 
-		// Add admin columns for status
+		// Add admin columns for status.
 		add_filter( 'manage_event_posts_columns', array( __CLASS__, 'add_status_column' ) );
 		add_action( 'manage_event_posts_custom_column', array( __CLASS__, 'display_status_column' ), 10, 2 );
 
-		// Add CSS for frontend
+		// Add CSS for frontend.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_frontend_styles' ) );
 	}
 
@@ -98,7 +98,7 @@ class WPEvents_Additional_Features {
 	 */
 	public static function save_event_status( $post_id ) {
 		if ( ! isset( $_POST['wpevents_event_status_nonce'] ) ||
-			! wp_verify_nonce( $_POST['wpevents_event_status_nonce'], 'wpevents_event_status' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_event_status_nonce'] ) ), 'wpevents_event_status' ) ) {
 			return;
 		}
 
@@ -111,7 +111,7 @@ class WPEvents_Additional_Features {
 		}
 
 		if ( isset( $_POST['event_status'] ) ) {
-			update_post_meta( $post_id, 'event_status', sanitize_text_field( $_POST['event_status'] ) );
+			update_post_meta( $post_id, 'event_status', sanitize_text_field( wp_unslash( $_POST['event_status'] ) ) );
 		}
 	}
 
@@ -177,7 +177,7 @@ class WPEvents_Additional_Features {
 		</table>
 
 		<?php
-		// Display registrations list
+		// Display registrations list.
 		$registrations = self::get_registrations( $post->ID );
 		if ( ! empty( $registrations ) ) {
 			echo '<h4>' . esc_html__( 'Current Registrations', 'wp-events' ) . ' (' . count( $registrations ) . ')</h4>';
@@ -208,7 +208,7 @@ class WPEvents_Additional_Features {
 	 */
 	public static function save_registration_settings( $post_id ) {
 		if ( ! isset( $_POST['wpevents_registration_nonce'] ) ||
-			! wp_verify_nonce( $_POST['wpevents_registration_nonce'], 'wpevents_registration' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_registration_nonce'] ) ), 'wpevents_registration' ) ) {
 			return;
 		}
 
@@ -228,11 +228,11 @@ class WPEvents_Additional_Features {
 		}
 
 		if ( isset( $_POST['registration_deadline'] ) ) {
-			$deadline_input = sanitize_text_field( $_POST['registration_deadline'] );
+			$deadline_input = sanitize_text_field( wp_unslash( $_POST['registration_deadline'] ) );
 			$deadline       = '';
-			if ( $deadline_input !== '' ) {
+			if ( '' !== $deadline_input ) {
 				$timestamp = strtotime( $deadline_input );
-				if ( $timestamp !== false ) {
+				if ( false !== $timestamp ) {
 					$deadline = date( 'Y-m-d H:i:s', $timestamp );
 				}
 			}
@@ -254,11 +254,11 @@ class WPEvents_Additional_Features {
 		$event_id            = get_the_ID();
 		$enable_registration = get_post_meta( $event_id, 'enable_registration', true );
 
-		if ( $enable_registration !== '1' ) {
+		if ( '1' !== $enable_registration ) {
 			return $content;
 		}
 
-		// Check if registration is closed
+		// Check if registration is closed.
 		$deadline = get_post_meta( $event_id, 'registration_deadline', true );
 		if ( $deadline && strtotime( $deadline ) < time() ) {
 			$content .= '<div class="event-registration-closed">';
@@ -267,7 +267,7 @@ class WPEvents_Additional_Features {
 			return $content;
 		}
 
-		// Check capacity
+		// Check capacity.
 		$max_attendees = get_post_meta( $event_id, 'max_attendees', true );
 		$registrations = self::get_registrations( $event_id );
 		$current_count = count( $registrations );
@@ -279,14 +279,15 @@ class WPEvents_Additional_Features {
 			return $content;
 		}
 
-		// Show success message if just registered
-		if ( isset( $_GET['registered'] ) && $_GET['registered'] === '1' ) {
+		// Show success message if just registered.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only redirect flag, no nonce needed.
+		if ( isset( $_GET['registered'] ) && '1' === sanitize_key( wp_unslash( $_GET['registered'] ) ) ) {
 			$content .= '<div class="event-registration-success" style="padding: 15px; background: #d4edda; color: #155724; border-radius: 5px; margin: 20px 0;">';
 			$content .= '<p><strong>' . esc_html__( 'Thank you for registering! You will receive a confirmation email.', 'wp-events' ) . '</strong></p>';
 			$content .= '</div>';
 		}
 
-		// Build registration form
+		// Build registration form.
 		$form  = '<div class="event-registration-form" style="margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 5px;">';
 		$form .= '<h3>' . esc_html__( 'Register for This Event', 'wp-events' ) . '</h3>';
 
@@ -335,33 +336,33 @@ class WPEvents_Additional_Features {
 	 */
 	public static function handle_registration() {
 		if ( ! isset( $_POST['registration_nonce'] ) ||
-			! wp_verify_nonce( $_POST['registration_nonce'], 'event_registration' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['registration_nonce'] ) ), 'event_registration' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'wp-events' ) );
 		}
 
 		$event_id = isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0;
-		$name     = isset( $_POST['reg_name'] ) ? sanitize_text_field( $_POST['reg_name'] ) : '';
-		$email    = isset( $_POST['reg_email'] ) ? sanitize_email( $_POST['reg_email'] ) : '';
-		$phone    = isset( $_POST['reg_phone'] ) ? preg_replace( '/[^0-9+\-\(\)\s]/', '', $_POST['reg_phone'] ) : '';
-		$notes    = isset( $_POST['reg_notes'] ) ? sanitize_textarea_field( $_POST['reg_notes'] ) : '';
+		$name     = isset( $_POST['reg_name'] ) ? sanitize_text_field( wp_unslash( $_POST['reg_name'] ) ) : '';
+		$email    = isset( $_POST['reg_email'] ) ? sanitize_email( wp_unslash( $_POST['reg_email'] ) ) : '';
+		$phone    = isset( $_POST['reg_phone'] ) ? preg_replace( '/[^0-9+\-\(\)\s]/', '', sanitize_text_field( wp_unslash( $_POST['reg_phone'] ) ) ) : '';
+		$notes    = isset( $_POST['reg_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reg_notes'] ) ) : '';
 
 		if ( ! $event_id || ! $name || ! $email ) {
 			wp_die( esc_html__( 'Required fields missing', 'wp-events' ) );
 		}
 
-		// Validate that the event exists and is an event post type
+		// Validate that the event exists and is an event post type.
 		$event = get_post( $event_id );
-		if ( ! $event || $event->post_type !== 'event' ) {
+		if ( ! $event || 'event' !== $event->post_type ) {
 			wp_die( esc_html__( 'Invalid event.', 'wp-events' ) );
 		}
 
-		// Ensure registration is enabled for this event
+		// Ensure registration is enabled for this event.
 		$enable_registration = get_post_meta( $event_id, 'enable_registration', true );
-		if ( $enable_registration !== '1' ) {
+		if ( '1' !== $enable_registration ) {
 			wp_die( esc_html__( 'Registration for this event is closed.', 'wp-events' ) );
 		}
 
-		// Check registration deadline
+		// Check registration deadline.
 		$registration_deadline = get_post_meta( $event_id, 'registration_deadline', true );
 		if ( ! empty( $registration_deadline ) ) {
 			$deadline_ts = strtotime( $registration_deadline );
@@ -370,7 +371,7 @@ class WPEvents_Additional_Features {
 			}
 		}
 
-		// Check capacity again
+		// Check capacity again.
 		$max_attendees = get_post_meta( $event_id, 'max_attendees', true );
 		$registrations = self::get_registrations( $event_id );
 
@@ -380,20 +381,20 @@ class WPEvents_Additional_Features {
 
 		$require_approval = get_post_meta( $event_id, 'require_approval', true );
 
-		// Save registration
+		// Save registration.
 		$registration = array(
 			'name'   => $name,
 			'email'  => $email,
 			'phone'  => $phone,
 			'notes'  => $notes,
 			'date'   => current_time( 'mysql' ),
-			'status' => $require_approval === '1' ? 'pending' : 'confirmed',
+			'status' => '1' === $require_approval ? 'pending' : 'confirmed',
 		);
 
 		$registrations[] = $registration;
 		update_post_meta( $event_id, 'event_registrations', $registrations );
 
-		// Send confirmation email
+		// Send confirmation email.
 		$subject  = sprintf( __( 'Registration Confirmation: %s', 'wp-events' ), get_the_title( $event_id ) );
 		$message  = sprintf( __( 'Thank you for registering for %s!', 'wp-events' ), get_the_title( $event_id ) );
 		$message .= "\n\n" . __( 'Event Details:', 'wp-events' ) . "\n";
@@ -406,13 +407,13 @@ class WPEvents_Additional_Features {
 
 		$message .= __( 'URL:', 'wp-events' ) . ' ' . get_permalink( $event_id ) . "\n";
 
-		if ( $require_approval === '1' ) {
+		if ( '1' === $require_approval ) {
 			$message .= "\n" . __( 'Your registration is pending approval. You will receive another email when approved.', 'wp-events' );
 		}
 
 		wp_mail( $email, $subject, $message );
 
-		// Redirect back with success message
+		// Redirect back with success message.
 		wp_safe_redirect( add_query_arg( 'registered', '1', get_permalink( $event_id ) ) );
 		exit;
 	}
@@ -439,7 +440,7 @@ class WPEvents_Additional_Features {
 
 		$status = get_post_meta( $post_id, 'event_status', true );
 
-		if ( ! $status || $status === 'scheduled' ) {
+		if ( ! $status || 'scheduled' === $status ) {
 			return $title;
 		}
 
@@ -465,7 +466,7 @@ class WPEvents_Additional_Features {
 		$new_columns = array();
 		foreach ( $columns as $key => $value ) {
 			$new_columns[ $key ] = $value;
-			if ( $key === 'title' ) {
+			if ( 'title' === $key ) {
 				$new_columns['event_status_col'] = __( 'Status', 'wp-events' );
 			}
 		}
@@ -476,7 +477,7 @@ class WPEvents_Additional_Features {
 	 * Display status column
 	 */
 	public static function display_status_column( $column, $post_id ) {
-		if ( $column === 'event_status_col' ) {
+		if ( 'event_status_col' === $column ) {
 			$status = get_post_meta( $post_id, 'event_status', true );
 			if ( ! $status ) {
 				$status = 'scheduled';
@@ -500,7 +501,7 @@ class WPEvents_Additional_Features {
 	 */
 	public static function enqueue_frontend_styles() {
 		if ( is_singular( 'event' ) || is_post_type_archive( 'event' ) || is_tax( array( 'event_category', 'event_tag' ) ) ) {
-			// Register a lightweight plugin-owned stylesheet handle to reliably attach inline styles
+			// Register a lightweight plugin-owned stylesheet handle to reliably attach inline styles.
 			wp_register_style( 'wpevents-frontend-styles', false, array(), null );
 			wp_enqueue_style( 'wpevents-frontend-styles' );
 

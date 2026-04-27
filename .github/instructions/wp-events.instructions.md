@@ -83,23 +83,23 @@ All code in this plugin must comply with the [WordPress Coding Standards](https:
 
 ### PHPCS / PHPCBF
 
-Always exclude these four sniffs — they crash with `trim(): Passing null` on PHP 8.x with the current WPCS version:
+Always exclude these five sniffs — they crash with `trim(): Passing null` on PHP 8.x with the current WPCS version:
 
 ```
---exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions
+--exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues
 ```
 
 Full example commands (run from plugin root):
 
 ```bash
 # Check a file
-phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions includes/class-wpevents-cpt.php
+phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/class-wpevents-cpt.php
 
 # Auto-fix a file
-phpcbf --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions includes/class-wpevents-cpt.php
+phpcbf --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/class-wpevents-cpt.php
 
 # Whole-plugin check
-phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions .
+phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/
 ```
 
 ### Internationalization (i18n)

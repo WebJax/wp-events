@@ -519,10 +519,10 @@ class WPEvents_Blocks_Clean {
 			$default_file = 'single-organizer.php';
 		} elseif ( is_post_type_archive( 'event' ) ) {
 			// Check for view parameter to load alternative templates
-			$view          = isset( $_GET['view'] ) ? sanitize_text_field( $_GET['view'] ) : '';
+			$view          = isset( $_GET['view'] ) ? sanitize_text_field( wp_unslash( $_GET['view'] ) ) : '';
 			$allowed_views = array( 'list', 'calendar', 'compact' );
 
-			if ( $view && in_array( $view, $allowed_views ) ) {
+			if ( $view && in_array( $view, $allowed_views, true ) ) {
 				$default_file = 'archive-event-' . $view . '.php';
 			} else {
 				$default_file = 'archive-event.php';
@@ -954,7 +954,7 @@ class WPEvents_Blocks_Clean {
 		$formatted_price = number_format_i18n( floatval( $price ), 0 );
 
 		if ( $show_currency ) {
-			if ( $price_format === 'before' ) {
+			if ( 'before' === $price_format ) {
 				$price_display = $currency_symbol . ' ' . $formatted_price;
 			} else {
 				$price_display = $formatted_price . ' ' . $currency_symbol;

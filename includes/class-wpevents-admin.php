@@ -14,7 +14,7 @@ class WPEvents_Admin {
 		$new = array();
 		foreach ( $cols as $key => $label ) {
 			$new[ $key ] = $label;
-			if ( $key === 'title' ) {
+			if ( 'title' === $key ) {
 				$new['event_start']     = __( 'Date', 'wp-events' );
 				$new['event_venue']     = __( 'Venue', 'wp-events' );
 				$new['event_organizer'] = __( 'Organizer', 'wp-events' );
@@ -24,19 +24,19 @@ class WPEvents_Admin {
 	}
 
 	public static function column_content( $column, $post_id ) {
-		if ( $column === 'event_start' ) {
+		if ( 'event_start' === $column ) {
 			$start = get_post_meta( $post_id, 'event_start', true );
 			if ( $start ) {
 				echo esc_html( wp_date( 'Y-m-d H:i', strtotime( $start ) ) );
 			}
 		}
-		if ( $column === 'event_venue' ) {
+		if ( 'event_venue' === $column ) {
 			$venue_id = (int) get_post_meta( $post_id, 'event_venue', true );
 			if ( $venue_id ) {
 				echo '<a href="' . esc_url( get_edit_post_link( $venue_id ) ) . '">' . esc_html( get_the_title( $venue_id ) ) . '</a>';
 			}
 		}
-		if ( $column === 'event_organizer' ) {
+		if ( 'event_organizer' === $column ) {
 			$org_ids = (array) get_post_meta( $post_id, 'event_organizer', true );
 			$names   = array_filter( array_map( 'get_the_title', array_map( 'intval', $org_ids ) ) );
 			if ( $names ) {

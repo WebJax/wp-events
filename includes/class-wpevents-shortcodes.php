@@ -69,7 +69,7 @@ class WPEvents_Shortcodes {
 			return '';
 		}
 		$post = get_post( $post_id );
-		if ( ! $post || $post->post_type !== 'event' ) {
+		if ( ! $post || 'event' !== $post->post_type ) {
 			return '';
 		}
 

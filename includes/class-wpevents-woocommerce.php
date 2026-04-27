@@ -19,36 +19,36 @@ class WPEvents_WooCommerce {
 	 * Initialize WooCommerce integration
 	 */
 	public static function init() {
-		// Only load if WooCommerce is active
+		// Only load if WooCommerce is active.
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
-		// Add meta box for ticket settings
+		// Add meta box for ticket settings.
 		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_ticket_meta_box' ) );
 		add_action( 'save_post_event', array( __CLASS__, 'save_ticket_meta' ) );
 
-		// Display ticket purchase button on event pages
+		// Display ticket purchase button on event pages.
 		add_filter( 'the_content', array( __CLASS__, 'add_ticket_button' ) );
 
-		// Add event info to cart items
+		// Add event info to cart items.
 		add_filter( 'woocommerce_add_cart_item_data', array( __CLASS__, 'add_event_to_cart_item' ), 10, 3 );
 		add_filter( 'woocommerce_get_cart_item_from_session', array( __CLASS__, 'get_cart_item_from_session' ), 10, 2 );
 
-		// Add event info to order
+		// Add event info to order.
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_event_to_order_item' ), 10, 4 );
 
-		// Display event info in order details
+		// Display event info in order details.
 		add_filter( 'woocommerce_order_item_meta_end', array( __CLASS__, 'display_event_in_order' ), 10, 4 );
 
-		// Add attendee fields to checkout
+		// Add attendee fields to checkout.
 		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'add_attendee_fields' ) );
 		add_action( 'woocommerce_checkout_update_order_meta', array( __CLASS__, 'save_attendee_data' ) );
 
-		// Add event ticket product type
+		// Add event ticket product type.
 		add_filter( 'product_type_selector', array( __CLASS__, 'add_event_ticket_product_type' ) );
 
-		// Sync event capacity with product stock
+		// Sync event capacity with product stock.
 		add_action( 'save_post_event', array( __CLASS__, 'sync_ticket_stock' ), 20 );
 	}
 
@@ -131,7 +131,7 @@ class WPEvents_WooCommerce {
 	 */
 	public static function save_ticket_meta( $post_id ) {
 		if ( ! isset( $_POST['wpevents_ticket_nonce'] ) ||
-			! wp_verify_nonce( $_POST['wpevents_ticket_nonce'], 'wpevents_ticket_meta' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_ticket_nonce'] ) ), 'wpevents_ticket_meta' ) ) {
 			return;
 		}
 
@@ -168,7 +168,7 @@ class WPEvents_WooCommerce {
 		$enable_tickets = get_post_meta( $event_id, 'enable_tickets', true );
 		$product_id     = get_post_meta( $event_id, 'ticket_product_id', true );
 
-		if ( $enable_tickets !== '1' || ! $product_id ) {
+		if ( '1' !== $enable_tickets || ! $product_id ) {
 			return $content;
 		}
 
@@ -177,7 +177,7 @@ class WPEvents_WooCommerce {
 			return $content;
 		}
 
-		// Check capacity
+		// Check capacity.
 		$capacity = get_post_meta( $event_id, 'ticket_capacity', true );
 		$sold     = self::get_tickets_sold( $event_id );
 
@@ -226,12 +226,14 @@ class WPEvents_WooCommerce {
 
 		$event_id = 0;
 
-		// Prefer an explicitly provided event ID from the add-to-cart request, if available
+		// Prefer an explicitly provided event ID from the add-to-cart request, if available.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce not applicable for add-to-cart product ID lookup.
 		if ( isset( $_REQUEST['wpevents_event_id'] ) ) {
 			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			if ( $requested_event_id > 0 ) {
-				// Validate that the requested event is actually linked to this product
+				// Validate that the requested event is actually linked to this product.
 				$linked_event_id = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT post_id FROM {$wpdb->postmeta} 
@@ -250,7 +252,7 @@ class WPEvents_WooCommerce {
 		}
 
 		// If no valid explicit event was provided, fall back to inferring it from postmeta,
-		// but only when there is exactly one unambiguous match for this product
+		// but only when there is exactly one unambiguous match for this product.
 		if ( ! $event_id ) {
 			$event_ids = $wpdb->get_col(
 				$wpdb->prepare(
@@ -289,7 +291,7 @@ class WPEvents_WooCommerce {
 	protected static function get_tickets_sold( $event_id ) {
 		global $wpdb;
 
-		// Sum quantities from completed and processing orders
+		// Sum quantities from completed and processing orders.
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COALESCE(SUM(CAST(qty_meta.meta_value AS UNSIGNED)), 0)
@@ -313,13 +315,13 @@ class WPEvents_WooCommerce {
 	 * Add event info to order item
 	 */
 	public static function add_event_to_order_item( $item, $cart_item_key, $values, $order ) {
-		// Get event_id from cart item data, not from $_GET
+		// Get event_id from cart item data, not from $_GET.
 		if ( isset( $values['event_id'] ) ) {
 			$event_id = absint( $values['event_id'] );
 			$item->add_meta_data( '_event_id', $event_id, true );
 			$item->add_meta_data( __( 'Event', 'wp-events' ), get_the_title( $event_id ), true );
 
-			// Add event date
+			// Add event date.
 			$start = get_post_meta( $event_id, 'event_start', true );
 			if ( $start ) {
 				$item->add_meta_data(
@@ -350,7 +352,7 @@ class WPEvents_WooCommerce {
 	 * Add attendee fields to checkout
 	 */
 	public static function add_attendee_fields( $fields ) {
-		// Check if cart contains event tickets
+		// Check if cart contains event tickets.
 		if ( ! self::cart_has_event_tickets() ) {
 			return $fields;
 		}
@@ -396,16 +398,18 @@ class WPEvents_WooCommerce {
 	 * Save attendee data to order
 	 */
 	public static function save_attendee_data( $order_id ) {
-		// WooCommerce handles nonce verification during checkout
-		// We only process if this is a legitimate checkout request
+		// WooCommerce handles nonce verification during checkout.
+		// We only process if this is a legitimate checkout request.
 		if ( ! is_admin() && did_action( 'woocommerce_checkout_process' ) ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
 			if ( isset( $_POST['attendee_name'] ) ) {
-				update_post_meta( $order_id, 'attendee_name', sanitize_text_field( $_POST['attendee_name'] ) );
+				update_post_meta( $order_id, 'attendee_name', sanitize_text_field( wp_unslash( $_POST['attendee_name'] ) ) );
 			}
 
 			if ( isset( $_POST['attendee_email'] ) ) {
-				update_post_meta( $order_id, 'attendee_email', sanitize_email( $_POST['attendee_email'] ) );
+				update_post_meta( $order_id, 'attendee_email', sanitize_email( wp_unslash( $_POST['attendee_email'] ) ) );
 			}
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 		}
 	}
 
@@ -425,13 +429,13 @@ class WPEvents_WooCommerce {
 		$product_id     = get_post_meta( $event_id, 'ticket_product_id', true );
 		$capacity_raw   = get_post_meta( $event_id, 'ticket_capacity', true );
 
-		// Only proceed when tickets are enabled and a product is linked
-		if ( $enable_tickets !== '1' || ! $product_id ) {
+		// Only proceed when tickets are enabled and a product is linked.
+		if ( '1' !== $enable_tickets || ! $product_id ) {
 			return;
 		}
 
-		// If capacity is not set at all, do not change stock settings
-		if ( $capacity_raw === '' || $capacity_raw === false ) {
+		// If capacity is not set at all, do not change stock settings.
+		if ( '' === $capacity_raw || false === $capacity_raw ) {
 			return;
 		}
 
@@ -440,18 +444,18 @@ class WPEvents_WooCommerce {
 			return;
 		}
 
-		// Normalize capacity to integer
+		// Normalize capacity to integer.
 		$capacity = (int) $capacity_raw;
 
-		// Capacity 0 means unlimited tickets: disable stock management and ensure product is in stock
-		if ( $capacity === 0 ) {
+		// Capacity 0 means unlimited tickets: disable stock management and ensure product is in stock.
+		if ( 0 === $capacity ) {
 			$product->set_manage_stock( false );
 			$product->set_stock_status( 'instock' );
 			$product->save();
 			return;
 		}
 
-		// Update product stock to match limited capacity
+		// Update product stock to match limited capacity.
 		$sold      = self::get_tickets_sold( $event_id );
 		$remaining = max( 0, $capacity - $sold );
 

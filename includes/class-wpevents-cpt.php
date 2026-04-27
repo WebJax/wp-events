@@ -20,14 +20,14 @@ class WPEvents_CPT {
 		add_action( 'add_meta_boxes_organizer', array( __CLASS__, 'add_organizer_meta_box' ) );
 		add_action( 'save_post_organizer', array( __CLASS__, 'save_organizer_meta' ) );
 
-		// Admin scripts and AJAX
+		// Admin scripts and AJAX.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 		add_action( 'wp_ajax_set_venue_featured_image', array( __CLASS__, 'ajax_set_venue_featured_image' ) );
 		add_action( 'wp_ajax_remove_venue_featured_image', array( __CLASS__, 'ajax_remove_venue_featured_image' ) );
 	}
 
 	protected static function register_taxonomies() {
-		// Event categories
+		// Event categories.
 		register_taxonomy(
 			'event_category',
 			'event',
@@ -45,7 +45,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Event tags
+		// Event tags.
 		register_taxonomy(
 			'event_tag',
 			'event',
@@ -63,7 +63,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Venue categories
+		// Venue categories.
 		register_taxonomy(
 			'venue_category',
 			'venue',
@@ -81,7 +81,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Organizer categories
+		// Organizer categories.
 		register_taxonomy(
 			'organizer_category',
 			'organizer',
@@ -159,7 +159,7 @@ class WPEvents_CPT {
 	}
 
 	protected static function register_meta() {
-		// Event meta
+		// Event meta.
 		register_post_meta(
 			'event',
 			'event_start',
@@ -208,7 +208,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Relationships
+		// Relationships.
 		register_post_meta(
 			'event',
 			'event_organizer',
@@ -237,7 +237,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Recurrence
+		// Recurrence.
 		register_post_meta(
 			'event',
 			'recurrence_type',
@@ -293,7 +293,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Organizer meta
+		// Organizer meta.
 		register_post_meta(
 			'organizer',
 			'organizer_website',
@@ -325,7 +325,7 @@ class WPEvents_CPT {
 			)
 		);
 
-		// Venue meta
+		// Venue meta.
 		register_post_meta(
 			'venue',
 			'venue_address',
@@ -406,7 +406,7 @@ class WPEvents_CPT {
 		);
 	}
 
-	// Meta boxes
+	// Meta boxes.
 	public static function add_event_meta_box() {
 		add_meta_box(
 			'wpevents_event_times',
@@ -419,6 +419,7 @@ class WPEvents_CPT {
 	}
 
 	public static function render_event_times_box( $post ) {
+		wp_nonce_field( 'wpevents_event_times_nonce', 'wpevents_event_times_nonce' );
 		$start = get_post_meta( $post->ID, 'event_start', true );
 		$end   = get_post_meta( $post->ID, 'event_end', true );
 		echo '<label>' . __( 'Start', 'wp-events' ) . '</label><br />';
@@ -428,11 +429,17 @@ class WPEvents_CPT {
 	}
 
 	public static function save_event_times( $post_id ) {
+		if ( ! isset( $_POST['wpevents_event_times_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_event_times_nonce'] ) ), 'wpevents_event_times_nonce' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 		if ( isset( $_POST['event_start'] ) ) {
-			update_post_meta( $post_id, 'event_start', self::sanitize_iso8601( $_POST['event_start'] ) );
+			update_post_meta( $post_id, 'event_start', self::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_start'] ) ) ) );
 		}
 		if ( isset( $_POST['event_end'] ) ) {
-			update_post_meta( $post_id, 'event_end', self::sanitize_iso8601( $_POST['event_end'] ) );
+			update_post_meta( $post_id, 'event_end', self::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_end'] ) ) ) );
 		}
 	}
 
@@ -459,6 +466,7 @@ class WPEvents_CPT {
 	}
 
 	public static function render_recurrence_box( $post ) {
+		wp_nonce_field( 'wpevents_recurrence_nonce', 'wpevents_recurrence_nonce' );
 		$type     = get_post_meta( $post->ID, 'recurrence_type', true );
 		$interval = get_post_meta( $post->ID, 'recurrence_interval', true );
 		$end      = get_post_meta( $post->ID, 'recurrence_end', true );
@@ -483,14 +491,20 @@ class WPEvents_CPT {
 	}
 
 	public static function save_recurrence_meta( $post_id ) {
+		if ( ! isset( $_POST['wpevents_recurrence_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_recurrence_nonce'] ) ), 'wpevents_recurrence_nonce' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 		if ( isset( $_POST['recurrence_type'] ) ) {
-			update_post_meta( $post_id, 'recurrence_type', sanitize_text_field( $_POST['recurrence_type'] ) );
+			update_post_meta( $post_id, 'recurrence_type', sanitize_text_field( wp_unslash( $_POST['recurrence_type'] ) ) );
 		}
 		if ( isset( $_POST['recurrence_interval'] ) ) {
 			update_post_meta( $post_id, 'recurrence_interval', absint( $_POST['recurrence_interval'] ) );
 		}
 		if ( isset( $_POST['recurrence_end'] ) ) {
-			update_post_meta( $post_id, 'recurrence_end', sanitize_text_field( $_POST['recurrence_end'] ) );
+			update_post_meta( $post_id, 'recurrence_end', sanitize_text_field( wp_unslash( $_POST['recurrence_end'] ) ) );
 		}
 	}
 
@@ -514,7 +528,7 @@ class WPEvents_CPT {
 			$selected_organizers = array();
 		}
 
-		// Venue selection
+		// Venue selection.
 		echo '<h4>' . __( 'Venue', 'wp-events' ) . '</h4>';
 		$venues = get_posts(
 			array(
@@ -547,7 +561,7 @@ class WPEvents_CPT {
 
 		echo '<div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">';
 		foreach ( $organizers as $organizer ) {
-			$checked = in_array( $organizer->ID, $selected_organizers ) ? 'checked="checked"' : '';
+			$checked = in_array( $organizer->ID, $selected_organizers, true ) ? 'checked="checked"' : '';
 			echo '<label style="display: block; margin: 5px 0;">';
 			echo '<input type="checkbox" name="event_organizer[]" value="' . esc_attr( $organizer->ID ) . '" ' . $checked . '> ';
 			echo esc_html( $organizer->post_title );
@@ -564,17 +578,17 @@ class WPEvents_CPT {
 	}
 
 	public static function save_event_venue_organizer( $post_id ) {
-		// Check nonce
-		if ( ! isset( $_POST['wpevents_venue_organizer_nonce'] ) || ! wp_verify_nonce( $_POST['wpevents_venue_organizer_nonce'], 'wpevents_venue_organizer_nonce' ) ) {
+		// Check nonce.
+		if ( ! isset( $_POST['wpevents_venue_organizer_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_venue_organizer_nonce'] ) ), 'wpevents_venue_organizer_nonce' ) ) {
 			return;
 		}
 
-		// Check if user has permission to edit
+		// Check if user has permission to edit.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		// Save venue
+		// Save venue.
 		if ( isset( $_POST['event_venue'] ) ) {
 			$venue_id = (int) $_POST['event_venue'];
 			if ( $venue_id > 0 ) {
@@ -584,7 +598,7 @@ class WPEvents_CPT {
 			}
 		}
 
-		// Save organizers
+		// Save organizers.
 		if ( isset( $_POST['event_organizer'] ) && is_array( $_POST['event_organizer'] ) ) {
 			$organizer_ids = array_map( 'absint', $_POST['event_organizer'] );
 			$organizer_ids = array_filter( $organizer_ids ); // Remove empty values
@@ -615,7 +629,7 @@ class WPEvents_CPT {
 		$price    = get_post_meta( $post->ID, 'event_price', true );
 		$currency = get_post_meta( $post->ID, 'event_currency', true );
 
-		// Default currency
+		// Default currency.
 		if ( empty( $currency ) ) {
 			$currency = 'DKK';
 		}
@@ -648,19 +662,19 @@ class WPEvents_CPT {
 	}
 
 	public static function save_event_price( $post_id ) {
-		// Check nonce
-		if ( ! isset( $_POST['wpevents_price_nonce'] ) || ! wp_verify_nonce( $_POST['wpevents_price_nonce'], 'wpevents_price_nonce' ) ) {
+		// Check nonce.
+		if ( ! isset( $_POST['wpevents_price_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_price_nonce'] ) ), 'wpevents_price_nonce' ) ) {
 			return;
 		}
 
-		// Check if user has permission to edit
+		// Check if user has permission to edit.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		// Save price
+		// Save price.
 		if ( isset( $_POST['event_price'] ) ) {
-			$price = $_POST['event_price'];
+			$price = sanitize_text_field( wp_unslash( $_POST['event_price'] ) );
 			if ( is_numeric( $price ) && $price > 0 ) {
 				update_post_meta( $post_id, 'event_price', (float) $price );
 			} else {
@@ -668,11 +682,11 @@ class WPEvents_CPT {
 			}
 		}
 
-		// Save currency
+		// Save currency.
 		if ( isset( $_POST['event_currency'] ) ) {
-			$currency           = strtoupper( sanitize_text_field( $_POST['event_currency'] ) );
+			$currency           = strtoupper( sanitize_text_field( wp_unslash( $_POST['event_currency'] ) ) );
 			$allowed_currencies = array( 'DKK', 'EUR', 'USD', 'GBP', 'NOK', 'SEK' );
-			if ( in_array( $currency, $allowed_currencies ) ) {
+			if ( in_array( $currency, $allowed_currencies, true ) ) {
 				update_post_meta( $post_id, 'event_currency', $currency );
 			}
 		}
@@ -690,7 +704,8 @@ class WPEvents_CPT {
 	}
 
 	public static function render_venue_box( $post ) {
-		// Featured Image section
+		wp_nonce_field( 'wpevents_venue_meta_nonce', 'wpevents_venue_meta_nonce' );
+		// Featured Image section.
 		echo '<div style="margin-bottom: 20px;">';
 		echo '<h4>' . __( 'Featured Image', 'wp-events' ) . '</h4>';
 		$featured_image = get_the_post_thumbnail( $post->ID, 'medium' );
@@ -719,12 +734,12 @@ class WPEvents_CPT {
 
 		foreach ( $fields as $key => $label ) {
 			$value = get_post_meta( $post->ID, $key, true );
-			$type  = ( $key === 'venue_email' ) ? 'email' : ( strpos( $key, 'facebook' ) !== false || strpos( $key, 'instagram' ) !== false || strpos( $key, 'website' ) !== false ? 'url' : 'text' );
+			$type  = ( 'venue_email' === $key ) ? 'email' : ( strpos( $key, 'facebook' ) !== false || strpos( $key, 'instagram' ) !== false || strpos( $key, 'website' ) !== false ? 'url' : 'text' );
 			echo '<p><label for="' . esc_attr( $key ) . '">' . esc_html( $label ) . '</label><br>';
 			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" style="width:100%" /></p>';
 		}
 
-		// Google Maps settings
+		// Google Maps settings.
 		echo '<h4>' . __( 'Google Maps', 'wp-events' ) . '</h4>';
 		$show_directions = get_post_meta( $post->ID, 'venue_show_directions', true );
 		echo '<p><label>';
@@ -748,20 +763,26 @@ class WPEvents_CPT {
 	}
 
 	public static function save_venue_meta( $post_id ) {
+		if ( ! isset( $_POST['wpevents_venue_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_venue_meta_nonce'] ) ), 'wpevents_venue_meta_nonce' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 		$fields = array( 'venue_address', 'venue_city', 'venue_postal_code', 'venue_country', 'venue_phone', 'venue_email', 'venue_website', 'venue_facebook', 'venue_instagram', 'venue_custom_maps_url' );
 		foreach ( $fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				$value = sanitize_text_field( $_POST[ $field ] );
-				if ( in_array( $field, array( 'venue_email' ) ) ) {
+				$value = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+				if ( in_array( $field, array( 'venue_email' ), true ) ) {
 					$value = sanitize_email( $value );
-				} elseif ( in_array( $field, array( 'venue_website', 'venue_facebook', 'venue_instagram', 'venue_custom_maps_url' ) ) ) {
-					$value = esc_url_raw( $value );
+				} elseif ( in_array( $field, array( 'venue_website', 'venue_facebook', 'venue_instagram', 'venue_custom_maps_url' ), true ) ) {
+					$value = esc_url_raw( wp_unslash( $_POST[ $field ] ) );
 				}
 				update_post_meta( $post_id, $field, $value );
 			}
 		}
 
-		// Handle checkbox for directions
+		// Handle checkbox for directions.
 		if ( isset( $_POST['venue_show_directions'] ) ) {
 			update_post_meta( $post_id, 'venue_show_directions', 1 );
 		} else {
@@ -769,7 +790,7 @@ class WPEvents_CPT {
 		}
 
 		if ( isset( $_POST['venue_other_social'] ) ) {
-			$urls = array_filter( array_map( 'trim', explode( "\n", $_POST['venue_other_social'] ) ) );
+			$urls = array_filter( array_map( 'trim', explode( "\n", sanitize_textarea_field( wp_unslash( $_POST['venue_other_social'] ) ) ) ) );
 			$urls = array_map( 'esc_url_raw', $urls );
 			update_post_meta( $post_id, 'venue_other_social', $urls );
 		}
@@ -787,6 +808,7 @@ class WPEvents_CPT {
 	}
 
 	public static function render_organizer_box( $post ) {
+		wp_nonce_field( 'wpevents_organizer_meta_nonce', 'wpevents_organizer_meta_nonce' );
 		$fields = array(
 			'organizer_phone'   => __( 'Phone', 'wp-events' ),
 			'organizer_email'   => __( 'Email', 'wp-events' ),
@@ -795,33 +817,39 @@ class WPEvents_CPT {
 
 		foreach ( $fields as $key => $label ) {
 			$value = get_post_meta( $post->ID, $key, true );
-			$type  = ( $key === 'organizer_email' ) ? 'email' : ( strpos( $key, 'website' ) !== false ? 'url' : 'text' );
+			$type  = ( 'organizer_email' === $key ) ? 'email' : ( strpos( $key, 'website' ) !== false ? 'url' : 'text' );
 			echo '<p><label for="' . esc_attr( $key ) . '">' . esc_html( $label ) . '</label><br>';
 			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" style="width:100%" /></p>';
 		}
 	}
 
 	public static function save_organizer_meta( $post_id ) {
+		if ( ! isset( $_POST['wpevents_organizer_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpevents_organizer_meta_nonce'] ) ), 'wpevents_organizer_meta_nonce' ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 		$fields = array( 'organizer_phone', 'organizer_email', 'organizer_website' );
 		foreach ( $fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				$value = sanitize_text_field( $_POST[ $field ] );
-				if ( $field === 'organizer_email' ) {
+				$value = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+				if ( 'organizer_email' === $field ) {
 					$value = sanitize_email( $value );
-				} elseif ( $field === 'organizer_website' ) {
-					$value = esc_url_raw( $value );
+				} elseif ( 'organizer_website' === $field ) {
+					$value = esc_url_raw( wp_unslash( $_POST[ $field ] ) );
 				}
 				update_post_meta( $post_id, $field, $value );
 			}
 		}
 	}
 
-	// Sanitize helpers
+	// Sanitize helpers.
 	public static function sanitize_iso8601( $value ) {
 		$v = (string) $value;
-		// Accept full ISO 8601 or Y-m-d H:i:s and convert to ISO8601
+		// Accept full ISO 8601 or Y-m-d H:i:s and convert to ISO8601.
 		$ts = strtotime( $v );
-		if ( $ts === false ) {
+		if ( false === $ts ) {
 			return '';
 		}
 		return wp_date( DATE_ATOM, $ts, wp_timezone() );
@@ -829,7 +857,7 @@ class WPEvents_CPT {
 	public static function sanitize_date( $value ) {
 		$v  = (string) $value;
 		$ts = strtotime( $v );
-		if ( $ts === false ) {
+		if ( false === $ts ) {
 			return '';
 		}
 		return wp_date( 'Y-m-d', $ts, wp_timezone() );
@@ -840,7 +868,7 @@ class WPEvents_CPT {
 	}
 	public static function sanitize_ids_array( $value ) {
 		if ( is_string( $value ) ) {
-			// Try JSON first
+			// Try JSON first.
 			$maybe = json_decode( $value, true );
 			if ( is_array( $maybe ) ) {
 				$value = $maybe;
@@ -873,13 +901,13 @@ class WPEvents_CPT {
 	}
 
 	public static function get_venue_directions_url( $venue_id ) {
-		// Check for custom URL first
+		// Check for custom URL first.
 		$custom_url = get_post_meta( $venue_id, 'venue_custom_maps_url', true );
 		if ( ! empty( $custom_url ) ) {
 			return $custom_url;
 		}
 
-		// Build address from components
+		// Build address from components.
 		$address     = get_post_meta( $venue_id, 'venue_address', true );
 		$city        = get_post_meta( $venue_id, 'venue_city', true );
 		$postal_code = get_post_meta( $venue_id, 'venue_postal_code', true );
@@ -907,7 +935,7 @@ class WPEvents_CPT {
 	public static function enqueue_admin_scripts( $hook_suffix ) {
 		global $post_type;
 
-		if ( in_array( $post_type, array( 'event', 'venue', 'organizer' ) ) ) {
+		if ( in_array( $post_type, array( 'event', 'venue', 'organizer' ), true ) ) {
 			wp_enqueue_media();
 			wp_enqueue_script(
 				'wp-events-admin',
@@ -931,8 +959,8 @@ class WPEvents_CPT {
 	public static function ajax_set_venue_featured_image() {
 		check_ajax_referer( 'wp_events_admin_nonce', 'nonce' );
 
-		$post_id       = absint( $_POST['post_id'] );
-		$attachment_id = absint( $_POST['attachment_id'] );
+		$post_id       = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die(
@@ -964,7 +992,7 @@ class WPEvents_CPT {
 	public static function ajax_remove_venue_featured_image() {
 		check_ajax_referer( 'wp_events_admin_nonce', 'nonce' );
 
-		$post_id = absint( $_POST['post_id'] );
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die(

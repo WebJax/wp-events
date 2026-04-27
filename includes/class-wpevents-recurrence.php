@@ -7,7 +7,7 @@ class WPEvents_Recurrence {
 		if ( wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
 			return;
 		}
-		if ( $post->post_type !== 'event' ) {
+		if ( 'event' !== $post->post_type ) {
 			return;
 		}
 		if ( get_post_meta( $post_id, 'is_occurrence', true ) ) {
@@ -34,7 +34,7 @@ class WPEvents_Recurrence {
 			return;
 		}
 
-		// Avoid duplicates: delete existing occurrences
+		// Avoid duplicates: delete existing occurrences.
 		$existing_query = new WP_Query(
 			array(
 				'post_type'      => 'event',
@@ -56,7 +56,7 @@ class WPEvents_Recurrence {
 				$new_start = wp_date( DATE_ATOM, $cursor, wp_timezone() );
 				$new_end   = $end_ts ? wp_date( DATE_ATOM, $cursor + ( $end_ts - $start_ts ), wp_timezone() ) : '';
 
-				// Add occurrence date to title to differentiate from parent
+				// Add occurrence date to title to differentiate from parent.
 				$occurrence_date = wp_date( 'j. F Y', $cursor, wp_timezone() );
 				$title_with_date = $post->post_title . ' (' . $occurrence_date . ')';
 
@@ -70,7 +70,7 @@ class WPEvents_Recurrence {
 					)
 				);
 				if ( $child_id && ! is_wp_error( $child_id ) ) {
-					// Copy time information
+					// Copy time information.
 					update_post_meta( $child_id, 'event_start', $new_start );
 					if ( $new_end ) {
 						update_post_meta( $child_id, 'event_end', $new_end );
@@ -90,17 +90,17 @@ class WPEvents_Recurrence {
 						wp_set_object_terms( $child_id, $tags, 'event_tag' );
 					}
 
-					// Copy featured image
+					// Copy featured image.
 					$thumbnail_id = get_post_thumbnail_id( $post_id );
 					if ( $thumbnail_id ) {
 						set_post_thumbnail( $child_id, $thumbnail_id );
 					}
 
-					// Copy venue and organizer relations
+					// Copy venue and organizer relations.
 					update_post_meta( $child_id, 'event_venue', (int) get_post_meta( $post_id, 'event_venue', true ) );
 					update_post_meta( $child_id, 'event_organizer', (array) get_post_meta( $post_id, 'event_organizer', true ) );
 
-					// Copy price information
+					// Copy price information.
 					$price = get_post_meta( $post_id, 'event_price', true );
 					if ( ! empty( $price ) ) {
 						update_post_meta( $child_id, 'event_price', $price );
