@@ -25,7 +25,7 @@ Et WordPress-plugin til begivenheder med SEO, gentagelser, relationer og import 
   - Pris og valuta overføres
   - Indhold konverteres automatisk til Gutenberg-blokke
 - Shortcodes: `[events_list]`, `[event id=123]`, `[organizer_dashboard]`, `[event_submission_form]`
-- Gutenberg-blokke: Event-liste, Karusel (Swiper.js)
+- Gutenberg-blokke: Event-liste, Karusel (Swiper.js), Venue, Arrangør, Event-program, Pris
 - Admin kolonner: Dato, Sted, Arrangør, Status
 
 ## Installation
@@ -60,7 +60,7 @@ For hvert event overføres følgende data automatisk:
 | Kategorier | `tribe_events_cat` → `event_category` |
 | Tags | `post_tag` → `event_tag` |
 
-Se [IMPORT-GUIDE.md](IMPORT-GUIDE.md) for detaljeret dokumentation.
+Se kildekoden i `includes/class-wpevents-import-tribe.php` for implementeringsdetaljer.
 
 ## WP-CLI Import
 Kør:
@@ -177,9 +177,7 @@ Indbygget tilmeldings-system uden behov for ekstra plugins.
 - **Deltagerinfo**: Navn, email, telefon, noter
 
 ## Fremtidige udvidelser
-- Email notifikationer til deltagere
 - Påmindelse for kommende events
-- Deltagerregistrering uden WooCommerce
 - Integration med flere betalingsgateways
 
 
@@ -218,7 +216,10 @@ Plugin'et tilbyder **fire forskellige visningsformater** for event-arkivet:
 - Perfekt til sidebars eller widgets
 - Tilgås via: `/events/?view=compact`
 
-### 2. Taxonomy Templates
+### 2. Single Event Template
+- `single-event.php` - Detaljeret visning af ét event
+
+### 3. Taxonomy Templates
 - `taxonomy-event_category.php` - Events i en specifik kategori
 - `taxonomy-event_tag.php` - Events med et specifikt tag
 
@@ -227,7 +228,7 @@ Begge viser:
 - Kategori/tag beskrivelse
 - Paginering
 
-### 3. Template Parts (Genanvendelige komponenter)
+### 4. Template Parts (Genanvendelige komponenter)
 
 #### Event Cards
 - `parts/event-card-grid.php` - Standard grid card
