@@ -20,7 +20,11 @@ get_header(); ?>
             <h1 class="taxonomy-title">
                 <?php 
                 $term = get_queried_object();
-                printf( esc_html__( 'Events i kategorien: %s', 'wp-events' ), '<span>' . single_term_title( '', false ) . '</span>' );
+                printf(
+                    /* translators: %s: event category name */
+                    esc_html__( 'Events i kategorien: %s', 'wp-events' ),
+                    '<span>' . esc_html( single_term_title( '', false ) ) . '</span>'
+                );
                 ?>
             </h1>
             

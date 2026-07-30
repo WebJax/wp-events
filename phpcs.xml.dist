@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ruleset name="WP Events">
+	<description>WordPress Coding Standards for WP Events. Run from plugin root: phpcs</description>
+
+	<file>src</file>
+	<file>wp-events.php</file>
+	<file>templates</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+
+	<rule ref="WordPress">
+		<!-- These sniffs crash with trim(): Passing null on PHP 8.x with current WPCS. -->
+		<exclude name="WordPress.WP.I18n"/>
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals"/>
+		<exclude name="WordPress.Security.EscapeOutput"/>
+		<exclude name="WordPress.WP.AlternativeFunctions"/>
+		<exclude name="WordPress.WP.DeprecatedParameterValues"/>
+	</rule>
+</ruleset>

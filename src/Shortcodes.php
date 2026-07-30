@@ -1,8 +1,16 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * Shortcodes.
+ *
+ * @package WPEvents
+ */
 
-class WPEvents_Shortcodes {
+namespace WPEvents;
+
+/**
+ * Event shortcodes.
+ */
+class Shortcodes {
 	public static function register() {
 		add_shortcode( 'events_list', array( __CLASS__, 'events_list' ) );
 		add_shortcode( 'event', array( __CLASS__, 'event_single' ) );
@@ -17,7 +25,7 @@ class WPEvents_Shortcodes {
 			'events_list'
 		);
 
-		$q = new WP_Query(
+		$q = new \WP_Query(
 			array(
 				'post_type'      => 'event',
 				'posts_per_page' => (int) $atts['limit'],

@@ -1,15 +1,33 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * Admin list columns for events.
+ *
+ * @package WPEvents
+ */
 
-class WPEvents_Admin {
-	public static function register_columns() {
+namespace WPEvents\Admin;
+
+/**
+ * Event admin columns and sorting.
+ */
+class Columns {
+
+	/**
+	 * Register column hooks.
+	 */
+	public static function register() {
 		add_filter( 'manage_event_posts_columns', array( __CLASS__, 'columns' ) );
 		add_action( 'manage_event_posts_custom_column', array( __CLASS__, 'column_content' ), 10, 2 );
 		add_filter( 'manage_edit-event_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'sort_by_meta' ) );
 	}
 
+	/**
+	 * Add custom columns after title.
+	 *
+	 * @param array $cols Existing columns.
+	 * @return array
+	 */
 	public static function columns( $cols ) {
 		$new = array();
 		foreach ( $cols as $key => $label ) {
@@ -23,6 +41,12 @@ class WPEvents_Admin {
 		return $new;
 	}
 
+	/**
+	 * Render custom column content.
+	 *
+	 * @param string $column  Column key.
+	 * @param int    $post_id Post ID.
+	 */
 	public static function column_content( $column, $post_id ) {
 		if ( 'event_start' === $column ) {
 			$start = get_post_meta( $post_id, 'event_start', true );
@@ -45,11 +69,22 @@ class WPEvents_Admin {
 		}
 	}
 
+	/**
+	 * Mark sortable columns.
+	 *
+	 * @param array $cols Columns.
+	 * @return array
+	 */
 	public static function sortable_columns( $cols ) {
 		$cols['event_start'] = 'event_start';
 		return $cols;
 	}
 
+	/**
+	 * Sort by event_start meta.
+	 *
+	 * @param \WP_Query $query Query.
+	 */
 	public static function sort_by_meta( $query ) {
 		if ( ! is_admin() || ! $query->is_main_query() ) {
 			return;

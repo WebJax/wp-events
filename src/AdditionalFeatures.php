@@ -5,15 +5,12 @@
  * @package WPEvents
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace WPEvents;
 
 /**
- * WPEvents Additional Features
- * Event status, registration, and enhancements
+ * Event status, registration, and enhancements.
  */
-class WPEvents_Additional_Features {
+class AdditionalFeatures {
 
 	/**
 	 * Initialize additional features
@@ -111,8 +108,20 @@ class WPEvents_Additional_Features {
 		}
 
 		if ( isset( $_POST['event_status'] ) ) {
-			update_post_meta( $post_id, 'event_status', sanitize_text_field( wp_unslash( $_POST['event_status'] ) ) );
+			update_post_meta( $post_id, 'event_status', self::sanitize_event_status( wp_unslash( $_POST['event_status'] ) ) );
 		}
+	}
+
+	/**
+	 * Sanitize event status against an allowlist.
+	 *
+	 * @param mixed $value Raw status value.
+	 * @return string
+	 */
+	public static function sanitize_event_status( $value ) {
+		$allowed = array( 'scheduled', 'cancelled', 'postponed', 'rescheduled', 'sold_out', 'completed' );
+		$v       = sanitize_key( (string) $value );
+		return in_array( $v, $allowed, true ) ? $v : 'scheduled';
 	}
 
 	/**
@@ -296,10 +305,10 @@ class WPEvents_Additional_Features {
 			$form     .= '<p>' . sprintf( esc_html__( '%d spots remaining', 'wp-events' ), $remaining ) . '</p>';
 		}
 
-		$form .= '<form method="post" action="' . admin_url( 'admin-post.php' ) . '">';
+		$form .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		$form .= wp_nonce_field( 'event_registration', 'registration_nonce', true, false );
 		$form .= '<input type="hidden" name="action" value="event_registration">';
-		$form .= '<input type="hidden" name="event_id" value="' . $event_id . '">';
+		$form .= '<input type="hidden" name="event_id" value="' . esc_attr( (string) $event_id ) . '">';
 
 		$form .= '<p>';
 		$form .= '<label for="reg_name">' . __( 'Your Name *', 'wp-events' ) . '</label><br>';
@@ -379,6 +388,20 @@ class WPEvents_Additional_Features {
 			wp_die( esc_html__( 'Sorry, this event is now full', 'wp-events' ) );
 		}
 
+		// Rate limit: same IP + email within 10 minutes.
+		$ip           = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$rate_key     = 'wpevents_reg_' . md5( $ip . $email );
+		if ( get_transient( $rate_key ) ) {
+			wp_die( esc_html__( 'Please wait before registering again.', 'wp-events' ) );
+		}
+
+		// Duplicate email check for this event.
+		foreach ( $registrations as $existing ) {
+			if ( isset( $existing['email'] ) && strtolower( $existing['email'] ) === strtolower( $email ) ) {
+				wp_die( esc_html__( 'This email is already registered for this event.', 'wp-events' ) );
+			}
+		}
+
 		$require_approval = get_post_meta( $event_id, 'require_approval', true );
 
 		// Save registration.
@@ -393,6 +416,7 @@ class WPEvents_Additional_Features {
 
 		$registrations[] = $registration;
 		update_post_meta( $event_id, 'event_registrations', $registrations );
+		set_transient( $rate_key, 1, 10 * MINUTE_IN_SECONDS );
 
 		// Send confirmation email.
 		$subject  = sprintf( __( 'Registration Confirmation: %s', 'wp-events' ), get_the_title( $event_id ) );

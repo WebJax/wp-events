@@ -1,12 +1,23 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * Admin meta boxes and saves.
+ *
+ * @package WPEvents
+ */
 
-class WPEvents_CPT {
+namespace WPEvents\Admin;
+
+use WPEvents\Sanitizer;
+
+/**
+ * Event, venue, and organizer meta boxes.
+ */
+class MetaBoxes {
+
+	/**
+	 * Register meta box and save hooks.
+	 */
 	public static function register() {
-		self::register_taxonomies();
-		self::register_cpts();
-		self::register_meta();
 		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_event_meta_box' ) );
 		add_action( 'save_post_event', array( __CLASS__, 'save_event_times' ) );
 		add_action( 'add_meta_boxes_event', array( __CLASS__, 'add_recurrence_meta_box' ) );
@@ -19,394 +30,9 @@ class WPEvents_CPT {
 		add_action( 'save_post_venue', array( __CLASS__, 'save_venue_meta' ) );
 		add_action( 'add_meta_boxes_organizer', array( __CLASS__, 'add_organizer_meta_box' ) );
 		add_action( 'save_post_organizer', array( __CLASS__, 'save_organizer_meta' ) );
-
-		// Admin scripts and AJAX.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
-		add_action( 'wp_ajax_set_venue_featured_image', array( __CLASS__, 'ajax_set_venue_featured_image' ) );
-		add_action( 'wp_ajax_remove_venue_featured_image', array( __CLASS__, 'ajax_remove_venue_featured_image' ) );
 	}
 
-	protected static function register_taxonomies() {
-		// Event categories.
-		register_taxonomy(
-			'event_category',
-			'event',
-			array(
-				'label'             => __( 'Event Categories', 'wp-events' ),
-				'labels'            => array(
-					'name'          => __( 'Event Categories', 'wp-events' ),
-					'singular_name' => __( 'Event Category', 'wp-events' ),
-				),
-				'public'            => true,
-				'hierarchical'      => true,
-				'show_in_rest'      => true,
-				'show_admin_column' => true,
-				'rewrite'           => array( 'slug' => 'event-category' ),
-			)
-		);
-
-		// Event tags.
-		register_taxonomy(
-			'event_tag',
-			'event',
-			array(
-				'label'             => __( 'Event Tags', 'wp-events' ),
-				'labels'            => array(
-					'name'          => __( 'Event Tags', 'wp-events' ),
-					'singular_name' => __( 'Event Tag', 'wp-events' ),
-				),
-				'public'            => true,
-				'hierarchical'      => false,
-				'show_in_rest'      => true,
-				'show_admin_column' => true,
-				'rewrite'           => array( 'slug' => 'event-tag' ),
-			)
-		);
-
-		// Venue categories.
-		register_taxonomy(
-			'venue_category',
-			'venue',
-			array(
-				'label'             => __( 'Venue Categories', 'wp-events' ),
-				'labels'            => array(
-					'name'          => __( 'Venue Categories', 'wp-events' ),
-					'singular_name' => __( 'Venue Category', 'wp-events' ),
-				),
-				'public'            => true,
-				'hierarchical'      => true,
-				'show_in_rest'      => true,
-				'show_admin_column' => true,
-				'rewrite'           => array( 'slug' => 'venue-category' ),
-			)
-		);
-
-		// Organizer categories.
-		register_taxonomy(
-			'organizer_category',
-			'organizer',
-			array(
-				'label'             => __( 'Organizer Categories', 'wp-events' ),
-				'labels'            => array(
-					'name'          => __( 'Organizer Categories', 'wp-events' ),
-					'singular_name' => __( 'Organizer Category', 'wp-events' ),
-				),
-				'public'            => true,
-				'hierarchical'      => true,
-				'show_in_rest'      => true,
-				'show_admin_column' => true,
-				'rewrite'           => array( 'slug' => 'organizer-category' ),
-			)
-		);
-	}
-
-	protected static function register_cpts() {
-		// Event (main menu item)
-		register_post_type(
-			'event',
-			array(
-				'label'        => __( 'Events', 'wp-events' ),
-				'labels'       => array(
-					'name'          => __( 'Events', 'wp-events' ),
-					'singular_name' => __( 'Event', 'wp-events' ),
-					'menu_name'     => __( 'WP Events', 'wp-events' ),
-				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
-				'has_archive'  => true,
-				'rewrite'      => array( 'slug' => 'events' ),
-				'menu_icon'    => 'dashicons-calendar-alt',
-				'taxonomies'   => array( 'event_category', 'event_tag' ),
-			)
-		);
-
-		// Organizer (sub-menu)
-		register_post_type(
-			'organizer',
-			array(
-				'label'        => __( 'Organizers', 'wp-events' ),
-				'labels'       => array(
-					'name'          => __( 'Organizers', 'wp-events' ),
-					'singular_name' => __( 'Organizer', 'wp-events' ),
-				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'supports'     => array( 'title' ),
-				'rewrite'      => array( 'slug' => 'organizers' ),
-				'show_in_menu' => 'edit.php?post_type=event',
-				'taxonomies'   => array( 'organizer_category' ),
-			)
-		);
-
-		// Venue (sub-menu)
-		register_post_type(
-			'venue',
-			array(
-				'label'        => __( 'Venues', 'wp-events' ),
-				'labels'       => array(
-					'name'          => __( 'Venues', 'wp-events' ),
-					'singular_name' => __( 'Venue', 'wp-events' ),
-				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'supports'     => array( 'title', 'thumbnail' ),
-				'rewrite'      => array( 'slug' => 'venues' ),
-				'show_in_menu' => 'edit.php?post_type=event',
-				'taxonomies'   => array( 'venue_category' ),
-			)
-		);
-	}
-
-	protected static function register_meta() {
-		// Event meta.
-		register_post_meta(
-			'event',
-			'event_start',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_iso8601' ),
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'event_end',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_iso8601' ),
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'event_price',
-			array(
-				'type'              => 'number',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => function( $value ) {
-					return is_numeric( $value ) ? (float) $value : ''; },
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'event_currency',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => function( $value ) {
-					$v = strtoupper( preg_replace( '/[^A-Z]/', '', (string) $value ) );
-					return substr( $v, 0, 3 ); },
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-
-		// Relationships.
-		register_post_meta(
-			'event',
-			'event_organizer',
-			array(
-				'type'              => 'array',
-				'single'            => true,
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'  => 'array',
-						'items' => array( 'type' => 'integer' ),
-					),
-				),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_ids_array' ),
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'event_venue',
-			array(
-				'type'              => 'integer',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'absint',
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-
-		// Recurrence.
-		register_post_meta(
-			'event',
-			'recurrence_type',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_recurrence_type' ),
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'recurrence_interval',
-			array(
-				'type'              => 'integer',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'absint',
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'recurrence_end',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_date' ),
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'is_occurrence',
-			array(
-				'type'          => 'boolean',
-				'single'        => true,
-				'show_in_rest'  => true,
-				'auth_callback' => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-		register_post_meta(
-			'event',
-			'occurrence_of',
-			array(
-				'type'              => 'integer',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'absint',
-				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
-			)
-		);
-
-		// Organizer meta.
-		register_post_meta(
-			'organizer',
-			'organizer_website',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'esc_url_raw',
-			)
-		);
-		register_post_meta(
-			'organizer',
-			'organizer_phone',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_phone' ),
-			)
-		);
-		register_post_meta(
-			'organizer',
-			'organizer_email',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'sanitize_email',
-			)
-		);
-
-		// Venue meta.
-		register_post_meta(
-			'venue',
-			'venue_address',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'sanitize_text_field',
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_phone',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_phone' ),
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_email',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'sanitize_email',
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_website',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'esc_url_raw',
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_facebook',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'esc_url_raw',
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_instagram',
-			array(
-				'type'              => 'string',
-				'single'            => true,
-				'show_in_rest'      => true,
-				'sanitize_callback' => 'esc_url_raw',
-			)
-		);
-		register_post_meta(
-			'venue',
-			'venue_other_social',
-			array(
-				'type'              => 'array',
-				'single'            => true,
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'  => 'array',
-						'items' => array(
-							'type'   => 'string',
-							'format' => 'uri',
-						),
-					),
-				),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_urls_array' ),
-			)
-		);
-	}
-
-	// Meta boxes.
 	public static function add_event_meta_box() {
 		add_meta_box(
 			'wpevents_event_times',
@@ -436,10 +62,10 @@ class WPEvents_CPT {
 			return;
 		}
 		if ( isset( $_POST['event_start'] ) ) {
-			update_post_meta( $post_id, 'event_start', self::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_start'] ) ) ) );
+			update_post_meta( $post_id, 'event_start', Sanitizer::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_start'] ) ) ) );
 		}
 		if ( isset( $_POST['event_end'] ) ) {
-			update_post_meta( $post_id, 'event_end', self::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_end'] ) ) ) );
+			update_post_meta( $post_id, 'event_end', Sanitizer::sanitize_iso8601( sanitize_text_field( wp_unslash( $_POST['event_end'] ) ) ) );
 		}
 	}
 
@@ -498,7 +124,7 @@ class WPEvents_CPT {
 			return;
 		}
 		if ( isset( $_POST['recurrence_type'] ) ) {
-			update_post_meta( $post_id, 'recurrence_type', sanitize_text_field( wp_unslash( $_POST['recurrence_type'] ) ) );
+			update_post_meta( $post_id, 'recurrence_type', Sanitizer::sanitize_recurrence_type( wp_unslash( $_POST['recurrence_type'] ) ) );
 		}
 		if ( isset( $_POST['recurrence_interval'] ) ) {
 			update_post_meta( $post_id, 'recurrence_interval', absint( $_POST['recurrence_interval'] ) );
@@ -844,94 +470,6 @@ class WPEvents_CPT {
 		}
 	}
 
-	// Sanitize helpers.
-	public static function sanitize_iso8601( $value ) {
-		$v = (string) $value;
-		// Accept full ISO 8601 or Y-m-d H:i:s and convert to ISO8601.
-		$ts = strtotime( $v );
-		if ( false === $ts ) {
-			return '';
-		}
-		return wp_date( DATE_ATOM, $ts, wp_timezone() );
-	}
-	public static function sanitize_date( $value ) {
-		$v  = (string) $value;
-		$ts = strtotime( $v );
-		if ( false === $ts ) {
-			return '';
-		}
-		return wp_date( 'Y-m-d', $ts, wp_timezone() );
-	}
-	public static function sanitize_phone( $value ) {
-		$v = preg_replace( '/[^0-9+\-()\s]/', '', (string) $value );
-		return trim( $v );
-	}
-	public static function sanitize_ids_array( $value ) {
-		if ( is_string( $value ) ) {
-			// Try JSON first.
-			$maybe = json_decode( $value, true );
-			if ( is_array( $maybe ) ) {
-				$value = $maybe;
-			}
-		}
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-		return array_values( array_filter( array_map( 'absint', $value ) ) );
-	}
-	public static function sanitize_urls_array( $value ) {
-		if ( is_string( $value ) ) {
-			$maybe = json_decode( $value, true );
-			if ( is_array( $maybe ) ) {
-				$value = $maybe;
-			}
-		}
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-		return array_values( array_filter( array_map( 'esc_url_raw', $value ) ) );
-	}
-	public static function sanitize_recurrence_type( $value ) {
-		$allowed = array( 'daily', 'weekly', 'monthly', 'yearly', 'custom', '' );
-		$v       = sanitize_text_field( (string) $value );
-		return in_array( $v, $allowed, true ) ? $v : '';
-	}
-	public static function can_edit_event( $allowed, $meta_key, $post_id, $user_id, $cap, $caps ) {
-		return current_user_can( 'edit_post', $post_id );
-	}
-
-	public static function get_venue_directions_url( $venue_id ) {
-		// Check for custom URL first.
-		$custom_url = get_post_meta( $venue_id, 'venue_custom_maps_url', true );
-		if ( ! empty( $custom_url ) ) {
-			return $custom_url;
-		}
-
-		// Build address from components.
-		$address     = get_post_meta( $venue_id, 'venue_address', true );
-		$city        = get_post_meta( $venue_id, 'venue_city', true );
-		$postal_code = get_post_meta( $venue_id, 'venue_postal_code', true );
-		$country     = get_post_meta( $venue_id, 'venue_country', true );
-
-		$address_parts = array_filter(
-			array(
-				$address,
-				$postal_code,
-				$city,
-				$country,
-			)
-		);
-
-		if ( empty( $address_parts ) ) {
-			return false;
-		}
-
-		$full_address    = implode( ', ', $address_parts );
-		$encoded_address = urlencode( $full_address );
-
-		return 'https://www.google.com/maps/dir/?api=1&destination=' . $encoded_address;
-	}
-
 	public static function enqueue_admin_scripts( $hook_suffix ) {
 		global $post_type;
 
@@ -956,68 +494,4 @@ class WPEvents_CPT {
 		}
 	}
 
-	public static function ajax_set_venue_featured_image() {
-		check_ajax_referer( 'wp_events_admin_nonce', 'nonce' );
-
-		$post_id       = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-		$attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
-
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die(
-				json_encode(
-					array(
-						'success' => false,
-						'data'    => 'Permission denied',
-					)
-				)
-			);
-		}
-
-		$result = set_post_thumbnail( $post_id, $attachment_id );
-
-		if ( $result ) {
-			wp_die( json_encode( array( 'success' => true ) ) );
-		} else {
-			wp_die(
-				json_encode(
-					array(
-						'success' => false,
-						'data'    => 'Failed to set featured image',
-					)
-				)
-			);
-		}
-	}
-
-	public static function ajax_remove_venue_featured_image() {
-		check_ajax_referer( 'wp_events_admin_nonce', 'nonce' );
-
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die(
-				json_encode(
-					array(
-						'success' => false,
-						'data'    => 'Permission denied',
-					)
-				)
-			);
-		}
-
-		$result = delete_post_thumbnail( $post_id );
-
-		if ( $result ) {
-			wp_die( json_encode( array( 'success' => true ) ) );
-		} else {
-			wp_die(
-				json_encode(
-					array(
-						'success' => false,
-						'data'    => 'Failed to remove featured image',
-					)
-				)
-			);
-		}
-	}
 }

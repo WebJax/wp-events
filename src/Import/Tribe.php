@@ -1,45 +1,18 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * Import from The Events Calendar (Tribe).
+ *
+ * @package WPEvents
+ */
 
-// Only load WP_CLI commands if WP_CLI is available.
-if ( defined( 'WP_CLI' ) && class_exists( 'WP_CLI' ) ) {
-	class WPEvents_Import_Tribe_CLI {
-		public static function import_command( $args, $assoc_args ) {
-			$batch = isset( $assoc_args['batch'] ) ? absint( $assoc_args['batch'] ) : 0;
-			if ( ! post_type_exists( 'tribe_events' ) ) {
-				/** @disregard P1009 Undefined type */
-				WP_CLI::error( 'CPT tribe_events not found. Is The Events Calendar active?' );
-			}
-			$res = WPEvents_Import_Tribe::run_import( $batch );
-			/** @disregard P1009 Undefined type */
-			WP_CLI::success( sprintf( 'Imported: %d, Skipped: %d', $res['imported'], $res['skipped'] ) );
-		}
+namespace WPEvents\Import;
 
-		public static function reset_command( $args, $assoc_args ) {
-			if ( ! post_type_exists( 'tribe_events' ) ) {
-				/** @disregard P1009 Undefined type */
-				WP_CLI::error( 'CPT tribe_events not found. Is The Events Calendar active?' );
-			}
+use Automattic\BlocksEngine\PhpTransformer\HtmlToBlocks\HtmlTransformer;
 
-			$confirm = isset( $assoc_args['yes'] ) ? true : false;
-			if ( ! $confirm ) {
-				/** @disregard P1009 Undefined type */
-				WP_CLI::confirm( 'This will reset all import statistics. Previously imported events will NOT be deleted, but can be re-imported. Continue?' );
-			}
-
-			$result = WPEvents_Import_Tribe::reset_import_stats();
-			/** @disregard P1009 Undefined type */
-			WP_CLI::success( sprintf( 'Reset %d import markers. Events can now be re-imported.', $result ) );
-		}
-	}
-	/** @disregard P1009 Undefined type */
-	WP_CLI::add_command( 'wpevents import-tribe', array( 'WPEvents_Import_Tribe_CLI', 'import_command' ) );
-	/** @disregard P1009 Undefined type */
-	WP_CLI::add_command( 'wpevents reset-import', array( 'WPEvents_Import_Tribe_CLI', 'reset_command' ) );
-}
-
-class WPEvents_Import_Tribe {
+/**
+ * Tribe Events import admin UI and importer.
+ */
+class Tribe {
 	public static function register() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_tools_page' ) );
 		add_action( 'admin_post_wpevents_import_tribe', array( __CLASS__, 'handle_admin_import' ) );
@@ -51,8 +24,8 @@ class WPEvents_Import_Tribe {
 		if ( 'event_page_wpevents-import-tribe' !== $hook ) {
 			return;
 		}
-		wp_enqueue_style( 'wpevents-import', plugin_dir_url( dirname( __FILE__ ) ) . 'assets/wp-events.css', array(), '1.0' );
-		wp_enqueue_script( 'wpevents-import', plugin_dir_url( dirname( __FILE__ ) ) . 'assets/admin.js', array( 'jquery' ), '1.0', true );
+		wp_enqueue_style( 'wpevents-import', WPEVENTS_PLUGIN_URL . 'assets/wp-events.css', array(), '1.0' );
+		wp_enqueue_script( 'wpevents-import', WPEVENTS_PLUGIN_URL . 'assets/admin.js', array( 'jquery' ), '1.0', true );
 	}
 
 	public static function add_tools_page() {
@@ -243,7 +216,7 @@ class WPEvents_Import_Tribe {
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
 		);
-		$query    = new WP_Query( $args );
+		$query    = new \WP_Query( $args );
 		$total    = $query->post_count;
 		$imported = 0;
 		$future   = 0;
@@ -251,6 +224,7 @@ class WPEvents_Import_Tribe {
 		$now      = current_time( 'timestamp' );
 
 		foreach ( $query->posts as $tribe_id ) {
+			$tribe_id = absint( $tribe_id );
 			if ( get_post_meta( $tribe_id, '_wpevents_imported', true ) ) {
 				$imported++;
 			}
@@ -308,7 +282,7 @@ class WPEvents_Import_Tribe {
 			);
 		}
 
-		$query  = new WP_Query( $args );
+		$query  = new \WP_Query( $args );
 		$events = array();
 
 		foreach ( $query->posts as $post ) {
@@ -352,6 +326,9 @@ class WPEvents_Import_Tribe {
 
 	public static function handle_admin_import() {
 		check_admin_referer( 'wpevents_import_tribe' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to import events.', 'wp-events' ) );
+		}
 		$batch  = isset( $_POST['batch'] ) ? absint( $_POST['batch'] ) : 50;
 		$result = self::run_import( $batch );
 		$msg    = sprintf( 'Imported: %d, Skipped: %d', $result['imported'], $result['skipped'] );
@@ -369,6 +346,9 @@ class WPEvents_Import_Tribe {
 
 	public static function handle_import_selected() {
 		check_admin_referer( 'wpevents_import_tribe_selected' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to import events.', 'wp-events' ) );
+		}
 
 		if ( ! isset( $_POST['event_ids'] ) || ! is_array( $_POST['event_ids'] ) ) {
 			wp_safe_redirect(
@@ -465,10 +445,11 @@ class WPEvents_Import_Tribe {
 			);
 		}
 
-		$q        = new WP_Query( $args );
+		$q        = new \WP_Query( $args );
 		$imported = 0;
 		$skipped  = 0;
 		foreach ( $q->posts as $tribe_id ) {
+			$tribe_id = intval( $tribe_id );
 			if ( get_post_meta( $tribe_id, '_wpevents_imported', true ) ) {
 				$skipped++;
 				continue; }
@@ -486,9 +467,15 @@ class WPEvents_Import_Tribe {
 	}
 
 	protected static function import_single( $tribe_id ) {
+		$tribe_id   = absint( $tribe_id );
 		$tribe_post = get_post( $tribe_id );
-		$title      = get_the_title( $tribe_id );
-		$content    = get_post_field( 'post_content', $tribe_id );
+
+		if ( ! $tribe_post || 'tribe_events' !== $tribe_post->post_type ) {
+			return 0;
+		}
+
+		$title   = get_the_title( $tribe_id );
+		$content = get_post_field( 'post_content', $tribe_id );
 
 		// Convert classic content to Gutenberg blocks.
 		$content = self::convert_to_blocks( $content );
@@ -530,10 +517,10 @@ class WPEvents_Import_Tribe {
 		}
 
 		if ( $start ) {
-			update_post_meta( $event_id, 'event_start', WPEvents_CPT::sanitize_iso8601( $start ) );
+			update_post_meta( $event_id, 'event_start', \WPEvents\Sanitizer::sanitize_iso8601( $start ) );
 		}
 		if ( $end ) {
-			update_post_meta( $event_id, 'event_end', WPEvents_CPT::sanitize_iso8601( $end ) );
+			update_post_meta( $event_id, 'event_end', \WPEvents\Sanitizer::sanitize_iso8601( $end ) );
 		}
 		if ( $cost ) {
 			update_post_meta( $event_id, 'event_price', floatval( $cost ) );
@@ -661,147 +648,36 @@ class WPEvents_Import_Tribe {
 	}
 
 	/**
-	 * Convert classic editor content to Gutenberg blocks
+	 * Convert classic editor content to Gutenberg blocks.
 	 *
-	 * @param string $content Classic editor content (HTML)
-	 * @return string Gutenberg block content
+	 * @param string $content Classic editor content (HTML).
+	 * @return string Gutenberg block content.
 	 */
 	protected static function convert_to_blocks( $content ) {
 		if ( empty( $content ) ) {
 			return '';
 		}
 
-		// Check if content already has blocks.
 		if ( has_blocks( $content ) ) {
 			return $content;
 		}
 
-		// Split content into paragraphs and other elements.
-		$blocks = array();
-
-		// Use WordPress core function to convert classic content to blocks.
-		// This handles paragraphs, headings, lists, images, etc.
-		$converted = wp_filter_content_tags( $content );
-
-		// Parse HTML and convert to blocks.
-		$dom = new DOMDocument();
-		@$dom->loadHTML( '<?xml encoding="UTF-8">' . $converted, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-
-		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
-		if ( ! $body ) {
-			// If parsing fails, wrap in paragraph blocks.
-			return self::wrap_in_paragraph_blocks( $content );
+		if ( ! class_exists( HtmlTransformer::class ) ) {
+			return $content;
 		}
 
-		foreach ( $body->childNodes as $node ) {
-			$block = self::convert_node_to_block( $node );
-			if ( $block ) {
-				$blocks[] = $block;
-			}
+		$result = ( new HtmlTransformer() )->transform(
+			$content,
+			array(
+				'source' => 'wpevents:tribe-import',
+				'scope'  => 'event-import',
+			)
+		);
+
+		if ( 'failed' === $result->status || '' === $result->serializedBlocks ) {
+			return $content;
 		}
 
-		return implode( "\n\n", $blocks );
-	}
-
-	/**
-	 * Convert a DOM node to a Gutenberg block
-	 */
-	protected static function convert_node_to_block( $node ) {
-		if ( XML_TEXT_NODE === $node->nodeType ) {
-			$text = trim( $node->textContent );
-			if ( empty( $text ) ) {
-				return '';
-			}
-			return '<!-- wp:paragraph -->' . "\n" . '<p>' . esc_html( $text ) . '</p>' . "\n" . '<!-- /wp:paragraph -->';
-		}
-
-		if ( XML_ELEMENT_NODE !== $node->nodeType ) {
-			return '';
-		}
-
-		$tag  = strtolower( $node->nodeName );
-		$html = $node->ownerDocument->saveHTML( $node );
-
-		// Handle different HTML elements.
-		switch ( $tag ) {
-			case 'p':
-				return '<!-- wp:paragraph -->' . "\n" . $html . "\n" . '<!-- /wp:paragraph -->';
-
-			case 'h1':
-			case 'h2':
-			case 'h3':
-			case 'h4':
-			case 'h5':
-			case 'h6':
-				$level = intval( substr( $tag, 1 ) );
-				return '<!-- wp:heading {"level":' . $level . '} -->' . "\n" . $html . "\n" . '<!-- /wp:heading -->';
-
-			case 'ul':
-				return '<!-- wp:list -->' . "\n" . $html . "\n" . '<!-- /wp:list -->';
-
-			case 'ol':
-				return '<!-- wp:list {"ordered":true} -->' . "\n" . $html . "\n" . '<!-- /wp:list -->';
-
-			case 'blockquote':
-				return '<!-- wp:quote -->' . "\n" . $html . "\n" . '<!-- /wp:quote -->';
-
-			case 'img':
-				$src = $node->getAttribute( 'src' );
-				$alt = $node->getAttribute( 'alt' );
-				$id  = $node->getAttribute( 'data-id' ) ?: '';
-				return '<!-- wp:image ' . ( $id ? '{"id":' . intval( $id ) . '}' : '' ) . ' -->' . "\n" .
-					   '<figure class="wp-block-image">' . $html . '</figure>' . "\n" .
-					   '<!-- /wp:image -->';
-
-			case 'figure':
-				if ( $node->getElementsByTagName( 'img' )->length > 0 ) {
-					return '<!-- wp:image -->' . "\n" . $html . "\n" . '<!-- /wp:image -->';
-				}
-				return '<!-- wp:paragraph -->' . "\n" . '<p>' . $html . '</p>' . "\n" . '<!-- /wp:paragraph -->';
-
-			case 'pre':
-			case 'code':
-				return '<!-- wp:code -->' . "\n" . '<pre class="wp-block-code"><code>' . esc_html( $node->textContent ) . '</code></pre>' . "\n" . '<!-- /wp:code -->';
-
-			case 'table':
-				return '<!-- wp:table -->' . "\n" . '<figure class="wp-block-table">' . $html . '</figure>' . "\n" . '<!-- /wp:table -->';
-
-			default:
-				// For other elements, wrap in paragraph.
-				return '<!-- wp:paragraph -->' . "\n" . '<p>' . $html . '</p>' . "\n" . '<!-- /wp:paragraph -->';
-		}
-	}
-
-	/**
-	 * Fallback: wrap content in paragraph blocks
-	 */
-	protected static function wrap_in_paragraph_blocks( $content ) {
-		// Split by double line breaks.
-		$paragraphs = preg_split( '/\n\s*\n/', $content );
-		$blocks     = array();
-
-		foreach ( $paragraphs as $para ) {
-			$para = trim( $para );
-			if ( empty( $para ) ) {
-				continue;
-			}
-
-			// Check if it's a heading.
-			if ( preg_match( '/^<h([1-6])[^>]*>(.*?)<\/h\1>$/is', $para, $matches ) ) {
-				$level    = $matches[1];
-				$blocks[] = '<!-- wp:heading {"level":' . $level . '} -->' . "\n" . $para . "\n" . '<!-- /wp:heading -->';
-			} else {
-				// Wrap in paragraph if not already.
-				if ( ! preg_match( '/^<p[^>]*>/', $para ) ) {
-					$para = '<p>' . $para . '</p>';
-				}
-				$blocks[] = '<!-- wp:paragraph -->' . "\n" . $para . "\n" . '<!-- /wp:paragraph -->';
-			}
-		}
-
-		return implode( "\n\n", $blocks );
+		return $result->serializedBlocks;
 	}
 }
-
-// Bootstrap.
-add_action( 'init', array( 'WPEvents_Import_Tribe', 'register' ) );

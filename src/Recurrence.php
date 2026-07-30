@@ -1,8 +1,16 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * Recurrence generation.
+ *
+ * @package WPEvents
+ */
 
-class WPEvents_Recurrence {
+namespace WPEvents;
+
+/**
+ * Generate occurrence posts from recurrence rules.
+ */
+class Recurrence {
 	public static function maybe_generate_recurrences( $post_id, $post, $update ) {
 		if ( wp_is_post_revision( $post_id ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
 			return;
@@ -35,7 +43,7 @@ class WPEvents_Recurrence {
 		}
 
 		// Avoid duplicates: delete existing occurrences.
-		$existing_query = new WP_Query(
+		$existing_query = new \WP_Query(
 			array(
 				'post_type'      => 'event',
 				'meta_key'       => '_recurrence_parent',

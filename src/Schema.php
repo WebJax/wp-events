@@ -1,8 +1,16 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+/**
+ * JSON-LD schema for events.
+ *
+ * @package WPEvents
+ */
 
-class WPEvents_Schema {
+namespace WPEvents;
+
+/**
+ * Schema.org Event markup.
+ */
+class Schema {
 	public static function print_json_ld() {
 		if ( ! is_singular( 'event' ) ) {
 			return;
@@ -17,7 +25,8 @@ class WPEvents_Schema {
 			return;
 		}
 
-		echo '<script type="application/ld+json">' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
+		$flags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+		echo '<script type="application/ld+json">' . wp_json_encode( $data, $flags ) . '</script>' . "\n";
 	}
 
 	public static function build_event_schema( $post_id ) {
@@ -89,7 +98,7 @@ class WPEvents_Schema {
 			'image'               => $image ?: '',
 			'startDate'           => $start,
 			'eventAttendanceMode' => 'OfflineEventAttendanceMode',
-			'eventStatus'         => 'EventScheduled',
+			'eventStatus'         => self::map_event_status( get_post_meta( $post_id, 'event_status', true ) ),
 			'location'            => $location,
 		);
 		if ( $end ) {
@@ -103,5 +112,27 @@ class WPEvents_Schema {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Map event_status meta to Schema.org EventStatusType URL.
+	 *
+	 * @param string $status Status slug.
+	 * @return string
+	 */
+	public static function map_event_status( $status ) {
+		$map = array(
+			'scheduled'   => 'https://schema.org/EventScheduled',
+			'cancelled'   => 'https://schema.org/EventCancelled',
+			'postponed'   => 'https://schema.org/EventPostponed',
+			'rescheduled' => 'https://schema.org/EventRescheduled',
+			'sold_out'    => 'https://schema.org/EventScheduled',
+			'completed'   => 'https://schema.org/EventScheduled',
+		);
+		$status = sanitize_key( (string) $status );
+		if ( ! $status || ! isset( $map[ $status ] ) ) {
+			return 'https://schema.org/EventScheduled';
+		}
+		return $map[ $status ];
 	}
 }

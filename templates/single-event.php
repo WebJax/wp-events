@@ -82,7 +82,7 @@ get_header(); ?>
                             if ( $venue ) : ?>
                                 <div class="event-venue">
                                     <span class="dashicons dashicons-location"></span>
-                                    <a href="<?php echo get_permalink( $venue_id ); ?>">
+                                    <a href="<?php echo esc_url( get_permalink( $venue_id ) ); ?>">
                                         <?php echo esc_html( $venue->post_title ); ?>
                                     </a>
                                 </div>
@@ -97,10 +97,17 @@ get_header(); ?>
                                 foreach ( $organizer_ids as $organizer_id ) {
                                     $organizer = get_post( $organizer_id );
                                     if ( $organizer ) {
-                                        $organizer_links[] = '<a href="' . get_permalink( $organizer_id ) . '">' . esc_html( $organizer->post_title ) . '</a>';
+                                        $organizer_links[] = '<a href="' . esc_url( get_permalink( $organizer_id ) ) . '">' . esc_html( $organizer->post_title ) . '</a>';
                                     }
                                 }
-                                echo implode( ', ', $organizer_links );
+                                echo wp_kses(
+                                    implode( ', ', $organizer_links ),
+                                    array(
+                                        'a' => array(
+                                            'href' => true,
+                                        ),
+                                    )
+                                );
                                 ?>
                             </div>
                         <?php endif; ?>
@@ -111,7 +118,7 @@ get_header(); ?>
                                         <strong><?php esc_html_e( 'Kategorier:', 'wp-events' ); ?></strong>
                                         <?php foreach ( $categories as $category ) : ?>
                                             <span class="event-category">
-                                                <a href="<?php echo get_term_link( $category ); ?>">
+                                                <a href="<?php echo esc_url( get_term_link( $category ) ); ?>">
                                                     <?php echo esc_html( $category->name ); ?>
                                                 </a>
                                             </span>
@@ -124,7 +131,7 @@ get_header(); ?>
                                         <strong><?php esc_html_e( 'Tags:', 'wp-events' ); ?></strong>
                                         <?php foreach ( $tags as $tag ) : ?>
                                             <span class="event-tag">
-                                                <a href="<?php echo get_term_link( $tag ); ?>">
+                                                <a href="<?php echo esc_url( get_term_link( $tag ) ); ?>">
                                                     #<?php echo esc_html( $tag->name ); ?>
                                                 </a>
                                             </span>
@@ -193,25 +200,25 @@ get_header(); ?>
                         
                         <?php if ( $prev_event ) : ?>
                             <div class="prev-event">
-                                <a href="<?php echo get_permalink( $prev_event->ID ); ?>" rel="prev">
+                                <a href="<?php echo esc_url( get_permalink( $prev_event->ID ) ); ?>" rel="prev">
                                     <span class="nav-subtitle"><?php esc_html_e( 'Forrige Event:', 'wp-events' ); ?></span>
-                                    <span class="nav-title"><?php echo get_the_title( $prev_event->ID ); ?></span>
+                                    <span class="nav-title"><?php echo esc_html( get_the_title( $prev_event->ID ) ); ?></span>
                                 </a>
                             </div>
                         <?php endif; ?>
                         
                         <?php if ( $next_event ) : ?>
                             <div class="next-event">
-                                <a href="<?php echo get_permalink( $next_event->ID ); ?>" rel="next">
+                                <a href="<?php echo esc_url( get_permalink( $next_event->ID ) ); ?>" rel="next">
                                     <span class="nav-subtitle"><?php esc_html_e( 'Næste Event:', 'wp-events' ); ?></span>
-                                    <span class="nav-title"><?php echo get_the_title( $next_event->ID ); ?></span>
+                                    <span class="nav-title"><?php echo esc_html( get_the_title( $next_event->ID ) ); ?></span>
                                 </a>
                             </div>
                         <?php endif; ?>
                     </div>
                     
                     <div class="back-to-events">
-                        <a href="<?php echo get_post_type_archive_link( 'event' ); ?>" class="btn btn-outline">
+                        <a href="<?php echo esc_url( get_post_type_archive_link( 'event' ) ); ?>" class="btn btn-outline">
                             <?php esc_html_e( '← Tilbage til alle events', 'wp-events' ); ?>
                         </a>
                     </div>

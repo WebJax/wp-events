@@ -1,19 +1,16 @@
 <?php
 /**
- * ICal export and feed handling.
+ * iCal export and feed handling.
  *
  * @package WPEvents
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace WPEvents;
 
 /**
- * WPEvents iCal Export
- * Handles iCalendar (.ics) file generation for events
+ * iCalendar (.ics) generation and REST feed.
  */
-class WPEvents_iCal {
+class ICal {
 
 	/**
 	 * Initialize iCal export functionality
@@ -280,7 +277,7 @@ class WPEvents_iCal {
 		// Check post status and permissions.
 		$event = get_post( $event_id );
 		if ( ! $event || 'event' !== $event->post_type ) {
-			return new WP_Error( 'no_event', 'Event not found', array( 'status' => 404 ) );
+			return new \WP_Error( 'no_event', 'Event not found', array( 'status' => 404 ) );
 		}
 
 		$is_published          = ( 'publish' === $event->post_status );
@@ -288,16 +285,16 @@ class WPEvents_iCal {
 		$can_read              = current_user_can( 'read_post', $event_id );
 
 		if ( ( ! $is_published || $is_password_protected ) && ! $can_read ) {
-			return new WP_Error( 'forbidden', 'Event not accessible', array( 'status' => 403 ) );
+			return new \WP_Error( 'forbidden', 'Event not accessible', array( 'status' => 403 ) );
 		}
 
 		$ical = self::generate_ical( $event_id );
 
 		if ( ! $ical ) {
-			return new WP_Error( 'no_event', 'Event not found', array( 'status' => 404 ) );
+			return new \WP_Error( 'no_event', 'Event not found', array( 'status' => 404 ) );
 		}
 
-		return new WP_REST_Response(
+		return new \WP_REST_Response(
 			$ical,
 			200,
 			array(
@@ -339,7 +336,7 @@ class WPEvents_iCal {
 		);
 
 		if ( empty( $events ) ) {
-			return new WP_Error( 'no_events', 'No upcoming events found', array( 'status' => 404 ) );
+			return new \WP_Error( 'no_events', 'No upcoming events found', array( 'status' => 404 ) );
 		}
 
 		// Build combined iCal with multiple events.
@@ -364,7 +361,7 @@ class WPEvents_iCal {
 
 		$ical .= "END:VCALENDAR\r\n";
 
-		return new WP_REST_Response(
+		return new \WP_REST_Response(
 			$ical,
 			200,
 			array(

@@ -1,15 +1,16 @@
 <?php
 /**
- * WP Events Blocks - Clean version from scratch
+ * Gutenberg blocks.
  *
  * @package WPEvents
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace WPEvents;
 
-class WPEvents_Blocks_Clean {
+/**
+ * Block registration and render callbacks.
+ */
+class Blocks {
 
 	public static function init() {
 		// Add block category
@@ -24,8 +25,6 @@ class WPEvents_Blocks_Clean {
 		// Enqueue frontend assets
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_frontend_assets' ) );
 
-		// Template loader system
-		add_filter( 'template_include', array( __CLASS__, 'template_loader' ) );
 	}
 
 	/**
@@ -475,96 +474,6 @@ class WPEvents_Blocks_Clean {
 	}
 
 	/**
-	 * Template loader - checks theme first, then plugin templates
-	 */
-	public static function template_loader( $template ) {
-		if ( is_embed() ) {
-			return $template;
-		}
-
-		$default_file = self::get_template_loader_default_file();
-
-		if ( $default_file ) {
-			/**
-			 * Filter hook to choose which files to find before WP does its thing.
-			 *
-			 * @param array $search_files Array of template files to search for.
-			 * @param string $default_file The default template filename.
-			 */
-			$search_files = self::get_template_loader_files( $default_file );
-			$template     = locate_template( $search_files );
-
-			if ( ! $template ) {
-				$template = WPEVENTS_PLUGIN_DIR . 'templates/' . $default_file;
-			}
-
-			// Enqueue frontend assets for our templates
-			if ( strpos( $template, 'wp-events' ) !== false || strpos( $template, WPEVENTS_PLUGIN_DIR ) !== false ) {
-				add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_frontend_assets' ), 20 );
-			}
-		}
-
-		return $template;
-	}
-
-	/**
-	 * Get the default filename for a template.
-	 */
-	private static function get_template_loader_default_file() {
-		if ( is_single() && get_post_type() === 'event' ) {
-			$default_file = 'single-event.php';
-		} elseif ( is_single() && get_post_type() === 'venue' ) {
-			$default_file = 'single-venue.php';
-		} elseif ( is_single() && get_post_type() === 'organizer' ) {
-			$default_file = 'single-organizer.php';
-		} elseif ( is_post_type_archive( 'event' ) ) {
-			// Check for view parameter to load alternative templates
-			$view          = isset( $_GET['view'] ) ? sanitize_text_field( wp_unslash( $_GET['view'] ) ) : '';
-			$allowed_views = array( 'list', 'calendar', 'compact' );
-
-			if ( $view && in_array( $view, $allowed_views, true ) ) {
-				$default_file = 'archive-event-' . $view . '.php';
-			} else {
-				$default_file = 'archive-event.php';
-			}
-		} elseif ( is_tax( 'event_category' ) ) {
-			$default_file = 'taxonomy-event_category.php';
-		} elseif ( is_tax( 'event_tag' ) ) {
-			$default_file = 'taxonomy-event_tag.php';
-		} else {
-			$default_file = '';
-		}
-
-		return $default_file;
-	}
-
-	/**
-	 * Get an array of filenames to search for a given template.
-	 */
-	private static function get_template_loader_files( $default_file ) {
-		$templates = array();
-		$template  = str_replace( WPEVENTS_PLUGIN_DIR . 'templates/', '', $default_file );
-
-		if ( is_tax( 'event_category' ) || is_tax( 'event_tag' ) ) {
-			$object = get_queried_object();
-
-			// Look for specific term template first (e.g., taxonomy-event_category-udstilling.php)
-			$specific_template = str_replace( '.php', '-' . $object->slug . '.php', $template );
-			$templates[]       = 'wp-events/' . $specific_template;
-
-			// Then general taxonomy template (e.g., taxonomy-event_category.php)
-			$templates[] = 'wp-events/' . $template;
-		} else {
-			$templates[] = 'wp-events/' . $template;
-		}
-
-		// Add theme root fallback
-		$templates[] = $template;
-
-		return array_unique( $templates );
-	}
-
-	/**
 	 * Render venue block
 	 */
 	public static function render_venue_block( $attributes ) {
@@ -630,7 +539,7 @@ class WPEvents_Blocks_Clean {
 		if ( ! empty( $attributes['showDirections'] ) ) {
 			$show_directions = get_post_meta( $venue_id, 'venue_show_directions', true );
 			if ( $show_directions ) {
-				$directions_url = WPEvents_CPT::get_venue_directions_url( $venue_id );
+				$directions_url = \WPEvents\Venue::get_directions_url( $venue_id );
 				if ( $directions_url ) {
 					$output .= '<p class="venue-directions">';
 					$output .= '<a href="' . esc_url( $directions_url ) . '" target="_blank" rel="noopener">';

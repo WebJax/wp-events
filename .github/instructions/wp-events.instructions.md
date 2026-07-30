@@ -34,8 +34,9 @@ All code in this plugin must comply with the [WordPress Coding Standards](https:
 - Remove trailing blank lines at the end of function bodies.
 
 **Yoda conditions**
-- Put the constant/literal on the left: `if ( true === $flag )`, `if ( 'publish' === $status )`.
-- Applies to `==`, `!=`, `===`, `!==`; not required for `<`, `>`, `<=`, `>=`.
+- Don't use Yoda conditions: `if ( 42 === $foo )` is wrong; use `if ( $foo === 42 )`.
+- Prefer `if ( ! $foo )` over `if ( false === $foo )` or `if ( 0 === $foo )`.
+- Improve readability by using `empty()` and `isset()` where appropriate.
 
 **OOP**
 - Always declare visibility (`public`, `protected`, `private`) on methods and properties; never use `var`.

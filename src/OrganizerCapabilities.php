@@ -5,15 +5,12 @@
  * @package WPEvents
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace WPEvents;
 
 /**
- * WPEvents Organizer Capabilities
- * Handles organizer role and event management permissions
+ * Organizer role and event management permissions.
  */
-class WPEvents_Organizer_Capabilities {
+class OrganizerCapabilities {
 
 	/**
 	 * Initialize organizer capabilities
@@ -51,25 +48,35 @@ class WPEvents_Organizer_Capabilities {
 	 * Add event organizer role
 	 */
 	public static function add_organizer_role() {
-		// Ensure the event_organizer role exists.
+		$organizer_caps = array(
+			'read'                    => true,
+			'upload_files'            => true,
+			'edit_events'             => true,
+			'edit_published_events'   => true,
+			'publish_events'          => true,
+			'delete_events'           => true,
+			'delete_published_events' => true,
+			'read_private_events'     => true,
+		);
+
+		// Ensure the event_organizer role exists with event-only capabilities.
 		if ( ! get_role( 'event_organizer' ) ) {
 			add_role(
 				'event_organizer',
 				__( 'Event Organizer', 'wp-events' ),
-				array(
-					'read'                    => true,
-					'edit_posts'              => true,
-					'delete_posts'            => true,
-					'publish_posts'           => true,
-					'upload_files'            => true,
-					// Custom capabilities for events.
-					'edit_events'             => true,
-					'edit_published_events'   => true,
-					'publish_events'          => true,
-					'delete_events'           => true,
-					'delete_published_events' => true,
-				)
+				$organizer_caps
 			);
+		} else {
+			$role = get_role( 'event_organizer' );
+			if ( $role ) {
+				// Strip broad post caps that bypass event isolation.
+				foreach ( array( 'edit_posts', 'delete_posts', 'publish_posts', 'edit_others_posts', 'delete_others_posts' ) as $broad_cap ) {
+					$role->remove_cap( $broad_cap );
+				}
+				foreach ( array_keys( $organizer_caps ) as $cap ) {
+					$role->add_cap( $cap );
+				}
+			}
 		}
 
 		// Always ensure admin and editor have required caps.
@@ -100,11 +107,19 @@ class WPEvents_Organizer_Capabilities {
 	}
 
 	/**
-	 * Map event capabilities based on organizer assignment
+	 * Map event capabilities based on organizer assignment.
+	 *
+	 * With capability_type => 'event', WordPress fires edit_event / delete_event / read_event.
+	 *
+	 * @param string[] $caps    Required primitive capabilities.
+	 * @param string   $cap     Meta capability being checked.
+	 * @param int      $user_id User ID.
+	 * @param array    $args    Extra args; $args[0] is typically the post ID.
+	 * @return string[]
 	 */
 	public static function map_event_capabilities( $caps, $cap, $user_id, $args ) {
-		// Only handle event capabilities.
-		if ( ! in_array( $cap, array( 'edit_event', 'delete_event', 'publish_event' ), true ) ) {
+		// Only handle event meta capabilities.
+		if ( ! in_array( $cap, array( 'edit_event', 'delete_event', 'read_event', 'publish_event' ), true ) ) {
 			return $caps;
 		}
 
@@ -113,7 +128,7 @@ class WPEvents_Organizer_Capabilities {
 			return $caps;
 		}
 
-		$post_id = $args[0];
+		$post_id = absint( $args[0] );
 		$post    = get_post( $post_id );
 
 		if ( ! $post || 'event' !== $post->post_type ) {
@@ -129,6 +144,9 @@ class WPEvents_Organizer_Capabilities {
 			case 'publish_event':
 				$required_cap = 'publish_events';
 				break;
+			case 'read_event':
+				$required_cap = 'read';
+				break;
 			case 'edit_event':
 			default:
 				$required_cap = 'edit_events';
@@ -141,21 +159,22 @@ class WPEvents_Organizer_Capabilities {
 			return array( $required_cap );
 		}
 
-		// Check if user is assigned as organizer for this event.
-		$assigned_organizers = get_post_meta( $post_id, 'assigned_organizer_users', true );
-
-		if ( is_array( $assigned_organizers ) && in_array( $user_id, $assigned_organizers, true ) ) {
-			// User is assigned organizer - allow relevant action.
+		// Users with edit_others_events can manage all events.
+		if ( user_can( $user_id, 'edit_others_events' ) ) {
 			return array( $required_cap );
 		}
 
-		// Check if user created the event.
-		if ( $post->post_author === $user_id ) {
+		// Check if user is assigned as organizer for this event.
+		$assigned_organizers = get_post_meta( $post_id, 'assigned_organizer_users', true );
+		$is_assigned         = is_array( $assigned_organizers ) && in_array( (int) $user_id, array_map( 'intval', $assigned_organizers ), true );
+		$is_author           = (int) $post->post_author === (int) $user_id;
+
+		if ( $is_assigned || $is_author ) {
 			return array( $required_cap );
 		}
 
 		// Default deny.
-		return $caps;
+		return array( 'do_not_allow' );
 	}
 
 	/**
@@ -463,13 +482,13 @@ class WPEvents_Organizer_Capabilities {
 		// Save event meta using ISO8601 format.
 		if ( ! empty( $_POST['event_start'] ) ) {
 			$start     = sanitize_text_field( wp_unslash( $_POST['event_start'] ) );
-			$start_iso = WPEvents_CPT::sanitize_iso8601( $start );
+			$start_iso = \WPEvents\Sanitizer::sanitize_iso8601( $start );
 			update_post_meta( $event_id, 'event_start', $start_iso );
 		}
 
 		if ( ! empty( $_POST['event_end'] ) ) {
 			$end     = sanitize_text_field( wp_unslash( $_POST['event_end'] ) );
-			$end_iso = WPEvents_CPT::sanitize_iso8601( $end );
+			$end_iso = \WPEvents\Sanitizer::sanitize_iso8601( $end );
 			update_post_meta( $event_id, 'event_end', $end_iso );
 		}
 

@@ -5,15 +5,12 @@
  * @package WPEvents
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace WPEvents;
 
 /**
- * WPEvents WooCommerce Integration
- * Handles ticket sales through WooCommerce
+ * Ticket sales through WooCommerce.
  */
-class WPEvents_WooCommerce {
+class WooCommerce {
 
 	/**
 	 * Initialize WooCommerce integration
@@ -119,7 +116,7 @@ class WPEvents_WooCommerce {
 		</p>
 
 		<p>
-			<a href="<?php echo admin_url( 'post-new.php?post_type=product' ); ?>" class="button" target="_blank">
+			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product' ) ); ?>" class="button" target="_blank">
 				<?php _e( 'Create New Product', 'wp-events' ); ?>
 			</a>
 		</p>
