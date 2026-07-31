@@ -15,9 +15,9 @@ All code in this plugin must comply with the [WordPress Coding Standards](https:
 
 **Naming**
 - Functions, variables, action/filter names: `lowercase_with_underscores` — never camelCase.
-- Classes, interfaces, traits, enums: `Capitalized_Words_With_Underscores` (e.g. `WPEvents_Blocks_Clean`).
-- Constants: `ALL_CAPS_WITH_UNDERSCORES`.
-- File names: `lowercase-with-hyphens.php`; class files prefixed with `class-` (e.g. `class-wpevents-cpt.php`).
+- Classes, interfaces, traits, enums: PascalCase under the `WPEvents\` namespace (e.g. `WPEvents\Blocks`, `WPEvents\Admin\MetaBoxes`).
+- Constants: `ALL_CAPS_WITH_UNDERSCORES` (plugin constants use the `WPEVENTS_` prefix).
+- Class files follow PSR-4 under `src/`: `WPEvents\Recurrence` → `src/Recurrence.php`, `WPEvents\Admin\Columns` → `src/Admin/Columns.php`.
 - One class/interface/trait/enum per file.
 
 **Spacing & formatting**
@@ -59,7 +59,7 @@ All code in this plugin must comply with the [WordPress Coding Standards](https:
 - Do not place assignments inside conditionals.
 - Closures must not be used as action/filter callbacks (cannot be removed with `remove_action`/`remove_filter`).
 - Use interpolation (not concatenation) for dynamic hook names: `do_action( "{$status}_{$post->post_type}" )`.
-- Namespacing for plugin code is strongly encouraged; use a `WPEvents\` prefix.
+- Namespacing for plugin code is required; use the `WPEvents\` prefix (PSR-4 under `src/`).
 
 ### JavaScript (block editor scripts)
 
@@ -90,17 +90,20 @@ Always exclude these five sniffs — they crash with `trim(): Passing null` on P
 --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues
 ```
 
-Full example commands (run from plugin root):
+Prefer the project ruleset (`phpcs.xml.dist` already scopes `src/`, `wp-events.php`, and `templates/` and applies the excludes above):
 
 ```bash
+# Whole-plugin check (uses phpcs.xml.dist)
+phpcs
+
 # Check a file
-phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/class-wpevents-cpt.php
+phpcs src/PostTypes.php
 
 # Auto-fix a file
-phpcbf --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/class-wpevents-cpt.php
+phpcbf src/PostTypes.php
 
-# Whole-plugin check
-phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues includes/
+# Equivalent explicit standard (if not using the ruleset)
+phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventions.PrefixAllGlobals,WordPress.Security.EscapeOutput,WordPress.WP.AlternativeFunctions,WordPress.WP.DeprecatedParameterValues src/
 ```
 
 ### Internationalization (i18n)
@@ -114,26 +117,42 @@ phpcs --standard=WordPress --exclude=WordPress.WP.I18n,WordPress.NamingConventio
 
 ## Plugin Structure
 
+Composer PSR-4 autoload: `WPEvents\` → `src/`. Template helpers are loaded via Composer's `files` autoload. Bootstrap is `wp-events.php` → `vendor/autoload.php` → `\WPEvents\Plugin::init()`.
+
 ```
-wp-events.php                          — Main plugin file, bootstraps all classes
-includes/
-  class-wpevents-blocks-clean.php      — All Gutenberg block registrations and render callbacks (active)
-  class-wpevents-cpt.php               — CPT, taxonomy, and meta registration; admin meta boxes
-  class-wpevents-schema.php            — JSON-LD output on wp_head
-  class-wpevents-shortcodes.php        — [events_list] and [event] shortcodes
-  class-wpevents-admin.php             — Admin list columns
-  class-wpevents-recurrence.php        — Recurrence generation on save_post_event
-  class-wpevents-filters.php           — Query filters
-  class-wpevents-import-tribe.php      — Tribe Events importer
-  class-wpevents-ical.php              — iCal (.ics) export and REST feed
-  class-wpevents-woocommerce.php       — WooCommerce ticket integration
-  class-wpevents-organizer-capabilities.php — Organizer role and frontend submission
-  class-wpevents-additional-features.php   — Event status, RSVP/registration
-  template-functions.php               — Template helper functions
-blocks/
-  event-organizer/                     — Gutenberg block JS (editor scripts)
-  event-venue/
-assets/                                — Frontend CSS/JS
+wp-events.php                          — Main plugin file; defines constants and boots Plugin
+composer.json                          — PSR-4 autoload for WPEvents\ → src/
+phpcs.xml.dist                         — PHPCS ruleset for src/, wp-events.php, templates/
+src/
+  Plugin.php                           — Orchestrator: wires hooks and feature modules
+  PostTypes.php                        — CPT registration (event, organizer, venue)
+  Taxonomies.php                       — Taxonomy registration
+  Meta.php                             — register_post_meta for event/organizer/venue
+  Sanitizer.php                        — Shared sanitize callbacks for meta
+  Blocks.php                           — Gutenberg block registrations and render callbacks
+  Schema.php                           — JSON-LD output on wp_head
+  Shortcodes.php                       — [events_list] and [event] shortcodes
+  Recurrence.php                       — Recurrence generation on save_post_event
+  QueryFilters.php                     — Query filters (pre_get_posts)
+  ICal.php                             — iCal (.ics) export and REST feed
+  WooCommerce.php                      — WooCommerce ticket integration
+  OrganizerCapabilities.php            — Organizer role and frontend submission
+  AdditionalFeatures.php               — Event status, RSVP/registration
+  TemplateLoader.php                   — Theme/plugin template resolution
+  Venue.php                            — Venue helper utilities
+  functions-templates.php              — Template helper functions (always loaded)
+  Admin/
+    Columns.php                        — Admin list columns for event CPT
+    MetaBoxes.php                      — Admin meta boxes and save handlers
+    Ajax.php                           — Admin AJAX (venue featured image)
+  Import/
+    Tribe.php                          — Tribe Events importer (admin UI)
+    TribeCLI.php                       — WP-CLI import commands
+assets/
+  blocks.js                            — Block editor scripts
+  admin.js                             — Admin scripts
+  wp-events.css / wp-events-frontend.css / wp-events-frontend.js
+  font/                                — Icon font assets
 templates/
   single-event.php                     — Single event template
   archive-event.php                    — Archive template
@@ -142,12 +161,14 @@ templates/
   archive-event-calendar.php           — Calendar layout archive
   taxonomy-event_category.php          — Category taxonomy template
   taxonomy-event_tag.php               — Tag taxonomy template
-  parts/                               — Partial templates
+  parts/                               — Partial templates (cards, filters, view switcher)
+languages/
+  wp-events.pot                        — Translation template
 ```
 
-> `class-wpevents-blocks.php` exists but is superseded by `class-wpevents-blocks-clean.php`. Do not add to the old file.
-
 ## Custom Post Types
+
+CPTs are registered in `WPEvents\PostTypes`, taxonomies in `WPEvents\Taxonomies`, and core meta via `WPEvents\Meta` (with sanitizers in `WPEvents\Sanitizer`). Admin meta boxes live in `WPEvents\Admin\MetaBoxes`.
 
 ### CPT: `event`
 
@@ -190,7 +211,7 @@ templates/
 ## Recurrence
 
 - Admin meta box fields: `recurrence_type` (daily/weekly/monthly/yearly/custom), `recurrence_interval` (int), `recurrence_end` (date).
-- On `save_post_event`, `WPEvents_Recurrence::maybe_generate_recurrences()` runs.
+- On `save_post_event`, `WPEvents\Recurrence::maybe_generate_recurrences()` runs.
 - Occurrences are stored as regular `event` posts (not a separate CPT) with these meta values:
   - `is_occurrence = true`
   - `occurrence_of = <parent post ID>`
@@ -243,7 +264,7 @@ templates/
 
 ## Gutenberg Blocks
 
-All blocks are registered in `class-wpevents-blocks-clean.php` via `WPEvents_Blocks_Clean::register_all_blocks()` on `init` at priority 20. All blocks support `align`, `anchor`, `className`, `color`, `spacing`, and `typography`.
+All blocks are registered in `src/Blocks.php` via `WPEvents\Blocks::register_all_blocks()` on `init` at priority 20. Editor scripts live in `assets/blocks.js`. All blocks support `align`, `anchor`, `className`, `color`, `spacing`, and `typography`.
 
 ### `wp-events/venue`
 
@@ -295,13 +316,14 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 
 ## Admin UI
 
-- Custom admin list columns for the `event` CPT: Date, Venue, Organizer (registered in `WPEvents_Admin`).
-- Admin meta boxes on the `event` edit screen: Event Times, Recurrence, Venue & Organizer, Price, Event Status, Ticket Settings (WooCommerce), Registration.
+- Custom admin list columns for the `event` CPT: Date, Venue, Organizer (registered in `WPEvents\Admin\Columns`).
+- Admin meta boxes on the `event` edit screen: Event Times, Recurrence, Venue & Organizer, Price (in `WPEvents\Admin\MetaBoxes`); Event Status and Registration (in `WPEvents\AdditionalFeatures`); Ticket Settings when WooCommerce is active (in `WPEvents\WooCommerce`).
 - Admin meta boxes on `venue`: Venue Details.
 - Admin meta boxes on `organizer`: Organizer Details.
 
 ## Import from Tribe Events (The Events Calendar)
 
+- Implemented in `WPEvents\Import\Tribe` (admin UI) and `WPEvents\Import\TribeCLI` (WP-CLI).
 - Check for existence of the `tribe_events` CPT before running any import logic.
 - Map Tribe meta to plugin meta:
   - `tribe_event_start_date` → `event_start`
@@ -310,11 +332,11 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
   - Tribe venue data → `venue` CPT with matching meta fields
   - Tribe organizer data → `organizer` CPT with matching meta fields
 - Prevent duplicates by storing `_tribe_event_id` in meta on imported posts.
-- Provide import via WP-CLI command and/or an admin interface action.
+- Provide import via WP-CLI command (`wp wpevents import-tribe`) and/or an admin interface action.
 
 ## iCal Export
 
-- Implemented in `WPEvents_iCal`.
+- Implemented in `WPEvents\ICal`.
 - Query vars: `ical_download=1&event_id=<ID>` triggers a `.ics` file download for a single event.
 - REST endpoint available for a full event feed.
 - An iCal download button is injected via `the_content` filter on single event pages.
@@ -322,7 +344,7 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 
 ## WooCommerce Ticket Integration
 
-- Implemented in `WPEvents_WooCommerce`; only activates when WooCommerce is active (`class_exists('WooCommerce')`).
+- Implemented in `WPEvents\WooCommerce`; only activates when WooCommerce is active (`class_exists('WooCommerce')`).
 - Admin meta box on `event` edit screen: ticket settings including linked product, capacity, and ticket type.
 - Ticket purchase button injected via `the_content` filter on event pages.
 - Event metadata (event ID, start date) attached to cart items and order line items.
@@ -331,7 +353,7 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 
 ## Organizer Role & Capabilities
 
-- Implemented in `WPEvents_Organizer_Capabilities`.
+- Implemented in `WPEvents\OrganizerCapabilities`.
 - Custom WordPress role: `event_organizer` — can create, edit, and delete own events.
 - Frontend shortcodes: `[organizer_dashboard]` and `[event_submission_form]`.
 - Organizers only see their own events in the admin list.
@@ -339,7 +361,7 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 
 ## Event Status & Registration
 
-- Implemented in `WPEvents_Additional_Features`.
+- Implemented in `WPEvents\AdditionalFeatures`.
 - `event_status` meta: `scheduled`, `cancelled`, `postponed`, `sold_out`.
 - Status badge appended to event titles where applicable.
 - Registration/RSVP meta box with configurable settings; registration form injected via `the_content` filter.
