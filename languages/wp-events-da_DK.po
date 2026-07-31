@@ -5,20 +5,21 @@ msgstr ""
 "Project-Id-Version: WP Events 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-events\n"
 "POT-Creation-Date: 2026-04-27T00:46:38+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2026-07-31 04:36+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: da_DK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: wp-events\n"
-"X-Generator: WP-CLI 2.12.0\n"
+"X-Generator: Poedit 3.9\n"
 
 #. Plugin Name of the plugin
 #: wp-events.php includes/class-wpevents-blocks.php:20
 #: includes/class-wpevents-cpt.php:93
 msgid "WP Events"
-msgstr "WP-begivenheder"
+msgstr "WP Events"
 
 #. Description of the plugin
 #: wp-events.php
@@ -36,7 +37,7 @@ msgstr "WebJax"
 
 #: includes/class-wpevents-additional-features.php:54
 msgid "Event Status"
-msgstr "Hændelsesstatus"
+msgstr "Event Status"
 
 #: includes/class-wpevents-additional-features.php:74
 #: includes/class-wpevents-additional-features.php:486
@@ -245,7 +246,7 @@ msgstr "UDSAT"
 
 #: includes/class-wpevents-additional-features.php:449
 msgid "RESCHEDULED"
-msgstr "OMPLADET"
+msgstr "OMLAGT"
 
 #: includes/class-wpevents-additional-features.php:450
 msgid "SOLD OUT"
@@ -273,7 +274,7 @@ msgstr "Spillestedsblokering kan kun bruges i begivenhedsindlæg."
 #: includes/class-wpevents-blocks-clean.php:578
 #: includes/class-wpevents-blocks.php:275
 msgid "No venue assigned to this event."
-msgstr ""
+msgstr "Begivenheden har ikke et tildelt spillested."
 
 #: includes/class-wpevents-blocks-clean.php:583
 #: includes/class-wpevents-blocks.php:280
@@ -344,7 +345,7 @@ msgstr "Ingen kommende begivenheder"
 
 #: includes/class-wpevents-blocks.php:270
 msgid "This block can only be used within event posts. Current post type: "
-msgstr "Denne blok kan kun bruges i begivenhedsindlæg. Nuværende posttype:"
+msgstr "Denne blok kan kun bruges i begivenhedsindlæg. Nuværende posttype: "
 
 #: includes/class-wpevents-blocks.php:313
 #: includes/class-wpevents-blocks.php:369
@@ -383,11 +384,11 @@ msgstr "Begivenhedskategori"
 
 #: includes/class-wpevents-cpt.php:45 includes/class-wpevents-cpt.php:47
 msgid "Event Tags"
-msgstr "Event Tags"
+msgstr "Begivenhedstags"
 
 #: includes/class-wpevents-cpt.php:48
 msgid "Event Tag"
-msgstr "Event Tag"
+msgstr "Begivenhed Tag"
 
 #: includes/class-wpevents-cpt.php:59 includes/class-wpevents-cpt.php:61
 msgid "Venue Categories"
@@ -403,7 +404,7 @@ msgstr "Arrangørkategorier"
 
 #: includes/class-wpevents-cpt.php:76
 msgid "Organizer Category"
-msgstr "Organisator kategori"
+msgstr "Arrangør kategori"
 
 #: includes/class-wpevents-cpt.php:89 includes/class-wpevents-cpt.php:91
 msgid "Events"
@@ -430,11 +431,11 @@ msgstr "Begivenhedstid"
 
 #: includes/class-wpevents-cpt.php:284
 msgid "Start"
-msgstr "Starte"
+msgstr "Start"
 
 #: includes/class-wpevents-cpt.php:286
 msgid "End"
-msgstr "Ende"
+msgstr "Slut"
 
 #: includes/class-wpevents-cpt.php:309
 msgid "Event Recurrence"
@@ -494,7 +495,7 @@ msgstr "Ingen arrangører fundet. Opret arrangører først."
 
 #: includes/class-wpevents-cpt.php:456 assets/blocks.js:521
 msgid "Event Price"
-msgstr "Event Pris"
+msgstr "Begivenhedspris"
 
 #: includes/class-wpevents-cpt.php:481
 msgid "Currency"
@@ -502,11 +503,11 @@ msgstr "Valuta"
 
 #: includes/class-wpevents-cpt.php:499
 msgid "Leave price empty if the event is free"
-msgstr "Lad prisen stå tom, hvis arrangementet er gratis"
+msgstr "Lad prisen stå tom, hvis begivenheden er gratis"
 
 #: includes/class-wpevents-cpt.php:536
 msgid "Venue Details"
-msgstr "Sted detaljer"
+msgstr "Spillesteddetaljer"
 
 #: includes/class-wpevents-cpt.php:547
 msgid "Featured Image"
@@ -558,7 +559,7 @@ msgstr "Google Maps"
 
 #: includes/class-wpevents-cpt.php:584
 msgid "Show \"Get Directions\" link"
-msgstr "Vis linket \"Få rutevejledning\"."
+msgstr "Vis linket \"Få rutevejledning\""
 
 #: includes/class-wpevents-cpt.php:589
 msgid "Custom Google Maps URL (optional)"
@@ -578,7 +579,7 @@ msgstr "Én URL pr. linje"
 
 #: includes/class-wpevents-cpt.php:631
 msgid "Organizer Details"
-msgstr "Organizer detaljer"
+msgstr "Arrangørdetaljer"
 
 #: includes/class-wpevents-ical.php:71 includes/class-wpevents-ical.php:89
 msgid "Event not found."
@@ -723,11 +724,11 @@ msgstr "Vælg mindst én begivenhed, der skal importeres."
 
 #: includes/class-wpevents-import-tribe.php:223
 msgid "Are you sure you want to import "
-msgstr "Er du sikker på, at du vil importere"
+msgstr "Er du sikker på, at du vil importere "
 
 #: includes/class-wpevents-import-tribe.php:223
 msgid " event(s)?"
-msgstr "begivenhed(er)?"
+msgstr " begivenhed(er)?"
 
 #: includes/class-wpevents-import-tribe.php:383
 #, php-format
@@ -919,11 +920,11 @@ msgstr "E-mail for billetbekræftelse"
 
 #: includes/class-wpevents-woocommerce.php:416
 msgid "Event Ticket"
-msgstr "Event billet"
+msgstr "Begivenhedsbillet"
 
 #: templates/archive-event-calendar.php:24
 msgid "Event Kalender"
-msgstr "Event Kalender"
+msgstr "Begivenhedskalender"
 
 #: templates/archive-event-calendar.php:63
 #: templates/archive-event-compact.php:63 templates/archive-event-list.php:63
@@ -981,7 +982,7 @@ msgstr "Tidspunkt:"
 
 #: templates/parts/event-filters.php:71
 msgid "Alle events"
-msgstr "Alle arrangementer"
+msgstr "Alle begivenheder"
 
 #: templates/parts/event-filters.php:74
 msgid "Kommende events"
@@ -989,7 +990,7 @@ msgstr "Kommmende begivenheder"
 
 #: templates/parts/event-filters.php:77
 msgid "Tidligere events"
-msgstr "Tidligere arrangementer"
+msgstr "Tidligere begivenheder"
 
 #: templates/parts/event-filters.php:80
 msgid "I dag"
@@ -1065,7 +1066,7 @@ msgstr "Forrige begivenhed:"
 
 #: templates/single-event.php:206
 msgid "Næste Event:"
-msgstr "Næste arrangement:"
+msgstr "Næste begivenhed:"
 
 #: templates/single-event.php:215
 msgid "← Tilbage til alle events"

@@ -10,6 +10,7 @@ namespace WPEvents;
 use WPEvents\Admin\Ajax;
 use WPEvents\Admin\Columns;
 use WPEvents\Admin\MetaBoxes;
+use WPEvents\Admin\Settings;
 use WPEvents\Import\Tribe;
 use WPEvents\Import\TribeCLI;
 
@@ -93,6 +94,8 @@ class Plugin {
 		OrganizerCapabilities::init();
 		AdditionalFeatures::init();
 		QueryFilters::init();
+		Settings::init();
+		Cleanup::init();
 		Tribe::register();
 
 		if ( defined( 'WP_CLI' ) && class_exists( 'WP_CLI' ) ) {
@@ -120,6 +123,7 @@ class Plugin {
 		Taxonomies::register();
 		PostTypes::register();
 		OrganizerCapabilities::add_organizer_role();
+		Cleanup::schedule();
 		flush_rewrite_rules();
 	}
 
@@ -127,6 +131,7 @@ class Plugin {
 	 * Deactivation callback.
 	 */
 	public static function deactivate() {
+		Cleanup::clear_schedule();
 		flush_rewrite_rules();
 	}
 }

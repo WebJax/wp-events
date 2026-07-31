@@ -140,11 +140,13 @@ src/
   AdditionalFeatures.php               — Event status, RSVP/registration
   TemplateLoader.php                   — Theme/plugin template resolution
   Venue.php                            — Venue helper utilities
+  Cleanup.php                          — Daily cron: trash finished events
   functions-templates.php              — Template helper functions (always loaded)
   Admin/
     Columns.php                        — Admin list columns for event CPT
     MetaBoxes.php                      — Admin meta boxes and save handlers
     Ajax.php                           — Admin AJAX (venue featured image)
+    Settings.php                       — Plugin settings page (cleanup + colors)
   Import/
     Tribe.php                          — Tribe Events importer (admin UI)
     TribeCLI.php                       — WP-CLI import commands
@@ -320,6 +322,9 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 - Admin meta boxes on the `event` edit screen: Event Times, Recurrence, Venue & Organizer, Price (in `WPEvents\Admin\MetaBoxes`); Event Status and Registration (in `WPEvents\AdditionalFeatures`); Ticket Settings when WooCommerce is active (in `WPEvents\WooCommerce`).
 - Admin meta boxes on `venue`: Venue Details.
 - Admin meta boxes on `organizer`: Organizer Details.
+- Settings submenu under Events (`WPEvents\Admin\Settings`): stored in the `wpevents_settings` option.
+  - **Cleanup:** `auto_trash_enabled` (bool, default true) and `auto_trash_days` (int, default 30). Finished events are moved to Trash by the daily cron hook `wpevents_auto_trash_events` (`WPEvents\Cleanup`), measured from `event_end` (falls back to `event_start` when end is empty). Batch size 50 per run.
+  - **Appearance:** `color_mode` (`theme` or `custom`, default `theme`), plus `color_primary` / `color_accent` hex tokens when custom. Custom mode injects `--wpevents-color-primary`, `--wpevents-color-accent`, and `--primary-color` for frontend CSS.
 
 ## Import from Tribe Events (The Events Calendar)
 

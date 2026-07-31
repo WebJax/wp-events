@@ -51,7 +51,9 @@ class Columns {
 		if ( 'event_start' === $column ) {
 			$start = get_post_meta( $post_id, 'event_start', true );
 			if ( $start ) {
-				echo esc_html( wp_date( 'Y-m-d H:i', strtotime( $start ) ) );
+				$time_format = get_option( 'time_format' );
+				$date_format = get_option( 'date_format' );
+				echo esc_html( wp_date( "$date_format $time_format", strtotime( $start ) ) );
 			}
 		}
 		if ( 'event_venue' === $column ) {

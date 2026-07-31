@@ -2,22 +2,21 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Events 0.1.0\n"
+"Project-Id-Version: WP Events 0.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-events\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-27T00:46:38+00:00\n"
+"POT-Creation-Date: 2026-07-31T01:55:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-events\n"
 
 #. Plugin Name of the plugin
 #: wp-events.php
-#: includes/class-wpevents-blocks.php:20
-#: includes/class-wpevents-cpt.php:93
+#: src/PostTypes.php:26
 msgid "WP Events"
 msgstr ""
 
@@ -31,902 +30,931 @@ msgstr ""
 msgid "WebJax"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:54
+#: src/AdditionalFeatures.php:51
 msgid "Event Status"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:74
-#: includes/class-wpevents-additional-features.php:486
+#: src/AdditionalFeatures.php:71
+#: src/AdditionalFeatures.php:511
 msgid "Scheduled"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:75
-#: includes/class-wpevents-additional-features.php:487
+#: src/AdditionalFeatures.php:72
+#: src/AdditionalFeatures.php:512
 msgid "Cancelled"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:76
-#: includes/class-wpevents-additional-features.php:488
+#: src/AdditionalFeatures.php:73
+#: src/AdditionalFeatures.php:513
 msgid "Postponed"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:77
-#: includes/class-wpevents-additional-features.php:489
+#: src/AdditionalFeatures.php:74
+#: src/AdditionalFeatures.php:514
 msgid "Rescheduled"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:78
-#: includes/class-wpevents-additional-features.php:490
+#: src/AdditionalFeatures.php:75
+#: src/AdditionalFeatures.php:515
 msgid "Sold Out"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:79
-#: includes/class-wpevents-additional-features.php:491
+#: src/AdditionalFeatures.php:76
+#: src/AdditionalFeatures.php:516
 msgid "Completed"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:93
+#: src/AdditionalFeatures.php:90
 msgid "This status will be displayed on the event page"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:124
+#: src/AdditionalFeatures.php:133
 msgid "Registration Settings"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:146
+#: src/AdditionalFeatures.php:155
 msgid "Enable Registration"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:150
+#: src/AdditionalFeatures.php:159
 msgid "Allow attendees to register for this event"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:155
+#: src/AdditionalFeatures.php:164
 msgid "Maximum Attendees"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:158
+#: src/AdditionalFeatures.php:167
 msgid "0 = unlimited"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:162
+#: src/AdditionalFeatures.php:171
 msgid "Registration Deadline"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:165
+#: src/AdditionalFeatures.php:174
 msgid "Last date/time to register"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:169
+#: src/AdditionalFeatures.php:178
 msgid "Require Approval"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:173
+#: src/AdditionalFeatures.php:182
 msgid "Registrations require admin approval"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:183
+#: src/AdditionalFeatures.php:192
 msgid "Current Registrations"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:186
+#: src/AdditionalFeatures.php:195
 msgid "Name"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:187
-#: includes/class-wpevents-cpt.php:566
-#: includes/class-wpevents-cpt.php:642
+#: src/AdditionalFeatures.php:196
+#: src/Admin/MetaBoxes.php:355
+#: src/Admin/MetaBoxes.php:440
 msgid "Email"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:188
-#: includes/class-wpevents-admin.php:18
-#: includes/class-wpevents-organizer-capabilities.php:326
+#: src/AdditionalFeatures.php:197
+#: src/Admin/Columns.php:36
+#: src/OrganizerCapabilities.php:357
 msgid "Date"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:189
-#: includes/class-wpevents-additional-features.php:469
-#: includes/class-wpevents-import-tribe.php:129
-#: includes/class-wpevents-organizer-capabilities.php:327
+#: src/AdditionalFeatures.php:198
+#: src/AdditionalFeatures.php:494
+#: src/Import/Tribe.php:105
+#: src/OrganizerCapabilities.php:358
 msgid "Status"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:265
+#: src/AdditionalFeatures.php:274
 msgid "Registration is closed for this event."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:277
+#: src/AdditionalFeatures.php:286
 msgid "This event is full. Registration is closed."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:285
+#: src/AdditionalFeatures.php:295
 msgid "Thank you for registering! You will receive a confirmation email."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:291
+#: src/AdditionalFeatures.php:301
 msgid "Register for This Event"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:295
+#: src/AdditionalFeatures.php:305
 #, php-format
 msgid "%d spots remaining"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:304
+#: src/AdditionalFeatures.php:314
 msgid "Your Name *"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:309
+#: src/AdditionalFeatures.php:319
 msgid "Your Email *"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:314
+#: src/AdditionalFeatures.php:324
 msgid "Phone Number"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:319
+#: src/AdditionalFeatures.php:329
 msgid "Notes/Comments"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:324
+#: src/AdditionalFeatures.php:334
 msgid "Register Now"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:339
-#: includes/class-wpevents-organizer-capabilities.php:422
+#: src/AdditionalFeatures.php:349
+#: src/OrganizerCapabilities.php:453
 msgid "Security check failed"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:349
+#: src/AdditionalFeatures.php:359
 msgid "Required fields missing"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:355
+#: src/AdditionalFeatures.php:365
 msgid "Invalid event."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:361
+#: src/AdditionalFeatures.php:371
 msgid "Registration for this event is closed."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:369
+#: src/AdditionalFeatures.php:379
 msgid "Registration for this event has ended."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:378
+#: src/AdditionalFeatures.php:388
 msgid "Sorry, this event is now full"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:397
+#: src/AdditionalFeatures.php:395
+msgid "Please wait before registering again."
+msgstr ""
+
+#: src/AdditionalFeatures.php:401
+msgid "This email is already registered for this event."
+msgstr ""
+
+#: src/AdditionalFeatures.php:422
 #, php-format
 msgid "Registration Confirmation: %s"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:398
+#: src/AdditionalFeatures.php:423
 #, php-format
 msgid "Thank you for registering for %s!"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:399
+#: src/AdditionalFeatures.php:424
 msgid "Event Details:"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:400
-#: includes/class-wpevents-woocommerce.php:345
+#: src/AdditionalFeatures.php:425
+#: src/WooCommerce.php:344
 msgid "Event:"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:404
+#: src/AdditionalFeatures.php:429
 msgid "Date:"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:407
+#: src/AdditionalFeatures.php:432
 msgid "URL:"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:410
+#: src/AdditionalFeatures.php:435
 msgid "Your registration is pending approval. You will receive another email when approved."
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:447
+#: src/AdditionalFeatures.php:472
 msgid "CANCELLED"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:448
+#: src/AdditionalFeatures.php:473
 msgid "POSTPONED"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:449
+#: src/AdditionalFeatures.php:474
 msgid "RESCHEDULED"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:450
+#: src/AdditionalFeatures.php:475
 msgid "SOLD OUT"
 msgstr ""
 
-#: includes/class-wpevents-additional-features.php:451
+#: src/AdditionalFeatures.php:476
 msgid "COMPLETED"
 msgstr ""
 
-#: includes/class-wpevents-admin.php:19
-#: includes/class-wpevents-cpt.php:124
-#: includes/class-wpevents-cpt.php:374
-#: includes/class-wpevents-import-tribe.php:128
-#: includes/class-wpevents-shortcodes.php:93
+#: src/Admin/Columns.php:37
+#: src/Admin/MetaBoxes.php:158
+#: src/Import/Tribe.php:104
+#: src/PostTypes.php:63
+#: src/Shortcodes.php:101
 msgid "Venue"
 msgstr ""
 
-#: includes/class-wpevents-admin.php:20
-#: includes/class-wpevents-cpt.php:109
+#: src/Admin/Columns.php:38
+#: src/PostTypes.php:46
 msgid "Organizer"
 msgstr ""
 
-#: includes/class-wpevents-blocks-clean.php:573
-msgid "Venue block can only be used in event posts."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:578
-#: includes/class-wpevents-blocks.php:275
-msgid "No venue assigned to this event."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:583
-#: includes/class-wpevents-blocks.php:280
-msgid "Venue not found."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:622
-#: includes/class-wpevents-blocks.php:307
-#: includes/class-wpevents-blocks.php:363
-msgid "Phone:"
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:625
-#: includes/class-wpevents-blocks.php:310
-#: includes/class-wpevents-blocks.php:366
-#: templates/single-event.php:178
-msgid "Email:"
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:638
-msgid "Get directions"
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:655
-msgid "Organizer block can only be used in event posts."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:660
-#: includes/class-wpevents-blocks.php:334
-msgid "No organizer assigned to this event."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:678
-msgid "Organizer not found."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:692
-msgid "Schedule block can only be used in event posts."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:697
-#: includes/class-wpevents-blocks.php:393
-msgid "No start date set for this event."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:702
-#: includes/class-wpevents-blocks.php:403
-msgid "Invalid start date format."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:807
-#: includes/class-wpevents-blocks-clean.php:860
-msgid "No upcoming events found."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:907
-msgid "Price block can only be used in event posts."
-msgstr ""
-
-#: includes/class-wpevents-blocks-clean.php:920
-#: includes/class-wpevents-cpt.php:476
-msgid "Price"
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:232
-#: includes/class-wpevents-shortcodes.php:41
-msgid "No upcoming events"
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:270
-msgid "This block can only be used within event posts. Current post type: "
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:313
-#: includes/class-wpevents-blocks.php:369
-msgid "Website:"
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:329
-#: includes/class-wpevents-blocks.php:388
-#: includes/class-wpevents-blocks.php:439
-msgid "This block can only be used within event posts."
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:399
-#: blocks/event-start/index.js:35
-msgid "Starts:"
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:444
-msgid "No end date set for this event."
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:450
-#: blocks/event-end/index.js:35
-msgid "Ends:"
-msgstr ""
-
-#: includes/class-wpevents-blocks.php:455
-msgid "Invalid end date format."
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:31
-#: includes/class-wpevents-cpt.php:33
-msgid "Event Categories"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:34
-msgid "Event Category"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:45
-#: includes/class-wpevents-cpt.php:47
-msgid "Event Tags"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:48
-msgid "Event Tag"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:59
-#: includes/class-wpevents-cpt.php:61
-msgid "Venue Categories"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:62
-msgid "Venue Category"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:73
-#: includes/class-wpevents-cpt.php:75
-msgid "Organizer Categories"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:76
-msgid "Organizer Category"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:89
-#: includes/class-wpevents-cpt.php:91
-msgid "Events"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:92
-#: includes/class-wpevents-organizer-capabilities.php:325
-#: includes/class-wpevents-woocommerce.php:320
-msgid "Event"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:106
-#: includes/class-wpevents-cpt.php:108
-#: includes/class-wpevents-cpt.php:391
-msgid "Organizers"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:121
-#: includes/class-wpevents-cpt.php:123
-msgid "Venues"
-msgstr ""
-
-#: includes/class-wpevents-cpt.php:273
+#: src/Admin/MetaBoxes.php:39
 msgid "Event Time"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:284
+#: src/Admin/MetaBoxes.php:51
 msgid "Start"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:286
+#: src/Admin/MetaBoxes.php:53
 msgid "End"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:309
+#: src/Admin/MetaBoxes.php:86
 msgid "Event Recurrence"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:321
+#: src/Admin/MetaBoxes.php:99
 msgid "Type"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:324
+#: src/Admin/MetaBoxes.php:102
 msgid "None"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:325
+#: src/Admin/MetaBoxes.php:103
 msgid "Daily"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:326
+#: src/Admin/MetaBoxes.php:104
 msgid "Weekly"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:327
+#: src/Admin/MetaBoxes.php:105
 msgid "Monthly"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:328
+#: src/Admin/MetaBoxes.php:106
 msgid "Yearly"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:329
+#: src/Admin/MetaBoxes.php:107
 msgid "Custom"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:335
+#: src/Admin/MetaBoxes.php:113
 msgid "Interval"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:337
+#: src/Admin/MetaBoxes.php:115
 msgid "End date"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:356
+#: src/Admin/MetaBoxes.php:140
 msgid "Event Venue & Organizers"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:384
+#: src/Admin/MetaBoxes.php:170
 msgid "Select a venue..."
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:411
+#: src/Admin/MetaBoxes.php:177
+#: src/PostTypes.php:43
+#: src/PostTypes.php:45
+msgid "Organizers"
+msgstr ""
+
+#: src/Admin/MetaBoxes.php:199
 msgid "No venues found. Create venues first."
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:414
+#: src/Admin/MetaBoxes.php:202
 msgid "No organizers found. Create organizers first."
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:456
+#: src/Admin/MetaBoxes.php:244
 #: assets/blocks.js:521
 msgid "Event Price"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:481
+#: src/Admin/MetaBoxes.php:264
+#: src/Blocks.php:831
+msgid "Price"
+msgstr ""
+
+#: src/Admin/MetaBoxes.php:269
 msgid "Currency"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:499
+#: src/Admin/MetaBoxes.php:287
 msgid "Leave price empty if the event is free"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:536
+#: src/Admin/MetaBoxes.php:324
 msgid "Venue Details"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:547
+#: src/Admin/MetaBoxes.php:336
 msgid "Featured Image"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:553
+#: src/Admin/MetaBoxes.php:342
 msgid "Set Featured Image"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:555
+#: src/Admin/MetaBoxes.php:344
 msgid "Remove Image"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:561
+#: src/Admin/MetaBoxes.php:350
 msgid "Street Address"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:562
+#: src/Admin/MetaBoxes.php:351
 msgid "City"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:563
+#: src/Admin/MetaBoxes.php:352
 msgid "Postal Code"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:564
+#: src/Admin/MetaBoxes.php:353
 msgid "Country"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:565
-#: includes/class-wpevents-cpt.php:641
+#: src/Admin/MetaBoxes.php:354
+#: src/Admin/MetaBoxes.php:439
 msgid "Phone"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:567
-#: includes/class-wpevents-cpt.php:643
+#: src/Admin/MetaBoxes.php:356
+#: src/Admin/MetaBoxes.php:441
 msgid "Website"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:568
+#: src/Admin/MetaBoxes.php:357
 msgid "Facebook URL"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:569
+#: src/Admin/MetaBoxes.php:358
 msgid "Instagram URL"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:580
+#: src/Admin/MetaBoxes.php:369
 msgid "Google Maps"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:584
+#: src/Admin/MetaBoxes.php:373
 msgid "Show \"Get Directions\" link"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:589
+#: src/Admin/MetaBoxes.php:378
 msgid "Custom Google Maps URL (optional)"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:591
+#: src/Admin/MetaBoxes.php:380
 msgid "Leave empty to auto-generate from address fields"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:596
+#: src/Admin/MetaBoxes.php:387
 msgid "Other Social Media URLs"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:597
+#: src/Admin/MetaBoxes.php:388
 msgid "One URL per line"
 msgstr ""
 
-#: includes/class-wpevents-cpt.php:631
+#: src/Admin/MetaBoxes.php:428
 msgid "Organizer Details"
 msgstr ""
 
-#: includes/class-wpevents-ical.php:71
-#: includes/class-wpevents-ical.php:89
+#: src/Admin/Settings.php:103
+msgid "Events Settings"
+msgstr ""
+
+#: src/Admin/Settings.php:104
+msgid "Settings"
+msgstr ""
+
+#: src/Admin/Settings.php:129
+msgid "Cleanup"
+msgstr ""
+
+#: src/Admin/Settings.php:136
+msgid "Auto-trash finished events"
+msgstr ""
+
+#: src/Admin/Settings.php:144
+msgid "Days after end date"
+msgstr ""
+
+#: src/Admin/Settings.php:152
+msgid "Appearance"
+msgstr ""
+
+#: src/Admin/Settings.php:159
+msgid "Color mode"
+msgstr ""
+
+#: src/Admin/Settings.php:167
+msgid "Primary color"
+msgstr ""
+
+#: src/Admin/Settings.php:175
+msgid "Accent color"
+msgstr ""
+
+#: src/Admin/Settings.php:339
+msgid "Events are moved to Trash a set number of days after their end date."
+msgstr ""
+
+#: src/Admin/Settings.php:348
+msgid "Choose whether event UI colors follow the theme or use plugin tokens."
+msgstr ""
+
+#: src/Admin/Settings.php:367
+msgid "Automatically move finished events to Trash"
+msgstr ""
+
+#: src/Admin/Settings.php:391
+msgid "Number of days after event_end (or event_start if end is missing) before trashing. Default: 30."
+msgstr ""
+
+#: src/Admin/Settings.php:413
+msgid "Follow theme"
+msgstr ""
+
+#: src/Admin/Settings.php:423
+msgid "Custom palette"
+msgstr ""
+
+#: src/Blocks.php:484
+msgid "Venue block can only be used in event posts."
+msgstr ""
+
+#: src/Blocks.php:489
+msgid "No venue assigned to this event."
+msgstr ""
+
+#: src/Blocks.php:494
+msgid "Venue not found."
+msgstr ""
+
+#: src/Blocks.php:533
+msgid "Phone:"
+msgstr ""
+
+#: src/Blocks.php:536
+#: templates/single-event.php:115
+msgid "Email:"
+msgstr ""
+
+#: src/Blocks.php:549
+msgid "Get directions"
+msgstr ""
+
+#: src/Blocks.php:566
+msgid "Organizer block can only be used in event posts."
+msgstr ""
+
+#: src/Blocks.php:571
+msgid "No organizer assigned to this event."
+msgstr ""
+
+#: src/Blocks.php:589
+msgid "Organizer not found."
+msgstr ""
+
+#: src/Blocks.php:603
+msgid "Schedule block can only be used in event posts."
+msgstr ""
+
+#: src/Blocks.php:608
+msgid "No start date set for this event."
+msgstr ""
+
+#: src/Blocks.php:613
+msgid "Invalid start date format."
+msgstr ""
+
+#: src/Blocks.php:718
+#: src/Blocks.php:771
+msgid "No upcoming events found."
+msgstr ""
+
+#: src/Blocks.php:818
+msgid "Price block can only be used in event posts."
+msgstr ""
+
+#: src/ICal.php:68
+#: src/ICal.php:86
 msgid "Event not found."
 msgstr ""
 
-#: includes/class-wpevents-ical.php:72
-#: includes/class-wpevents-ical.php:90
+#: src/ICal.php:69
+#: src/ICal.php:87
 msgid "Event not found"
 msgstr ""
 
-#: includes/class-wpevents-ical.php:231
+#: src/ICal.php:231
 msgid "Add to Calendar"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:58
+#: src/Import/Tribe.php:34
 msgid "Import from Tribe Events"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:59
+#: src/Import/Tribe.php:35
 msgid "Import from Tribe"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:68
+#: src/Import/Tribe.php:44
 msgid "The Events Calendar not detected (tribe_events CPT missing)."
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:78
+#: src/Import/Tribe.php:54
 msgid "Import from The Events Calendar"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:84
+#: src/Import/Tribe.php:60
 msgid "Import Statistics"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:86
+#: src/Import/Tribe.php:62
 msgid "Total Tribe Events:"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:87
+#: src/Import/Tribe.php:63
 msgid "Already Imported:"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:88
+#: src/Import/Tribe.php:64
 msgid "Available to Import:"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:89
+#: src/Import/Tribe.php:65
 msgid "Future Events:"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:90
+#: src/Import/Tribe.php:66
 msgid "Past Events:"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:97
+#: src/Import/Tribe.php:73
 msgid "All Events"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:98
-#: includes/class-wpevents-import-tribe.php:155
+#: src/Import/Tribe.php:74
+#: src/Import/Tribe.php:131
 msgid "Available"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:99
-#: includes/class-wpevents-import-tribe.php:152
+#: src/Import/Tribe.php:75
+#: src/Import/Tribe.php:128
 msgid "Imported"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:100
+#: src/Import/Tribe.php:76
 msgid "Future"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:101
+#: src/Import/Tribe.php:77
 msgid "Past"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:108
+#: src/Import/Tribe.php:84
 msgid "No events found."
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:116
+#: src/Import/Tribe.php:92
 msgid "Select All"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:117
+#: src/Import/Tribe.php:93
 msgid "Deselect All"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:118
+#: src/Import/Tribe.php:94
 msgid "Import Selected Events"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:119
+#: src/Import/Tribe.php:95
 msgid "selected"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:125
+#: src/Import/Tribe.php:101
 msgid "Event Title"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:126
+#: src/Import/Tribe.php:102
 msgid "Start Date"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:127
+#: src/Import/Tribe.php:103
 msgid "End Date"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:130
-#: includes/class-wpevents-organizer-capabilities.php:328
+#: src/Import/Tribe.php:106
+#: src/OrganizerCapabilities.php:359
 msgid "Actions"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:153
+#: src/Import/Tribe.php:129
 msgid "(Edit)"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:159
+#: src/Import/Tribe.php:135
 msgid "View Original"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:170
+#: src/Import/Tribe.php:146
 msgid "Quick Import (Legacy)"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:171
+#: src/Import/Tribe.php:147
 msgid "Import all available events in batch. For large sites, prefer WP-CLI."
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:175
+#: src/Import/Tribe.php:151
 msgid "Batch size"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:176
+#: src/Import/Tribe.php:152
 msgid "Import All Available"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:218
+#: src/Import/Tribe.php:194
 msgid "Please select at least one event to import."
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:223
+#: src/Import/Tribe.php:199
 msgid "Are you sure you want to import "
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:223
+#: src/Import/Tribe.php:199
 msgid " event(s)?"
 msgstr ""
 
-#: includes/class-wpevents-import-tribe.php:383
+#: src/Import/Tribe.php:330
+#: src/Import/Tribe.php:350
+msgid "You do not have permission to import events."
+msgstr ""
+
+#: src/Import/Tribe.php:386
 #, php-format
 msgid "Successfully imported %d event(s). Skipped: %d"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:56
+#: src/OrganizerCapabilities.php:66
 #: assets/blocks.js:125
-#: blocks/event-organizer/index.js:14
 msgid "Event Organizer"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:163
+#: src/OrganizerCapabilities.php:186
 msgid "Assigned Organizers (Users)"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:187
+#: src/OrganizerCapabilities.php:212
 msgid "Select users who can manage this event:"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:203
+#: src/OrganizerCapabilities.php:228
 msgid "No organizers found. Create users with Event Organizer role."
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:273
+#: src/OrganizerCapabilities.php:300
 msgid "Please log in to view your dashboard."
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:311
+#: src/OrganizerCapabilities.php:342
 msgid "Your Events Dashboard"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:315
+#: src/OrganizerCapabilities.php:346
 msgid "Add New Event"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:320
+#: src/OrganizerCapabilities.php:351
 msgid "You have no events yet."
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:348
+#: src/OrganizerCapabilities.php:356
+#: src/PostTypes.php:25
+#: src/WooCommerce.php:319
+msgid "Event"
+msgstr ""
+
+#: src/OrganizerCapabilities.php:379
 msgid "Edit"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:349
+#: src/OrganizerCapabilities.php:380
 msgid "View"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:367
+#: src/OrganizerCapabilities.php:398
 msgid "Please log in to submit an event."
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:373
+#: src/OrganizerCapabilities.php:404
 msgid "Submit New Event"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:380
+#: src/OrganizerCapabilities.php:411
 msgid "Event Title *"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:385
+#: src/OrganizerCapabilities.php:416
 msgid "Event Description *"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:390
+#: src/OrganizerCapabilities.php:421
 msgid "Start Date & Time *"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:395
+#: src/OrganizerCapabilities.php:426
 msgid "End Date & Time"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:400
+#: src/OrganizerCapabilities.php:431
 msgid "Ticket Price"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:405
+#: src/OrganizerCapabilities.php:436
 msgid "Submit Event"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:408
+#: src/OrganizerCapabilities.php:439
 msgid "Your event will be reviewed before being published."
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:426
+#: src/OrganizerCapabilities.php:457
 msgid "You must be logged in to submit events"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:431
+#: src/OrganizerCapabilities.php:462
 msgid "You do not have permission to submit events"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:448
+#: src/OrganizerCapabilities.php:479
 msgid "Failed to create event"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:491
+#: src/OrganizerCapabilities.php:522
 msgid "Event Organizer Settings"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:494
+#: src/OrganizerCapabilities.php:526
 msgid "Link to Organizer Post"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:497
+#: src/OrganizerCapabilities.php:529
 msgid "-- None --"
 msgstr ""
 
-#: includes/class-wpevents-organizer-capabilities.php:516
+#: src/OrganizerCapabilities.php:550
 msgid "Link this user account to an organizer post"
 msgstr ""
 
-#: includes/class-wpevents-shortcodes.php:104
+#: src/PostTypes.php:22
+#: src/PostTypes.php:24
+msgid "Events"
+msgstr ""
+
+#: src/PostTypes.php:60
+#: src/PostTypes.php:62
+msgid "Venues"
+msgstr ""
+
+#: src/Shortcodes.php:49
+msgid "No upcoming events"
+msgstr ""
+
+#: src/Shortcodes.php:112
 msgid "Organizer(s)"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:61
+#: src/Taxonomies.php:23
+#: src/Taxonomies.php:25
+msgid "Event Categories"
+msgstr ""
+
+#: src/Taxonomies.php:26
+msgid "Event Category"
+msgstr ""
+
+#: src/Taxonomies.php:40
+#: src/Taxonomies.php:42
+msgid "Event Tags"
+msgstr ""
+
+#: src/Taxonomies.php:43
+msgid "Event Tag"
+msgstr ""
+
+#: src/Taxonomies.php:57
+#: src/Taxonomies.php:59
+msgid "Venue Categories"
+msgstr ""
+
+#: src/Taxonomies.php:60
+msgid "Venue Category"
+msgstr ""
+
+#: src/Taxonomies.php:74
+#: src/Taxonomies.php:76
+msgid "Organizer Categories"
+msgstr ""
+
+#: src/Taxonomies.php:77
+msgid "Organizer Category"
+msgstr ""
+
+#: src/WooCommerce.php:58
 msgid "Ticket Settings (WooCommerce)"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:83
+#: src/WooCommerce.php:80
 msgid "Enable ticket sales"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:88
+#: src/WooCommerce.php:85
 msgid "Ticket Product:"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:90
+#: src/WooCommerce.php:87
 msgid "-- Select Product --"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:112
+#: src/WooCommerce.php:109
 msgid "Select the WooCommerce product to use for tickets"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:116
+#: src/WooCommerce.php:113
 msgid "Event Capacity:"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:118
+#: src/WooCommerce.php:115
 msgid "Maximum number of attendees (0 = unlimited)"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:123
+#: src/WooCommerce.php:120
 msgid "Create New Product"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:185
+#: src/WooCommerce.php:182
 msgid "Get Tickets"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:191
+#: src/WooCommerce.php:188
 #, php-format
 msgid "Available: %d / %d tickets"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:198
+#: src/WooCommerce.php:195
 msgid "Sorry, this event is sold out."
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:204
+#: src/WooCommerce.php:201
 msgid "Price:"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:214
+#: src/WooCommerce.php:211
 msgid "Buy Ticket"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:326
+#: src/WooCommerce.php:325
 msgid "Event Date"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:359
+#: src/WooCommerce.php:358
 msgid "Attendee Name"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:360
+#: src/WooCommerce.php:359
 msgid "Full name of attendee"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:367
+#: src/WooCommerce.php:366
 msgid "Attendee Email"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:368
+#: src/WooCommerce.php:367
 msgid "Email for ticket confirmation"
 msgstr ""
 
-#: includes/class-wpevents-woocommerce.php:416
+#: src/WooCommerce.php:417
 msgid "Event Ticket"
 msgstr ""
 
@@ -938,8 +966,8 @@ msgstr ""
 #: templates/archive-event-compact.php:63
 #: templates/archive-event-list.php:63
 #: templates/archive-event.php:62
-#: templates/taxonomy-event_category.php:145
-#: templates/taxonomy-event_tag.php:145
+#: templates/taxonomy-event_category.php:149
+#: templates/taxonomy-event_tag.php:149
 msgid "Forrige"
 msgstr ""
 
@@ -947,8 +975,8 @@ msgstr ""
 #: templates/archive-event-compact.php:64
 #: templates/archive-event-list.php:64
 #: templates/archive-event.php:63
-#: templates/taxonomy-event_category.php:146
-#: templates/taxonomy-event_tag.php:146
+#: templates/taxonomy-event_category.php:150
+#: templates/taxonomy-event_tag.php:150
 msgid "Næste"
 msgstr ""
 
@@ -956,8 +984,8 @@ msgstr ""
 #: templates/archive-event-compact.php:71
 #: templates/archive-event-list.php:71
 #: templates/archive-event.php:70
-#: templates/taxonomy-event_category.php:153
-#: templates/taxonomy-event_tag.php:153
+#: templates/taxonomy-event_category.php:157
+#: templates/taxonomy-event_tag.php:157
 msgid "Ingen events fundet"
 msgstr ""
 
@@ -979,8 +1007,8 @@ msgstr ""
 
 #: templates/parts/event-card-grid.php:121
 #: templates/parts/event-card-list.php:130
-#: templates/taxonomy-event_category.php:134
-#: templates/taxonomy-event_tag.php:134
+#: templates/taxonomy-event_category.php:138
+#: templates/taxonomy-event_tag.php:138
 msgid "Læs mere"
 msgstr ""
 
@@ -1060,75 +1088,71 @@ msgstr ""
 msgid "Visning:"
 msgstr ""
 
-#: templates/single-event.php:111
-msgid "Kategorier:"
-msgstr ""
-
-#: templates/single-event.php:124
-msgid "Tags:"
-msgstr ""
-
-#: templates/single-event.php:154
+#: templates/single-event.php:91
 msgid "Venue Information"
 msgstr ""
 
-#: templates/single-event.php:175
+#: templates/single-event.php:112
 msgid "Telefon:"
 msgstr ""
 
-#: templates/single-event.php:197
+#: templates/single-event.php:150
+msgid "Kategorier:"
+msgstr ""
+
+#: templates/single-event.php:163
+msgid "Tags:"
+msgstr ""
+
+#: templates/single-event.php:192
 msgid "Forrige Event:"
 msgstr ""
 
-#: templates/single-event.php:206
+#: templates/single-event.php:201
 msgid "Næste Event:"
 msgstr ""
 
-#: templates/single-event.php:215
+#: templates/single-event.php:210
 msgid "← Tilbage til alle events"
 msgstr ""
 
-#: templates/taxonomy-event_category.php:23
+#. translators: %s: event category name
+#: templates/taxonomy-event_category.php:25
 #, php-format
 msgid "Events i kategorien: %s"
 msgstr ""
 
-#: templates/taxonomy-event_category.php:154
+#: templates/taxonomy-event_category.php:158
 msgid "Der er ingen events i denne kategori endnu."
 msgstr ""
 
-#: templates/taxonomy-event_tag.php:23
+#. translators: %s: event tag name
+#: templates/taxonomy-event_tag.php:25
 #, php-format
 msgid "Events tagget med: %s"
 msgstr ""
 
-#: templates/taxonomy-event_tag.php:154
+#: templates/taxonomy-event_tag.php:158
 msgid "Der er ingen events med dette tag endnu."
 msgstr ""
 
 #: assets/blocks.js:15
-#: blocks/event-venue/index.js:15
 msgid "Event Venue"
 msgstr ""
 
 #: assets/blocks.js:18
-#: blocks/event-venue/index.js:18
 msgid "Display event venue information"
 msgstr ""
 
 #: assets/blocks.js:80
-#: blocks/event-venue/index.js:43
 msgid "Venue Settings"
 msgstr ""
 
 #: assets/blocks.js:82
-#: blocks/event-venue/index.js:47
 msgid "Show Address"
 msgstr ""
 
 #: assets/blocks.js:89
-#: blocks/event-organizer/index.js:42
-#: blocks/event-venue/index.js:57
 msgid "Show Contact Info"
 msgstr ""
 
@@ -1137,7 +1161,6 @@ msgid "Show Directions Link"
 msgstr ""
 
 #: assets/blocks.js:103
-#: blocks/event-venue/index.js:67
 msgid "Link to Venue Page"
 msgstr ""
 
@@ -1178,8 +1201,6 @@ msgid "Time Separator"
 msgstr ""
 
 #: assets/blocks.js:306
-#: blocks/event-end/index.js:76
-#: blocks/event-start/index.js:72
 msgid "Date Format"
 msgstr ""
 
@@ -1189,8 +1210,6 @@ msgstr ""
 
 #: assets/blocks.js:320
 #: assets/blocks.js:608
-#: blocks/event-end/index.js:56
-#: blocks/event-start/index.js:52
 msgid "Show Label"
 msgstr ""
 
@@ -1210,7 +1229,6 @@ msgid "Italic Label"
 msgstr ""
 
 #: assets/blocks.js:363
-#: blocks/events-list.js:11
 msgid "Events List"
 msgstr ""
 
@@ -1228,12 +1246,10 @@ msgid "Number of Events"
 msgstr ""
 
 #: assets/blocks.js:442
-#: blocks/events-carousel.js:11
 msgid "Events Carousel"
 msgstr ""
 
 #: assets/blocks.js:445
-#: blocks/events-carousel.js:14
 msgid "Display events in a carousel format"
 msgstr ""
 
@@ -1267,120 +1283,4 @@ msgstr ""
 
 #: assets/blocks.js:648
 msgid "Before amount (DKK 100)"
-msgstr ""
-
-#: blocks/event-end/index.js:16
-msgid "Event End Date/Time"
-msgstr ""
-
-#: blocks/event-end/index.js:19
-msgid "Display event end date and time"
-msgstr ""
-
-#: blocks/event-end/index.js:52
-#: blocks/event-start/index.js:48
-msgid "Date/Time Settings"
-msgstr ""
-
-#: blocks/event-end/index.js:66
-#: blocks/event-start/index.js:62
-msgid "Label Text"
-msgstr ""
-
-#: blocks/event-end/index.js:79
-#: blocks/event-start/index.js:75
-msgid "Full Date & Time"
-msgstr ""
-
-#: blocks/event-end/index.js:80
-#: blocks/event-start/index.js:76
-msgid "Date Only"
-msgstr ""
-
-#: blocks/event-end/index.js:81
-#: blocks/event-start/index.js:77
-msgid "Time Only"
-msgstr ""
-
-#: blocks/event-end/index.js:82
-#: blocks/event-start/index.js:78
-msgid "Custom Format"
-msgstr ""
-
-#: blocks/event-end/index.js:92
-#: blocks/event-start/index.js:88
-msgid "Custom PHP Date Format"
-msgstr ""
-
-#: blocks/event-end/index.js:97
-#: blocks/event-start/index.js:93
-msgid "Use PHP date format (e.g., \"j. F Y \\k\\l. H:i\")"
-msgstr ""
-
-#: blocks/event-end/index.js:103
-msgid "Hide date if same day as start"
-msgstr ""
-
-#: blocks/event-organizer/index.js:17
-msgid "Display event organizer information"
-msgstr ""
-
-#: blocks/event-organizer/index.js:38
-msgid "Organizer Settings"
-msgstr ""
-
-#: blocks/event-organizer/index.js:52
-msgid "Link to Organizer Page"
-msgstr ""
-
-#: blocks/event-start/index.js:16
-msgid "Event Start Date/Time"
-msgstr ""
-
-#: blocks/event-start/index.js:19
-msgid "Display event start date and time"
-msgstr ""
-
-#: blocks/events-list.js:14
-msgid "Display a list of events"
-msgstr ""
-
-#: blocks/event-end/block.json
-msgctxt "block title"
-msgid "Event End Date/Time"
-msgstr ""
-
-#: blocks/event-end/block.json
-msgctxt "block description"
-msgid "Display event end date and time"
-msgstr ""
-
-#: blocks/event-organizer/block.json
-msgctxt "block title"
-msgid "Event Organizer"
-msgstr ""
-
-#: blocks/event-organizer/block.json
-msgctxt "block description"
-msgid "Display event organizer information"
-msgstr ""
-
-#: blocks/event-start/block.json
-msgctxt "block title"
-msgid "Event Start Date/Time"
-msgstr ""
-
-#: blocks/event-start/block.json
-msgctxt "block description"
-msgid "Display event start date and time"
-msgstr ""
-
-#: blocks/event-venue/block.json
-msgctxt "block title"
-msgid "Event Venue"
-msgstr ""
-
-#: blocks/event-venue/block.json
-msgctxt "block description"
-msgid "Display event venue information"
 msgstr ""

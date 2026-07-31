@@ -79,12 +79,44 @@ get_header(); ?>
                         
                         <?php if ( $venue_id ) : 
                             $venue = get_post( $venue_id );
-                            if ( $venue ) : ?>
-                                <div class="event-venue">
-                                    <span class="dashicons dashicons-location"></span>
-                                    <a href="<?php echo esc_url( get_permalink( $venue_id ) ); ?>">
-                                        <?php echo esc_html( $venue->post_title ); ?>
-                                    </a>
+                            if ( $venue ) :
+                                $address = get_post_meta( $venue_id, 'venue_address', true );
+                                $city = get_post_meta( $venue_id, 'venue_city', true );
+                                $postal_code = get_post_meta( $venue_id, 'venue_postal_code', true );
+                                $country = get_post_meta( $venue_id, 'venue_country', true );
+                                $phone = get_post_meta( $venue_id, 'venue_phone', true );
+                                $email = get_post_meta( $venue_id, 'venue_email', true );
+                                ?>
+                                <div class="event-venue-details">
+                                    <h3><?php esc_html_e( 'Venue Information', 'wp-events' ); ?></h3>
+                                    <div class="venue-info">
+                                        <h4><?php echo esc_html( $venue->post_title ); ?></h4>
+                                        
+                                        <?php if ( $address || $city || $postal_code || $country ) : ?>
+                                            <div class="venue-address">
+                                                <?php if ( $address ) : ?>
+                                                    <div><?php echo esc_html( $address ); ?></div>
+                                                <?php endif; ?>
+                                                <?php if ( $postal_code || $city ) : ?>
+                                                    <div><?php echo esc_html( trim( $postal_code . ' ' . $city ) ); ?></div>
+                                                <?php endif; ?>
+                                                <?php if ( $country ) : ?>
+                                                    <div><?php echo esc_html( $country ); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ( $phone || $email ) : ?>
+                                            <div class="venue-contact">
+                                                <?php if ( $phone ) : ?>
+                                                    <div><strong><?php esc_html_e( 'Telefon:', 'wp-events' ); ?></strong> <?php echo esc_html( $phone ); ?></div>
+                                                <?php endif; ?>
+                                                <?php if ( $email ) : ?>
+                                                    <div><strong><?php esc_html_e( 'Email:', 'wp-events' ); ?></strong> <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -146,50 +178,6 @@ get_header(); ?>
                 <div class="event-content">
                     <?php the_content(); ?>
                 </div>
-
-                <?php if ( $venue_id ) : 
-                    $venue = get_post( $venue_id );
-                    if ( $venue ) :
-                        $address = get_post_meta( $venue_id, 'venue_address', true );
-                        $city = get_post_meta( $venue_id, 'venue_city', true );
-                        $postal_code = get_post_meta( $venue_id, 'venue_postal_code', true );
-                        $country = get_post_meta( $venue_id, 'venue_country', true );
-                        $phone = get_post_meta( $venue_id, 'venue_phone', true );
-                        $email = get_post_meta( $venue_id, 'venue_email', true );
-                        ?>
-                        <div class="event-venue-details">
-                            <h3><?php esc_html_e( 'Venue Information', 'wp-events' ); ?></h3>
-                            <div class="venue-info">
-                                <h4><?php echo esc_html( $venue->post_title ); ?></h4>
-                                
-                                <?php if ( $address || $city || $postal_code || $country ) : ?>
-                                    <div class="venue-address">
-                                        <?php if ( $address ) : ?>
-                                            <div><?php echo esc_html( $address ); ?></div>
-                                        <?php endif; ?>
-                                        <?php if ( $postal_code || $city ) : ?>
-                                            <div><?php echo esc_html( trim( $postal_code . ' ' . $city ) ); ?></div>
-                                        <?php endif; ?>
-                                        <?php if ( $country ) : ?>
-                                            <div><?php echo esc_html( $country ); ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <?php if ( $phone || $email ) : ?>
-                                    <div class="venue-contact">
-                                        <?php if ( $phone ) : ?>
-                                            <div><strong><?php esc_html_e( 'Telefon:', 'wp-events' ); ?></strong> <?php echo esc_html( $phone ); ?></div>
-                                        <?php endif; ?>
-                                        <?php if ( $email ) : ?>
-                                            <div><strong><?php esc_html_e( 'Email:', 'wp-events' ); ?></strong> <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
                 
                 <footer class="event-footer">
                     <div class="event-navigation">

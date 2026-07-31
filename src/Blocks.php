@@ -458,6 +458,8 @@ class Blocks {
 			WPEVENTS_VERSION
 		);
 
+		Admin\Settings::print_color_tokens();
+
 		// Enqueue Swiper for carousel block
 		if ( has_block( 'wp-events/events-carousel' ) ) {
 			wp_enqueue_style( 'swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', array(), '11.0.0' );

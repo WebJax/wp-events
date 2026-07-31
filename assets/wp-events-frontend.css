@@ -396,7 +396,7 @@
 }
 
 .filter-group label i {
-    color: var(--primary-color, #007cba);
+    color: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
 }
 
 .filter-group select {
@@ -428,12 +428,12 @@
 }
 
 .btn-primary {
-    background: var(--primary-color, #007cba);
+    background: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     color: white;
 }
 
 .btn-primary:hover {
-    background: #005a87;
+    background: var(--wpevents-color-accent, #005a87);
     color: white;
 }
 
@@ -503,7 +503,7 @@
 }
 
 .event-title a:hover {
-    color: var(--primary-color);
+    color: var(--wpevents-color-primary, var(--primary-color));
 }
 
 .event-categories {
@@ -531,7 +531,7 @@
 
 .event-date .dashicons,
 .event-venue .dashicons {
-    color: var(--primary-color);
+    color: var(--wpevents-color-primary, var(--primary-color));
     font-size: 16px;
     width: 16px;
     height: 16px;
@@ -546,7 +546,7 @@
 
 .event-read-more {
     display: inline-block;
-    background: var(--primary-color);
+    background: var(--wpevents-color-primary, var(--primary-color));
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -558,7 +558,7 @@
 
 .event-read-more:hover {
     background: var(--contrast-bg-color);
-    color: var(--primary-color);
+    color: var(--wpevents-color-primary, var(--primary-color));
 }
 
 /* No events message */
@@ -597,9 +597,9 @@
 
 .wp-events-pagination .page-numbers:hover,
 .wp-events-pagination .page-numbers.current {
-    background: var(--wp--preset--color--primary, #007cba);
+    background: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     color: white;
-    border-color: var(--wp--preset--color--primary, #007cba);
+    border-color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
 }
 
 .wp-events-pagination .page-numbers.prev,
@@ -691,7 +691,7 @@ i.icon-location:before {
 
 .event-meta .dashicons {
     margin-right: 0.5rem;
-    color: var(--primary-color);
+    color: var(--wpevents-color-primary, var(--primary-color));
 }
 
 .event-date time {
@@ -701,7 +701,7 @@ i.icon-location:before {
 
 .event-venue a,
 .event-organizers a {
-    color: var(--primary-color);
+    color: var(--wpevents-color-primary, var(--primary-color));
     text-decoration: none;
     font-weight: 500;
 }
@@ -744,7 +744,7 @@ i.icon-location:before {
 }
 
 .event-category a:hover,
-.event-tag a:hover {background-color: var(--primary-color);color: white;}
+.event-tag a:hover {background-color: var(--wpevents-color-primary, var(--primary-color));color: white;}
 
 .event-tag a {
     background: #e9ecef;
@@ -785,7 +785,7 @@ i.icon-location:before {
     padding: 2rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    border-left: 4px solid var(--wp--preset--color--primary, #007cba);
+    border-left: 4px solid var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
 }
 
 .event-venue-details h3 {
@@ -797,7 +797,7 @@ i.icon-location:before {
 
 .venue-info h4 {
     margin-bottom: 1rem;
-    color: var(--wp--preset--color--primary, #007cba);
+    color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     font-size: 1.25rem;
 }
 
@@ -807,7 +807,7 @@ i.icon-location:before {
 }
 
 .venue-contact a {
-    color: var(--wp--preset--color--primary, #007cba);
+    color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     text-decoration: none;
 }
 
@@ -849,7 +849,7 @@ i.icon-location:before {
 .prev-event a:hover,
 .next-event a:hover {
     background: white;
-    border-color: var(--wp--preset--color--primary, #007cba);
+    border-color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     box-shadow: 0 2px 8px rgba(0, 124, 186, 0.1);
 }
 
@@ -867,7 +867,7 @@ i.icon-location:before {
 .nav-title {
     display: block;
     font-weight: 600;
-    color: var(--wp--preset--color--primary, #007cba);
+    color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
 }
 
 /* Back to Events */
@@ -879,8 +879,8 @@ i.icon-location:before {
     display: inline-block;
     padding: 0.75rem 2rem;
     background: white;
-    color: var(--wp--preset--color--primary, #007cba);
-    border: 2px solid var(--wp--preset--color--primary, #007cba);
+    color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
+    border: 2px solid var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     border-radius: 6px;
     text-decoration: none;
     font-weight: 600;
@@ -888,7 +888,7 @@ i.icon-location:before {
 }
 
 .back-to-events .btn:hover {
-    background: var(--wp--preset--color--primary, #007cba);
+    background: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
     color: white;
 }
 
@@ -1016,7 +1016,7 @@ i.icon-location:before {
     display: inline-block;
     text-decoration: none;
     padding: 4px 16px;
-    background: var(--primary-color);
+    background: var(--wpevents-color-primary, var(--primary-color));
     color: white;
     font-weight: 500;
     border-radius: 4px;
@@ -1160,7 +1160,7 @@ i.icon-location:before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color, #007cba);
+    background: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     color: white;
     padding: 20px 15px;
     min-width: 90px;
@@ -1256,7 +1256,7 @@ i.icon-location:before {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: var(--primary-color, #007cba);
+    background: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -1268,7 +1268,7 @@ i.icon-location:before {
 }
 
 .event-card-list .event-read-more:hover {
-    background: #005a87;
+    background: var(--wpevents-color-accent, #005a87);
 }
 
 /* Calendar/Grid View - 3 Column Layout */
@@ -1330,7 +1330,7 @@ i.icon-location:before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color, #007cba);
+    background: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     color: white;
     padding: 10px;
     min-width: 60px;
@@ -1369,7 +1369,7 @@ i.icon-location:before {
 }
 
 .event-card-compact:hover .event-title {
-    color: var(--primary-color, #007cba);
+    color: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
 }
 
 .event-card-compact .event-meta {
@@ -1399,7 +1399,7 @@ i.icon-location:before {
 }
 
 .event-card-compact .event-arrow {
-    color: var(--primary-color, #007cba);
+    color: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     font-size: 1.2rem;
     margin-left: auto;
     transition: transform 0.2s;
@@ -1515,9 +1515,9 @@ i.icon-location:before {
 }
 
 .view-switcher-button.active {
-    background: var(--primary-color, #007cba);
+    background: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
     color: white;
-    border-color: var(--primary-color, #007cba);
+    border-color: var(--wpevents-color-primary, var(--primary-color, var(--wp--preset--color--primary, #007cba)));
 }
 
 .view-switcher-button span[class^="icon-"] {
