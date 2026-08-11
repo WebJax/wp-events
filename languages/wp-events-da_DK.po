@@ -853,50 +853,62 @@ msgstr "Billetindstillinger (WooCommerce)"
 msgid "Enable ticket sales"
 msgstr "Aktiver billetsalg"
 
-#: includes/class-wpevents-woocommerce.php:88
-msgid "Ticket Product:"
-msgstr "Billetprodukt:"
+#: src/WooCommerce.php:214
+msgid "Ticket Products:"
+msgstr "Billetprodukter:"
 
-#: includes/class-wpevents-woocommerce.php:90
-msgid "-- Select Product --"
-msgstr "-- Vælg produkt --"
+#: src/WooCommerce.php:228
+msgid "No products found"
+msgstr "Ingen produkter fundet"
 
-#: includes/class-wpevents-woocommerce.php:112
-msgid "Select the WooCommerce product to use for tickets"
-msgstr "Vælg det WooCommerce-produkt, der skal bruges til billetter"
+#: src/WooCommerce.php:240
+msgid "Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple."
+msgstr "Vælg et eller flere WooCommerce-produkter som billettyper. Hold Ctrl/Cmd nede for at vælge flere."
 
-#: includes/class-wpevents-woocommerce.php:116
+#: src/WooCommerce.php:244
 msgid "Event Capacity:"
 msgstr "Begivenhedskapacitet:"
 
-#: includes/class-wpevents-woocommerce.php:118
-msgid "Maximum number of attendees (0 = unlimited)"
-msgstr "Maksimalt antal deltagere (0 = ubegrænset)"
+#: src/WooCommerce.php:246
+msgid "Shared maximum attendees across all ticket types (0 = unlimited). Each product also keeps its own WooCommerce stock."
+msgstr "Fælles maksimum antal deltagere på tværs af alle billettyper (0 = ubegrænset). Hvert produkt beholder også sit eget WooCommerce-lager."
 
-#: includes/class-wpevents-woocommerce.php:123
+#: src/WooCommerce.php:250
 msgid "Create New Product"
 msgstr "Opret nyt produkt"
 
-#: includes/class-wpevents-woocommerce.php:185
+#: src/WooCommerce.php:321
 msgid "Get Tickets"
 msgstr "Få billetter"
 
-#: includes/class-wpevents-woocommerce.php:191
+#: src/WooCommerce.php:327
 #, php-format
 msgid "Available: %d / %d tickets"
 msgstr "Tilgængelige: %d / %d billetter"
 
-#: includes/class-wpevents-woocommerce.php:198
+#: src/WooCommerce.php:334
 msgid "Sorry, this event is sold out."
 msgstr "Beklager, denne begivenhed er udsolgt."
 
-#: includes/class-wpevents-woocommerce.php:204
+#: src/WooCommerce.php:351
 msgid "Price:"
 msgstr "Pris:"
 
-#: includes/class-wpevents-woocommerce.php:214
+#: src/WooCommerce.php:355
+msgid "This ticket type is sold out."
+msgstr "Denne billet-type er udsolgt."
+
+#: src/WooCommerce.php:366
 msgid "Buy Ticket"
 msgstr "Køb billet"
+
+#: src/WooCommerce.php:376
+msgid "Sorry, no ticket types are currently available."
+msgstr "Beklager, der er ingen billettyper tilgængelige lige nu."
+
+#: src/WooCommerce.php:468
+msgid "Sorry, this event does not have enough remaining capacity for that quantity."
+msgstr "Beklager, denne begivenhed har ikke nok resterende kapacitet til det antal."
 
 #: includes/class-wpevents-woocommerce.php:326
 msgid "Event Date"

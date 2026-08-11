@@ -95,23 +95,25 @@ Events kan eksporteres i iCalendar format (.ics) til kalenderapps.
 
 ## WooCommerce Integration
 
-Sælg billetter til events gennem WooCommerce.
+Sælg billetter til events gennem WooCommerce. Et event kan have flere billettyper (flere produkter).
 
 ### Opsætning
 1. Installér og aktivér WooCommerce plugin
-2. Opret et produkt i WooCommerce til billetter
+2. Opret ét eller flere produkter i WooCommerce til billettyper (fx Standard, VIP)
 3. I event editor, find "Ticket Settings" meta box:
    - Aktivér "Enable ticket sales"
-   - Vælg WooCommerce produkt
-   - Sæt event kapacitet (max deltagere)
-4. Gem event
+   - Vælg et eller flere WooCommerce-produkter (Ctrl/Cmd for multi-select)
+   - Sæt fælles event-kapacitet (max deltagere på tværs af alle billettyper; 0 = ubegrænset)
+4. Styrr lager pr. billet-type i hvert WooCommerce-produkt
+5. Gem event
 
 ### Funktioner
-- **Automatisk ticket knap**: Vises på event sider
-- **Kapacitetsstyring**: Synkroniserer med produkt lager
+- **Flere billettyper**: Flere WooCommerce-produkter pr. event
+- **Automatisk ticket-sektion**: Vises på event-sider med pris og knap pr. type
+- **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager
 - **Order tracking**: Events linkes til orders
 - **Deltagerliste**: Attendee info gemmes på orders
-- **Udsolgt beskeder**: Vises automatisk når kapacitet nået
+- **Udsolgt beskeder**: Vises når event-loftet eller en billet-type er udsolgt
 
 ## Arrangør Login & Administration
 

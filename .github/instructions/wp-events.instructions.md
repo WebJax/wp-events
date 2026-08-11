@@ -350,11 +350,11 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 ## WooCommerce Ticket Integration
 
 - Implemented in `WPEvents\WooCommerce`; only activates when WooCommerce is active (`class_exists('WooCommerce')`).
-- Admin meta box on `event` edit screen: ticket settings including linked product, capacity, and ticket type.
-- Ticket purchase button injected via `the_content` filter on event pages.
+- Admin meta box on `event` edit screen: ticket settings including one or more linked products (`ticket_product_ids`), shared event capacity, with legacy `ticket_product_id` kept in sync.
+- Ticket purchase section injected via `the_content` filter on event pages; lists each linked product with price and buy link (`add-to-cart` + `wpevents_event_id`).
 - Event metadata (event ID, start date) attached to cart items and order line items.
 - Attendee fields added to WooCommerce checkout.
-- Event capacity synced to WooCommerce product stock on `save_post_event`.
+- Shared event capacity is enforced on add-to-cart and can force linked products out of stock without overwriting each product's own stock quantity; per-type availability still follows WooCommerce product stock.
 
 ## Organizer Role & Capabilities
 
