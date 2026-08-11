@@ -889,51 +889,62 @@ msgstr ""
 msgid "Enable ticket sales"
 msgstr ""
 
-#: src/WooCommerce.php:85
-msgid "Ticket Product:"
+#: src/WooCommerce.php:214
+msgid "Ticket Products:"
 msgstr ""
 
-#: src/WooCommerce.php:87
-msgid "-- Select Product --"
+#: src/WooCommerce.php:228
+msgid "No products found"
 msgstr ""
 
-#: src/WooCommerce.php:109
-msgid "Select the WooCommerce product to use for tickets"
+#: src/WooCommerce.php:240
+msgid "Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple."
 msgstr ""
 
-#: src/WooCommerce.php:113
+#: src/WooCommerce.php:244
 msgid "Event Capacity:"
 msgstr ""
 
-#: src/WooCommerce.php:115
-msgid "Maximum number of attendees (0 = unlimited)"
+#: src/WooCommerce.php:246
+msgid "Shared maximum attendees across all ticket types (0 = unlimited). Each product also keeps its own WooCommerce stock."
 msgstr ""
 
-#: src/WooCommerce.php:120
+#: src/WooCommerce.php:250
 msgid "Create New Product"
 msgstr ""
 
-#: src/WooCommerce.php:182
+#: src/WooCommerce.php:321
 msgid "Get Tickets"
 msgstr ""
 
-#: src/WooCommerce.php:188
+#: src/WooCommerce.php:327
 #, php-format
 msgid "Available: %d / %d tickets"
 msgstr ""
 
-#: src/WooCommerce.php:195
+#: src/WooCommerce.php:334
 msgid "Sorry, this event is sold out."
 msgstr ""
 
-#: src/WooCommerce.php:201
+#: src/WooCommerce.php:351
 msgid "Price:"
 msgstr ""
 
-#: src/WooCommerce.php:211
+#: src/WooCommerce.php:355
+msgid "This ticket type is sold out."
+msgstr ""
+
+#: src/WooCommerce.php:366
 msgid "Buy Ticket"
 msgstr ""
 
+#: src/WooCommerce.php:376
+msgid "Sorry, no ticket types are currently available."
+msgstr ""
+
+#: src/WooCommerce.php:468
+msgid "Sorry, this event does not have enough remaining capacity for that quantity."
+msgstr ""
 #: src/WooCommerce.php:325
 msgid "Event Date"
 msgstr ""

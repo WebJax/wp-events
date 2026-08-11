@@ -13,6 +13,13 @@ namespace WPEvents;
 class WooCommerce {
 
 	/**
+	 * Meta key used when event capacity forces a product out of stock.
+	 *
+	 * @var string
+	 */
+	const CAPACITY_BLOCK_META = '_wpevents_capacity_blocked';
+
+	/**
 	 * Initialize WooCommerce integration
 	 */
 	public static function init() {
@@ -31,6 +38,7 @@ class WooCommerce {
 		// Add event info to cart items.
 		add_filter( 'woocommerce_add_cart_item_data', array( __CLASS__, 'add_event_to_cart_item' ), 10, 3 );
 		add_filter( 'woocommerce_get_cart_item_from_session', array( __CLASS__, 'get_cart_item_from_session' ), 10, 2 );
+		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_event_capacity_on_add_to_cart' ), 10, 3 );
 
 		// Add event info to order.
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_event_to_order_item' ), 10, 4 );
@@ -47,6 +55,122 @@ class WooCommerce {
 
 		// Sync event capacity with product stock.
 		add_action( 'save_post_event', array( __CLASS__, 'sync_ticket_stock' ), 20 );
+	}
+
+	/**
+	 * Get linked ticket product IDs for an event.
+	 *
+	 * Falls back to legacy single `ticket_product_id` when the new meta is empty.
+	 *
+	 * @param int $event_id Event post ID.
+	 * @return int[]
+	 */
+	public static function get_ticket_product_ids( $event_id ) {
+		$event_id    = absint( $event_id );
+		$product_ids = get_post_meta( $event_id, 'ticket_product_ids', true );
+
+		if ( ! is_array( $product_ids ) ) {
+			$product_ids = array();
+		}
+
+		$product_ids = array_values(
+			array_unique(
+				array_filter( array_map( 'absint', $product_ids ) )
+			)
+		);
+
+		if ( empty( $product_ids ) ) {
+			$legacy_id = absint( get_post_meta( $event_id, 'ticket_product_id', true ) );
+			if ( $legacy_id > 0 ) {
+				$product_ids = array( $legacy_id );
+			}
+		}
+
+		return $product_ids;
+	}
+
+	/**
+	 * Whether an event is linked to a given WooCommerce product.
+	 *
+	 * @param int $event_id   Event post ID.
+	 * @param int $product_id Product post ID.
+	 * @return bool
+	 */
+	public static function event_has_ticket_product( $event_id, $product_id ) {
+		$product_id = absint( $product_id );
+		if ( $product_id <= 0 ) {
+			return false;
+		}
+
+		return in_array( $product_id, self::get_ticket_product_ids( $event_id ), true );
+	}
+
+	/**
+	 * Find event IDs linked to a product (multi-product meta + legacy scalar).
+	 *
+	 * @param int $product_id Product post ID.
+	 * @return int[]
+	 */
+	protected static function find_event_ids_for_product( $product_id ) {
+		global $wpdb;
+
+		$product_id = absint( $product_id );
+		if ( $product_id <= 0 ) {
+			return array();
+		}
+
+		$event_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+				WHERE (
+					(meta_key = 'ticket_product_id' AND meta_value = %s)
+					OR (
+						meta_key = 'ticket_product_ids'
+						AND (meta_value LIKE %s OR meta_value LIKE %s)
+					)
+				)",
+				(string) $product_id,
+				'%i:' . $product_id . ';%',
+				'%s:"' . $product_id . '";%'
+			)
+		);
+
+		if ( ! is_array( $event_ids ) ) {
+			return array();
+		}
+
+		$event_ids = array_values( array_unique( array_map( 'absint', $event_ids ) ) );
+
+		// Confirm membership via helper (handles malformed serialized data).
+		return array_values(
+			array_filter(
+				$event_ids,
+				static function ( $event_id ) use ( $product_id ) {
+					return self::event_has_ticket_product( $event_id, $product_id );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Remaining shared event capacity, or null when unlimited / unset.
+	 *
+	 * @param int $event_id Event post ID.
+	 * @return int|null Null when unlimited or capacity not set.
+	 */
+	protected static function get_event_capacity_remaining( $event_id ) {
+		$capacity_raw = get_post_meta( $event_id, 'ticket_capacity', true );
+
+		if ( '' === $capacity_raw || false === $capacity_raw ) {
+			return null;
+		}
+
+		$capacity = (int) $capacity_raw;
+		if ( $capacity <= 0 ) {
+			return null;
+		}
+
+		return max( 0, $capacity - self::get_tickets_sold( $event_id ) );
 	}
 
 	/**
@@ -69,9 +193,9 @@ class WooCommerce {
 	public static function render_ticket_meta_box( $post ) {
 		wp_nonce_field( 'wpevents_ticket_meta', 'wpevents_ticket_nonce' );
 
-		$enable_tickets    = get_post_meta( $post->ID, 'enable_tickets', true );
-		$ticket_product_id = get_post_meta( $post->ID, 'ticket_product_id', true );
-		$ticket_capacity   = get_post_meta( $post->ID, 'ticket_capacity', true );
+		$enable_tickets     = get_post_meta( $post->ID, 'enable_tickets', true );
+		$ticket_product_ids = self::get_ticket_product_ids( $post->ID );
+		$ticket_capacity    = get_post_meta( $post->ID, 'ticket_capacity', true );
 
 		?>
 		<p>
@@ -82,9 +206,8 @@ class WooCommerce {
 		</p>
 
 		<p>
-			<label><?php _e( 'Ticket Product:', 'wp-events' ); ?></label>
-			<select name="ticket_product_id" style="width: 100%;">
-				<option value=""><?php _e( '-- Select Product --', 'wp-events' ); ?></option>
+			<label><?php _e( 'Ticket Products:', 'wp-events' ); ?></label>
+			<select name="ticket_product_ids[]" multiple size="6" style="width: 100%;">
 				<?php
 				$products = get_posts(
 					array(
@@ -96,23 +219,27 @@ class WooCommerce {
 					)
 				);
 
+				if ( empty( $products ) ) {
+					echo '<option value="" disabled>' . esc_html__( 'No products found', 'wp-events' ) . '</option>';
+				}
+
 				foreach ( $products as $product ) {
 					printf(
 						'<option value="%d" %s>%s</option>',
 						$product->ID,
-						selected( $ticket_product_id, $product->ID, false ),
+						selected( in_array( (int) $product->ID, $ticket_product_ids, true ), true, false ),
 						esc_html( $product->post_title )
 					);
 				}
 				?>
 			</select>
-			<small><?php _e( 'Select the WooCommerce product to use for tickets', 'wp-events' ); ?></small>
+			<small><?php _e( 'Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple.', 'wp-events' ); ?></small>
 		</p>
 
 		<p>
 			<label><?php _e( 'Event Capacity:', 'wp-events' ); ?></label>
 			<input type="number" name="ticket_capacity" value="<?php echo esc_attr( $ticket_capacity ); ?>" min="0" step="1" style="width: 100%;">
-			<small><?php _e( 'Maximum number of attendees (0 = unlimited)', 'wp-events' ); ?></small>
+			<small><?php _e( 'Shared maximum attendees across all ticket types (0 = unlimited). Each product also keeps its own WooCommerce stock.', 'wp-events' ); ?></small>
 		</p>
 
 		<p>
@@ -143,8 +270,19 @@ class WooCommerce {
 		$enable_tickets = isset( $_POST['enable_tickets'] ) ? '1' : '0';
 		update_post_meta( $post_id, 'enable_tickets', $enable_tickets );
 
-		if ( isset( $_POST['ticket_product_id'] ) ) {
-			update_post_meta( $post_id, 'ticket_product_id', absint( $_POST['ticket_product_id'] ) );
+		$product_ids = array();
+		if ( isset( $_POST['ticket_product_ids'] ) && is_array( $_POST['ticket_product_ids'] ) ) {
+			$product_ids = array_map( 'absint', wp_unslash( $_POST['ticket_product_ids'] ) );
+			$product_ids = array_values( array_unique( array_filter( $product_ids ) ) );
+		}
+
+		if ( ! empty( $product_ids ) ) {
+			update_post_meta( $post_id, 'ticket_product_ids', $product_ids );
+			// Keep legacy scalar in sync with the first product for older lookups.
+			update_post_meta( $post_id, 'ticket_product_id', $product_ids[0] );
+		} else {
+			delete_post_meta( $post_id, 'ticket_product_ids' );
+			delete_post_meta( $post_id, 'ticket_product_id' );
 		}
 
 		if ( isset( $_POST['ticket_capacity'] ) ) {
@@ -154,7 +292,7 @@ class WooCommerce {
 	}
 
 	/**
-	 * Add ticket purchase button to event content
+	 * Add ticket purchase buttons to event content
 	 */
 	public static function add_ticket_button( $content ) {
 		if ( ! is_singular( 'event' ) ) {
@@ -163,31 +301,28 @@ class WooCommerce {
 
 		$event_id       = get_the_ID();
 		$enable_tickets = get_post_meta( $event_id, 'enable_tickets', true );
-		$product_id     = get_post_meta( $event_id, 'ticket_product_id', true );
+		$product_ids    = self::get_ticket_product_ids( $event_id );
 
-		if ( '1' !== $enable_tickets || ! $product_id ) {
+		if ( '1' !== $enable_tickets || empty( $product_ids ) ) {
 			return $content;
 		}
 
-		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
-			return $content;
+		$capacity  = get_post_meta( $event_id, 'ticket_capacity', true );
+		$sold      = self::get_tickets_sold( $event_id );
+		$remaining = null;
+		if ( '' !== $capacity && false !== $capacity && (int) $capacity > 0 ) {
+			$remaining = max( 0, (int) $capacity - $sold );
 		}
-
-		// Check capacity.
-		$capacity = get_post_meta( $event_id, 'ticket_capacity', true );
-		$sold     = self::get_tickets_sold( $event_id );
 
 		$button_html  = '<div class="wp-events-ticket-section" style="margin: 30px 0; padding: 20px; background: #f7f7f7; border-radius: 5px;">';
 		$button_html .= '<h3>' . esc_html__( 'Get Tickets', 'wp-events' ) . '</h3>';
 
-		if ( $capacity > 0 ) {
-			$remaining    = $capacity - $sold;
+		if ( null !== $remaining ) {
 			$button_html .= '<p>';
 			$button_html .= sprintf(
 				esc_html__( 'Available: %d / %d tickets', 'wp-events' ),
-				max( 0, $remaining ),
-				$capacity
+				$remaining,
+				(int) $capacity
 			);
 			$button_html .= '</p>';
 
@@ -198,18 +333,46 @@ class WooCommerce {
 			}
 		}
 
-		$button_html .= '<p><strong>' . esc_html__( 'Price:', 'wp-events' ) . '</strong> ' . $product->get_price_html() . '</p>';
+		$button_html .= '<ul class="wp-events-ticket-types" style="list-style: none; padding: 0; margin: 0;">';
 
-		$add_to_cart_url = add_query_arg(
-			array(
-				'add-to-cart' => $product_id,
-			),
-			wc_get_cart_url()
-		);
+		$has_purchasable = false;
+		foreach ( $product_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				continue;
+			}
 
-		$button_html .= '<a href="' . esc_url( $add_to_cart_url ) . '" class="button wp-events-buy-ticket" style="display: inline-block; padding: 12px 24px; background: #0073aa; color: white; text-decoration: none; border-radius: 3px; font-weight: bold;">';
-		$button_html .= esc_html__( 'Buy Ticket', 'wp-events' );
-		$button_html .= '</a>';
+			$is_purchasable = $product->is_purchasable() && $product->is_in_stock();
+			$button_html   .= '<li class="wp-events-ticket-type" style="margin: 0 0 16px; padding: 12px 0; border-top: 1px solid #e2e2e2;">';
+			$button_html   .= '<strong>' . esc_html( $product->get_name() ) . '</strong>';
+			$button_html   .= '<p style="margin: 6px 0;"><strong>' . esc_html__( 'Price:', 'wp-events' ) . '</strong> ' . $product->get_price_html() . '</p>';
+
+			if ( ! $is_purchasable ) {
+				$button_html .= '<p><em>' . esc_html__( 'This ticket type is sold out.', 'wp-events' ) . '</em></p>';
+			} else {
+				$has_purchasable = true;
+				$add_to_cart_url = add_query_arg(
+					array(
+						'add-to-cart'       => $product_id,
+						'wpevents_event_id' => $event_id,
+					),
+					wc_get_cart_url()
+				);
+
+				$button_html .= '<a href="' . esc_url( $add_to_cart_url ) . '" class="button wp-events-buy-ticket" style="display: inline-block; padding: 12px 24px; background: #0073aa; color: white; text-decoration: none; border-radius: 3px; font-weight: bold;">';
+				$button_html .= esc_html__( 'Buy Ticket', 'wp-events' );
+				$button_html .= '</a>';
+			}
+
+			$button_html .= '</li>';
+		}
+
+		$button_html .= '</ul>';
+
+		if ( ! $has_purchasable ) {
+			$button_html .= '<p><strong>' . esc_html__( 'Sorry, no ticket types are currently available.', 'wp-events' ) . '</strong></p>';
+		}
+
 		$button_html .= '</div>';
 
 		return $content . $button_html;
@@ -219,8 +382,6 @@ class WooCommerce {
 	 * Add event ID to cart item data
 	 */
 	public static function add_event_to_cart_item( $cart_item_data, $product_id, $variation_id ) {
-		global $wpdb;
-
 		$event_id = 0;
 
 		// Prefer an explicitly provided event ID from the add-to-cart request, if available.
@@ -229,38 +390,17 @@ class WooCommerce {
 			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-			if ( $requested_event_id > 0 ) {
-				// Validate that the requested event is actually linked to this product.
-				$linked_event_id = $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT post_id FROM {$wpdb->postmeta} 
-                         WHERE post_id = %d 
-                         AND meta_key = 'ticket_product_id' 
-                         AND meta_value = %d",
-						$requested_event_id,
-						$product_id
-					)
-				);
-
-				if ( $linked_event_id ) {
-					$event_id = (int) $linked_event_id;
-				}
+			if ( $requested_event_id > 0 && self::event_has_ticket_product( $requested_event_id, $product_id ) ) {
+				$event_id = $requested_event_id;
 			}
 		}
 
 		// If no valid explicit event was provided, fall back to inferring it from postmeta,
 		// but only when there is exactly one unambiguous match for this product.
 		if ( ! $event_id ) {
-			$event_ids = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
-                     WHERE meta_key = 'ticket_product_id' 
-                     AND meta_value = %d",
-					$product_id
-				)
-			);
+			$event_ids = self::find_event_ids_for_product( $product_id );
 
-			if ( is_array( $event_ids ) && count( $event_ids ) === 1 ) {
+			if ( count( $event_ids ) === 1 ) {
 				$event_id = (int) $event_ids[0];
 			}
 		}
@@ -270,6 +410,71 @@ class WooCommerce {
 		}
 
 		return $cart_item_data;
+	}
+
+	/**
+	 * Block add-to-cart when shared event capacity is exhausted.
+	 *
+	 * @param bool $passed     Whether validation passed.
+	 * @param int  $product_id Product ID.
+	 * @param int  $quantity   Quantity being added.
+	 * @return bool
+	 */
+	public static function validate_event_capacity_on_add_to_cart( $passed, $product_id, $quantity ) {
+		if ( ! $passed ) {
+			return $passed;
+		}
+
+		$event_id = 0;
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Add-to-cart request; WC handles checkout nonce separately.
+		if ( isset( $_REQUEST['wpevents_event_id'] ) ) {
+			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
+			if ( $requested_event_id > 0 && self::event_has_ticket_product( $requested_event_id, $product_id ) ) {
+				$event_id = $requested_event_id;
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $event_id ) {
+			$event_ids = self::find_event_ids_for_product( $product_id );
+			if ( count( $event_ids ) === 1 ) {
+				$event_id = (int) $event_ids[0];
+			}
+		}
+
+		if ( ! $event_id ) {
+			return $passed;
+		}
+
+		$enable_tickets = get_post_meta( $event_id, 'enable_tickets', true );
+		if ( '1' !== $enable_tickets ) {
+			return $passed;
+		}
+
+		$remaining = self::get_event_capacity_remaining( $event_id );
+		if ( null === $remaining ) {
+			return $passed;
+		}
+
+		$quantity_in_cart = 0;
+		if ( function_exists( 'WC' ) && WC()->cart ) {
+			foreach ( WC()->cart->get_cart() as $cart_item ) {
+				if ( isset( $cart_item['event_id'] ) && (int) $cart_item['event_id'] === $event_id ) {
+					$quantity_in_cart += (int) $cart_item['quantity'];
+				}
+			}
+		}
+
+		if ( ( $quantity_in_cart + (int) $quantity ) > $remaining ) {
+			wc_add_notice(
+				__( 'Sorry, this event does not have enough remaining capacity for that quantity.', 'wp-events' ),
+				'error'
+			);
+			return false;
+		}
+
+		return $passed;
 	}
 
 	/**
@@ -419,15 +624,19 @@ class WooCommerce {
 	}
 
 	/**
-	 * Sync ticket stock with event capacity
+	 * Sync shared event capacity onto linked products without overwriting per-type stock qty.
+	 *
+	 * When the shared event capacity is exhausted, linked products are forced out of stock
+	 * via stock_status and a marker meta. Per-product stock quantities are left intact.
+	 * When capacity frees up, only products we previously blocked are restored.
 	 */
 	public static function sync_ticket_stock( $event_id ) {
 		$enable_tickets = get_post_meta( $event_id, 'enable_tickets', true );
-		$product_id     = get_post_meta( $event_id, 'ticket_product_id', true );
+		$product_ids    = self::get_ticket_product_ids( $event_id );
 		$capacity_raw   = get_post_meta( $event_id, 'ticket_capacity', true );
 
-		// Only proceed when tickets are enabled and a product is linked.
-		if ( '1' !== $enable_tickets || ! $product_id ) {
+		// Only proceed when tickets are enabled and at least one product is linked.
+		if ( '1' !== $enable_tickets || empty( $product_ids ) ) {
 			return;
 		}
 
@@ -436,28 +645,94 @@ class WooCommerce {
 			return;
 		}
 
-		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
-			return;
-		}
-
-		// Normalize capacity to integer.
 		$capacity = (int) $capacity_raw;
 
-		// Capacity 0 means unlimited tickets: disable stock management and ensure product is in stock.
+		// Capacity 0 means unlimited tickets: leave each product's own stock settings alone,
+		// but clear any capacity blocks this integration previously applied.
 		if ( 0 === $capacity ) {
-			$product->set_manage_stock( false );
-			$product->set_stock_status( 'instock' );
-			$product->save();
+			foreach ( $product_ids as $product_id ) {
+				self::clear_capacity_block( $product_id );
+			}
 			return;
 		}
 
-		// Update product stock to match limited capacity.
 		$sold      = self::get_tickets_sold( $event_id );
 		$remaining = max( 0, $capacity - $sold );
 
-		$product->set_manage_stock( true );
-		$product->set_stock_quantity( $remaining );
-		$product->save();
+		foreach ( $product_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				continue;
+			}
+
+			if ( $remaining <= 0 ) {
+				self::apply_capacity_block( $product );
+			} else {
+				self::clear_capacity_block( $product_id, $product );
+			}
+		}
+	}
+
+	/**
+	 * Force a product out of stock due to shared event capacity without changing qty.
+	 *
+	 * @param \WC_Product $product Product instance.
+	 */
+	protected static function apply_capacity_block( $product ) {
+		$product_id = $product->get_id();
+		$already    = get_post_meta( $product_id, self::CAPACITY_BLOCK_META, true );
+
+		if ( '1' !== $already ) {
+			update_post_meta(
+				$product_id,
+				self::CAPACITY_BLOCK_META,
+				array(
+					'previous_status' => $product->get_stock_status(),
+				)
+			);
+		}
+
+		if ( 'outofstock' !== $product->get_stock_status() ) {
+			$product->set_stock_status( 'outofstock' );
+			$product->save();
+		}
+	}
+
+	/**
+	 * Clear a capacity block and restore previous stock status when appropriate.
+	 *
+	 * @param int              $product_id Product ID.
+	 * @param \WC_Product|null $product    Optional product instance.
+	 */
+	protected static function clear_capacity_block( $product_id, $product = null ) {
+		$block = get_post_meta( $product_id, self::CAPACITY_BLOCK_META, true );
+		if ( empty( $block ) ) {
+			return;
+		}
+
+		if ( ! $product ) {
+			$product = wc_get_product( $product_id );
+		}
+		if ( ! $product ) {
+			delete_post_meta( $product_id, self::CAPACITY_BLOCK_META );
+			return;
+		}
+
+		$previous_status = 'instock';
+		if ( is_array( $block ) && ! empty( $block['previous_status'] ) ) {
+			$previous_status = sanitize_text_field( $block['previous_status'] );
+		}
+
+		// Do not restore to instock if the product itself has no stock left.
+		if ( $product->managing_stock() && (int) $product->get_stock_quantity() <= 0 ) {
+			$previous_status = 'outofstock';
+		}
+
+		if ( $product->get_stock_status() !== $previous_status ) {
+			$product->set_stock_status( $previous_status );
+			$product->save();
+		}
+
+		delete_post_meta( $product_id, self::CAPACITY_BLOCK_META );
 	}
 }
