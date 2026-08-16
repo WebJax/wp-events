@@ -38,7 +38,10 @@ class WooCommerce {
 		// Add event info to cart items.
 		add_filter( 'woocommerce_add_cart_item_data', array( __CLASS__, 'add_event_to_cart_item' ), 10, 3 );
 		add_filter( 'woocommerce_get_cart_item_from_session', array( __CLASS__, 'get_cart_item_from_session' ), 10, 2 );
+		add_filter( 'woocommerce_get_item_data', array( __CLASS__, 'display_event_in_cart' ), 10, 2 );
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_event_capacity_on_add_to_cart' ), 10, 3 );
+		add_action( 'woocommerce_check_cart_items', array( __CLASS__, 'validate_cart_event_capacity' ) );
+		add_action( 'woocommerce_after_cart_item_quantity_update', array( __CLASS__, 'validate_cart_item_quantity' ), 10, 4 );
 
 		// Add event info to order.
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_event_to_order_item' ), 10, 4 );
@@ -50,11 +53,16 @@ class WooCommerce {
 		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'add_attendee_fields' ) );
 		add_action( 'woocommerce_checkout_update_order_meta', array( __CLASS__, 'save_attendee_data' ) );
 
-		// Add event ticket product type.
+		// Add event ticket product type (behaves as a simple product).
 		add_filter( 'product_type_selector', array( __CLASS__, 'add_event_ticket_product_type' ) );
+		add_filter( 'woocommerce_product_class', array( __CLASS__, 'get_event_ticket_product_class' ), 10, 2 );
+		add_action( 'woocommerce_event_ticket_add_to_cart', 'woocommerce_simple_add_to_cart', 30 );
+		add_action( 'admin_footer', array( __CLASS__, 'enable_event_ticket_product_js' ) );
 
-		// Sync event capacity with product stock.
+		// Sync event capacity with product stock on save and after orders change.
 		add_action( 'save_post_event', array( __CLASS__, 'sync_ticket_stock' ), 20 );
+		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'sync_capacity_on_order_status_change' ), 10, 4 );
+		add_action( 'woocommerce_order_refunded', array( __CLASS__, 'sync_capacity_on_order_refunded' ) );
 	}
 
 	/**
@@ -103,6 +111,35 @@ class WooCommerce {
 		}
 
 		return in_array( $product_id, self::get_ticket_product_ids( $event_id ), true );
+	}
+
+	/**
+	 * Resolve the event ID for a product from the request or an unambiguous link.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int Event ID or 0.
+	 */
+	protected static function resolve_event_id_for_product( $product_id ) {
+		$product_id = absint( $product_id );
+		$event_id   = 0;
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Add-to-cart request; WC handles checkout nonce separately.
+		if ( isset( $_REQUEST['wpevents_event_id'] ) ) {
+			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
+			if ( $requested_event_id > 0 && self::event_has_ticket_product( $requested_event_id, $product_id ) ) {
+				$event_id = $requested_event_id;
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $event_id ) {
+			$event_ids = self::find_event_ids_for_product( $product_id );
+			if ( count( $event_ids ) === 1 ) {
+				$event_id = (int) $event_ids[0];
+			}
+		}
+
+		return $event_id;
 	}
 
 	/**
@@ -382,28 +419,7 @@ class WooCommerce {
 	 * Add event ID to cart item data
 	 */
 	public static function add_event_to_cart_item( $cart_item_data, $product_id, $variation_id ) {
-		$event_id = 0;
-
-		// Prefer an explicitly provided event ID from the add-to-cart request, if available.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce not applicable for add-to-cart product ID lookup.
-		if ( isset( $_REQUEST['wpevents_event_id'] ) ) {
-			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
-			// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-			if ( $requested_event_id > 0 && self::event_has_ticket_product( $requested_event_id, $product_id ) ) {
-				$event_id = $requested_event_id;
-			}
-		}
-
-		// If no valid explicit event was provided, fall back to inferring it from postmeta,
-		// but only when there is exactly one unambiguous match for this product.
-		if ( ! $event_id ) {
-			$event_ids = self::find_event_ids_for_product( $product_id );
-
-			if ( count( $event_ids ) === 1 ) {
-				$event_id = (int) $event_ids[0];
-			}
-		}
+		$event_id = self::resolve_event_id_for_product( $product_id );
 
 		if ( $event_id > 0 ) {
 			$cart_item_data['event_id'] = $event_id;
@@ -425,24 +441,7 @@ class WooCommerce {
 			return $passed;
 		}
 
-		$event_id = 0;
-
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Add-to-cart request; WC handles checkout nonce separately.
-		if ( isset( $_REQUEST['wpevents_event_id'] ) ) {
-			$requested_event_id = absint( $_REQUEST['wpevents_event_id'] );
-			if ( $requested_event_id > 0 && self::event_has_ticket_product( $requested_event_id, $product_id ) ) {
-				$event_id = $requested_event_id;
-			}
-		}
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		if ( ! $event_id ) {
-			$event_ids = self::find_event_ids_for_product( $product_id );
-			if ( count( $event_ids ) === 1 ) {
-				$event_id = (int) $event_ids[0];
-			}
-		}
-
+		$event_id = self::resolve_event_id_for_product( $product_id );
 		if ( ! $event_id ) {
 			return $passed;
 		}
@@ -478,6 +477,137 @@ class WooCommerce {
 	}
 
 	/**
+	 * Validate shared event capacity for all ticket lines currently in the cart.
+	 *
+	 * Runs on cart and checkout so quantity changes and race conditions are caught.
+	 */
+	public static function validate_cart_event_capacity() {
+		$quantities = self::get_cart_quantities_by_event();
+		if ( empty( $quantities ) ) {
+			return;
+		}
+
+		foreach ( $quantities as $event_id => $quantity ) {
+			$remaining = self::get_event_capacity_remaining( $event_id );
+			if ( null === $remaining ) {
+				continue;
+			}
+
+			if ( $quantity > $remaining ) {
+				wc_add_notice(
+					sprintf(
+						/* translators: 1: event title, 2: remaining ticket count */
+						__( 'Not enough remaining capacity for "%1$s". Only %2$d ticket(s) left.', 'wp-events' ),
+						get_the_title( $event_id ),
+						$remaining
+					),
+					'error'
+				);
+			}
+		}
+	}
+
+	/**
+	 * Revert a cart quantity increase that would exceed shared event capacity.
+	 *
+	 * @param string     $cart_item_key Cart item key.
+	 * @param int        $quantity      New quantity.
+	 * @param int        $old_quantity  Previous quantity.
+	 * @param \WC_Cart   $cart          Cart object.
+	 */
+	public static function validate_cart_item_quantity( $cart_item_key, $quantity, $old_quantity, $cart ) {
+		if ( (int) $quantity <= (int) $old_quantity ) {
+			return;
+		}
+
+		$cart_item = $cart->get_cart_item( $cart_item_key );
+		if ( empty( $cart_item['event_id'] ) ) {
+			return;
+		}
+
+		$event_id  = absint( $cart_item['event_id'] );
+		$remaining = self::get_event_capacity_remaining( $event_id );
+		if ( null === $remaining ) {
+			return;
+		}
+
+		$quantities = self::get_cart_quantities_by_event( $cart );
+		$in_cart    = isset( $quantities[ $event_id ] ) ? (int) $quantities[ $event_id ] : (int) $quantity;
+
+		if ( $in_cart > $remaining ) {
+			$allowed = max( 0, (int) $old_quantity );
+			$cart->set_quantity( $cart_item_key, $allowed, false );
+			wc_add_notice(
+				sprintf(
+					/* translators: 1: event title, 2: remaining ticket count */
+					__( 'Not enough remaining capacity for "%1$s". Only %2$d ticket(s) left.', 'wp-events' ),
+					get_the_title( $event_id ),
+					$remaining
+				),
+				'error'
+			);
+		}
+	}
+
+	/**
+	 * Sum ticket quantities in the cart grouped by event ID.
+	 *
+	 * @param \WC_Cart|null $cart Optional cart. Defaults to the current cart.
+	 * @return array<int,int> Event ID => quantity.
+	 */
+	protected static function get_cart_quantities_by_event( $cart = null ) {
+		if ( ! $cart ) {
+			if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+				return array();
+			}
+			$cart = WC()->cart;
+		}
+
+		$quantities = array();
+		foreach ( $cart->get_cart() as $cart_item ) {
+			if ( empty( $cart_item['event_id'] ) ) {
+				continue;
+			}
+			$event_id = absint( $cart_item['event_id'] );
+			if ( $event_id <= 0 ) {
+				continue;
+			}
+			if ( ! isset( $quantities[ $event_id ] ) ) {
+				$quantities[ $event_id ] = 0;
+			}
+			$quantities[ $event_id ] += (int) $cart_item['quantity'];
+		}
+
+		return $quantities;
+	}
+
+	/**
+	 * Show the linked event name on cart and checkout lines.
+	 *
+	 * @param array $item_data Cart item data rows.
+	 * @param array $cart_item Cart item.
+	 * @return array
+	 */
+	public static function display_event_in_cart( $item_data, $cart_item ) {
+		if ( empty( $cart_item['event_id'] ) ) {
+			return $item_data;
+		}
+
+		$event_id = absint( $cart_item['event_id'] );
+		$title    = get_the_title( $event_id );
+		if ( ! $title ) {
+			return $item_data;
+		}
+
+		$item_data[] = array(
+			'key'   => __( 'Event', 'wp-events' ),
+			'value' => $title,
+		);
+
+		return $item_data;
+	}
+
+	/**
 	 * Get cart item from session
 	 */
 	public static function get_cart_item_from_session( $cart_item, $values ) {
@@ -493,24 +623,60 @@ class WooCommerce {
 	protected static function get_tickets_sold( $event_id ) {
 		global $wpdb;
 
-		// Sum quantities from completed and processing orders.
-		$count = $wpdb->get_var(
+		$event_id = absint( $event_id );
+		if ( $event_id <= 0 || ! function_exists( 'wc_get_order' ) ) {
+			return 0;
+		}
+
+		$item_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT COALESCE(SUM(CAST(qty_meta.meta_value AS UNSIGNED)), 0)
-            FROM {$wpdb->prefix}woocommerce_order_itemmeta event_meta
-            INNER JOIN {$wpdb->prefix}woocommerce_order_items oi ON event_meta.order_item_id = oi.order_item_id
-            INNER JOIN {$wpdb->posts} p ON oi.order_id = p.ID
-            INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta qty_meta 
-                ON qty_meta.order_item_id = event_meta.order_item_id
-                AND qty_meta.meta_key = '_qty'
-            WHERE event_meta.meta_key = '_event_id'
-            AND event_meta.meta_value = %d
-            AND p.post_status IN ('wc-completed', 'wc-processing')",
-				$event_id
+				"SELECT order_item_id FROM {$wpdb->prefix}woocommerce_order_itemmeta
+				WHERE meta_key = '_event_id' AND meta_value = %s",
+				(string) $event_id
 			)
 		);
 
-		return absint( $count );
+		if ( empty( $item_ids ) ) {
+			return 0;
+		}
+
+		$count         = 0;
+		$counted_items = array();
+
+		foreach ( $item_ids as $item_id ) {
+			$item_id = absint( $item_id );
+			if ( $item_id <= 0 || isset( $counted_items[ $item_id ] ) ) {
+				continue;
+			}
+			$counted_items[ $item_id ] = true;
+
+			$order_id = 0;
+			if ( function_exists( 'wc_get_order_id_by_order_item_id' ) ) {
+				$order_id = absint( wc_get_order_id_by_order_item_id( $item_id ) );
+			}
+			if ( $order_id <= 0 ) {
+				continue;
+			}
+
+			$order = wc_get_order( $order_id );
+			if ( ! $order ) {
+				continue;
+			}
+
+			$status = $order->get_status();
+			if ( ! in_array( $status, array( 'completed', 'processing' ), true ) ) {
+				continue;
+			}
+
+			$item = $order->get_item( $item_id );
+			if ( $item && is_callable( array( $item, 'get_quantity' ) ) ) {
+				$count += absint( $item->get_quantity() );
+			} else {
+				$count += absint( wc_get_order_item_meta( $item_id, '_qty', true ) );
+			}
+		}
+
+		return $count;
 	}
 
 	/**
@@ -545,9 +711,14 @@ class WooCommerce {
 			return;
 		}
 
+		$title = get_the_title( $event_id );
 		if ( $plain_text ) {
-			echo "\n" . esc_html__( 'Event:', 'wp-events' ) . ' ' . esc_html( get_the_title( $event_id ) );
+			echo "\n" . esc_html__( 'Event:', 'wp-events' ) . ' ' . esc_html( $title );
+			return;
 		}
+
+		echo '<p><strong>' . esc_html__( 'Event:', 'wp-events' ) . '</strong> ';
+		echo '<a href="' . esc_url( get_permalink( $event_id ) ) . '">' . esc_html( $title ) . '</a></p>';
 	}
 
 	/**
@@ -600,19 +771,22 @@ class WooCommerce {
 	 * Save attendee data to order
 	 */
 	public static function save_attendee_data( $order_id ) {
-		// WooCommerce handles nonce verification during checkout.
-		// We only process if this is a legitimate checkout request.
-		if ( ! is_admin() && did_action( 'woocommerce_checkout_process' ) ) {
-			// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
-			if ( isset( $_POST['attendee_name'] ) ) {
-				update_post_meta( $order_id, 'attendee_name', sanitize_text_field( wp_unslash( $_POST['attendee_name'] ) ) );
-			}
-
-			if ( isset( $_POST['attendee_email'] ) ) {
-				update_post_meta( $order_id, 'attendee_email', sanitize_email( wp_unslash( $_POST['attendee_email'] ) ) );
-			}
-			// phpcs:enable WordPress.Security.NonceVerification.Missing
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
 		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
+		if ( isset( $_POST['attendee_name'] ) ) {
+			$order->update_meta_data( 'attendee_name', sanitize_text_field( wp_unslash( $_POST['attendee_name'] ) ) );
+		}
+
+		if ( isset( $_POST['attendee_email'] ) ) {
+			$order->update_meta_data( 'attendee_email', sanitize_email( wp_unslash( $_POST['attendee_email'] ) ) );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		$order->save();
 	}
 
 	/**
@@ -621,6 +795,42 @@ class WooCommerce {
 	public static function add_event_ticket_product_type( $types ) {
 		$types['event_ticket'] = __( 'Event Ticket', 'wp-events' );
 		return $types;
+	}
+
+	/**
+	 * Map the event_ticket type to a purchasable simple-product class.
+	 *
+	 * @param string $classname    Product class name.
+	 * @param string $product_type Product type slug.
+	 * @return string
+	 */
+	public static function get_event_ticket_product_class( $classname, $product_type ) {
+		if ( 'event_ticket' === $product_type ) {
+			return EventTicketProduct::class;
+		}
+		return $classname;
+	}
+
+	/**
+	 * Show simple-product panels when Event Ticket is selected in admin.
+	 */
+	public static function enable_event_ticket_product_js() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'product' !== $screen->id ) {
+			return;
+		}
+		?>
+		<script type="text/javascript">
+		jQuery( function( $ ) {
+			$( '.product_data_tabs .general_tab' ).addClass( 'show_if_event_ticket' );
+			$( '.options_group.pricing' ).addClass( 'show_if_event_ticket' );
+			$( '.show_if_simple' ).addClass( 'show_if_event_ticket' );
+			$( '.inventory_options' ).addClass( 'show_if_event_ticket' );
+			$( '._manage_stock_field' ).addClass( 'show_if_event_ticket' );
+			$( '._sold_individually_field' ).addClass( 'show_if_event_ticket' );
+		} );
+		</script>
+		<?php
 	}
 
 	/**
@@ -637,6 +847,13 @@ class WooCommerce {
 
 		// Only proceed when tickets are enabled and at least one product is linked.
 		if ( '1' !== $enable_tickets || empty( $product_ids ) ) {
+			return;
+		}
+
+		// Occurrences share parent ticket products; do not mutate product stock
+		// based on a single date's remaining capacity.
+		if ( get_post_meta( $event_id, 'is_occurrence', true ) ) {
+			self::maybe_update_sold_out_status( $event_id );
 			return;
 		}
 
@@ -670,6 +887,81 @@ class WooCommerce {
 			} else {
 				self::clear_capacity_block( $product_id, $product );
 			}
+		}
+
+		self::maybe_update_sold_out_status( $event_id );
+	}
+
+	/**
+	 * Re-sync capacity for events on an order after status changes.
+	 *
+	 * @param int              $order_id   Order ID.
+	 * @param string           $old_status Previous status.
+	 * @param string           $new_status New status.
+	 * @param \WC_Order|false  $order      Order object.
+	 */
+	public static function sync_capacity_on_order_status_change( $order_id, $old_status, $new_status, $order = null ) {
+		unset( $old_status, $new_status );
+		if ( ! $order instanceof \WC_Order ) {
+			$order = wc_get_order( $order_id );
+		}
+		self::sync_capacity_for_order( $order );
+	}
+
+	/**
+	 * Re-sync capacity after a refund.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	public static function sync_capacity_on_order_refunded( $order_id ) {
+		self::sync_capacity_for_order( wc_get_order( $order_id ) );
+	}
+
+	/**
+	 * Sync ticket stock for every event referenced on an order.
+	 *
+	 * @param \WC_Order|false|null $order Order object.
+	 */
+	protected static function sync_capacity_for_order( $order ) {
+		if ( ! $order instanceof \WC_Order ) {
+			return;
+		}
+
+		$event_ids = array();
+		foreach ( $order->get_items() as $item ) {
+			$event_id = absint( $item->get_meta( '_event_id' ) );
+			if ( $event_id > 0 ) {
+				$event_ids[ $event_id ] = true;
+			}
+		}
+
+		foreach ( array_keys( $event_ids ) as $event_id ) {
+			self::sync_ticket_stock( $event_id );
+		}
+	}
+
+	/**
+	 * Set or clear sold_out status from remaining shared capacity.
+	 *
+	 * Does not override cancelled, postponed, rescheduled, or completed.
+	 *
+	 * @param int $event_id Event post ID.
+	 */
+	protected static function maybe_update_sold_out_status( $event_id ) {
+		$current = get_post_meta( $event_id, 'event_status', true );
+		if ( $current && ! in_array( $current, array( 'scheduled', 'sold_out' ), true ) ) {
+			return;
+		}
+
+		$remaining = self::get_event_capacity_remaining( $event_id );
+		if ( null === $remaining ) {
+			return;
+		}
+
+		if ( $remaining <= 0 ) {
+			update_post_meta( $event_id, 'event_status', 'sold_out' );
+		} elseif ( 'sold_out' === $current ) {
+			update_post_meta( $event_id, 'event_status', 'scheduled' );
 		}
 	}
 

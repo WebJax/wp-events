@@ -110,10 +110,10 @@ Sælg billetter til events gennem WooCommerce. Et event kan have flere billettyp
 ### Funktioner
 - **Flere billettyper**: Flere WooCommerce-produkter pr. event
 - **Automatisk ticket-sektion**: Vises på event-sider med pris og knap pr. type
-- **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager
-- **Order tracking**: Events linkes til orders
+- **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager (tjekkes ved add-to-cart, kurv og checkout)
+- **Order tracking**: Events linkes til orders; lager synces når ordrestatus ændres
 - **Deltagerliste**: Attendee info gemmes på orders
-- **Udsolgt beskeder**: Vises når event-loftet eller en billet-type er udsolgt
+- **Udsolgt beskeder**: Vises når event-loftet eller en billet-type er udsolgt; status kan sættes til Sold Out automatisk
 
 ## Arrangør Login & Administration
 
@@ -175,7 +175,8 @@ Indbygget tilmeldings-system uden behov for ekstra plugins.
 - **Email bekræftelse**: Automatisk sendt til deltagere
 - **Kapacitetsstyring**: Lukker tilmelding ved fuldt event
 - **Admin oversigt**: Se alle tilmeldinger i event editor
-- **Status tracking**: Pending eller Confirmed status
+- **Godkend/afvis**: Kræv godkendelse og send opfølgningsmail
+- **Status tracking**: Pending, Confirmed eller Rejected
 - **Deltagerinfo**: Navn, email, telefon, noter
 
 ## Fremtidige udvidelser
