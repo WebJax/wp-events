@@ -39,12 +39,13 @@ class TemplateLoader {
 			$search_files = self::get_template_loader_files( $default_file );
 			$template     = locate_template( $search_files );
 
-			if ( ! $template ) {
-				$template = WPEVENTS_PLUGIN_DIR . 'templates/' . $default_file;
+			$plugin_template = WPEVENTS_PLUGIN_DIR . 'templates/' . $default_file;
+			if ( ! $template && file_exists( $plugin_template ) ) {
+				$template = $plugin_template;
 			}
 
 			// Enqueue frontend assets for our templates
-			if ( strpos( $template, 'wp-events' ) !== false || strpos( $template, WPEVENTS_PLUGIN_DIR ) !== false ) {
+			if ( $template && ( strpos( $template, 'wp-events' ) !== false || strpos( $template, WPEVENTS_PLUGIN_DIR ) !== false ) ) {
 				add_action( 'wp_enqueue_scripts', array( Blocks::class, 'enqueue_frontend_assets' ), 20 );
 			}
 		}

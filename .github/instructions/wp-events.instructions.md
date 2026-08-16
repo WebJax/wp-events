@@ -136,6 +136,7 @@ src/
   QueryFilters.php                     — Query filters (pre_get_posts)
   ICal.php                             — iCal (.ics) export and REST feed
   WooCommerce.php                      — WooCommerce ticket integration
+  EventTicketProduct.php               — Event Ticket product type (simple product)
   OrganizerCapabilities.php            — Organizer role and frontend submission
   AdditionalFeatures.php               — Event status, RSVP/registration
   TemplateLoader.php                   — Theme/plugin template resolution
@@ -157,6 +158,8 @@ assets/
   font/                                — Icon font assets
 templates/
   single-event.php                     — Single event template
+  single-venue.php                     — Single venue template
+  single-organizer.php                 — Single organizer template
   archive-event.php                    — Archive template
   archive-event-list.php               — List layout archive
   archive-event-compact.php            — Compact layout archive
@@ -219,10 +222,11 @@ CPTs are registered in `WPEvents\PostTypes`, taxonomies in `WPEvents\Taxonomies`
   - `occurrence_of = <parent post ID>`
   - `_recurrence_parent = <parent post ID>`
 - Occurrence titles are suffixed with the occurrence date: `"Event Title (27. april 2026)"`.
-- Existing occurrences for a parent are deleted and regenerated on every save.
-- Occurrences inherit: `event_start`, `event_end`, `event_venue`, `event_organizer`, `event_price`, `event_currency`, featured image, `event_category`, `event_tag`.
+- The first date is also stored as an occurrence. Public listings hide the series parent when a same-day occurrence exists, so the series is not listed twice.
+- Existing occurrences are matched by date and updated in place (IDs/permalinks preserved). Occurrences whose dates no longer match the rule are deleted.
+- Occurrences inherit: `event_start`, `event_end`, `event_venue`, `event_organizer`, `event_price`, `event_currency`, featured image, taxonomies, `event_status`, ticket settings, registration settings, and `assigned_organizer_users`. Registrations are not copied.
 - Safety cap: max 200 occurrences per parent.
-- Skip generation if `is_occurrence` meta is set on the post being saved.
+- Skip generation if `is_occurrence` meta is set on the post being saved. If the cursor does not advance, generation stops.
 
 ## Schema.org / SEO
 
@@ -235,6 +239,7 @@ CPTs are registered in `WPEvents\PostTypes`, taxonomies in `WPEvents\Taxonomies`
   "@context": "https://schema.org",
   "@type": "Event",
   "name": "<post title>",
+  "url": "<permalink>",
   "description": "<excerpt or trimmed content>",
   "image": "<featured image URL>",
   "startDate": "<event_start>",
@@ -244,25 +249,32 @@ CPTs are registered in `WPEvents\PostTypes`, taxonomies in `WPEvents\Taxonomies`
   "location": {
     "@type": "Place",
     "name": "<venue title>",
-    "address": "<venue_address>",
-    "telephone": "<venue_phone>",
-    "url": "<venue_website>"
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "<venue_address>",
+      "addressLocality": "<venue_city>",
+      "postalCode": "<venue_postal_code>",
+      "addressCountry": "<venue_country>"
+    }
   },
   "organizer": {
     "@type": "Organization",
     "name": "<organizer title>",
-    "url": "<organizer_website>",
-    "telephone": "<organizer_phone>"
+    "url": "<organizer_website>"
   },
   "offers": {
     "@type": "Offer",
-    "price": "<event_price>",
-    "priceCurrency": "<event_currency>"
+    "url": "<permalink>",
+    "price": "<price>",
+    "priceCurrency": "<currency>",
+    "availability": "https://schema.org/InStock",
+    "validFrom": "<publish date>"
   }
 }
 ```
 
-- Omit `endDate` and `offers` if the respective values are not set.
+- Omit `endDate`, `image`, `location`, `organizer`, and `offers` if the respective values are not set.
+- WooCommerce ticket products become one Offer each (name, price, availability, url).
 
 ## Gutenberg Blocks
 
@@ -354,7 +366,12 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 - Ticket purchase section injected via `the_content` filter on event pages; lists each linked product with price and buy link (`add-to-cart` + `wpevents_event_id`).
 - Event metadata (event ID, start date) attached to cart items and order line items.
 - Attendee fields added to WooCommerce checkout.
-- Shared event capacity is enforced on add-to-cart and can force linked products out of stock without overwriting each product's own stock quantity; per-type availability still follows WooCommerce product stock.
+- Shared event capacity is enforced on add-to-cart, cart quantity changes, and checkout (`woocommerce_check_cart_items`). Event capacity never forces a WooCommerce product out of stock, so the same product can be sold for several events.
+- Sold counts use WooCommerce order CRUD (HPOS-safe) and re-sync when order status changes or an order is refunded.
+- Sold counts use WooCommerce order CRUD (HPOS-safe) and re-sync when order status changes or an order is refunded.
+- Attendee checkout fields are stored with `$order->update_meta_data()`.
+- `event_ticket` product type maps to `WPEvents\EventTicketProduct` (simple product behaviour).
+- Cart and order lines display the linked event name.
 
 ## Organizer Role & Capabilities
 
@@ -370,4 +387,5 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 - `event_status` meta: `scheduled`, `cancelled`, `postponed`, `sold_out`.
 - Status badge appended to event titles where applicable.
 - Registration/RSVP meta box with configurable settings; registration form injected via `the_content` filter.
+- Admin can approve, reject, or delete registrations; approve/reject sends an email to the attendee.
 - `admin_post` handlers for both authenticated and anonymous registration submissions.

@@ -1545,3 +1545,23 @@ i.icon-location:before {
         display: none;
     }
 }
+
+/* Venue and organizer single pages */
+.wp-events-entity-page .venue-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin: 1rem 0;
+}
+
+.wp-events-entity-page .venue-social a {
+    color: var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
+}
+
+.wp-events-related-events {
+    margin-top: 2.5rem;
+}
+
+.wp-events-related-events h2 {
+    margin-bottom: 1.25rem;
+}

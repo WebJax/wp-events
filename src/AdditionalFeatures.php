@@ -30,6 +30,8 @@ class AdditionalFeatures {
 		// Handle registration submissions.
 		add_action( 'admin_post_event_registration', array( __CLASS__, 'handle_registration' ) );
 		add_action( 'admin_post_nopriv_event_registration', array( __CLASS__, 'handle_registration' ) );
+		add_action( 'admin_post_wpevents_registration_action', array( __CLASS__, 'handle_registration_action' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'registration_admin_notice' ) );
 
 		// Add event badges/labels.
 		add_filter( 'the_title', array( __CLASS__, 'add_event_status_badge' ), 10, 2 );
@@ -187,25 +189,36 @@ class AdditionalFeatures {
 
 		<?php
 		// Display registrations list.
-		$registrations = self::get_registrations( $post->ID );
+		$registrations = self::get_registrations( $post->ID, true );
 		if ( ! empty( $registrations ) ) {
-			echo '<h4>' . esc_html__( 'Current Registrations', 'wp-events' ) . ' (' . count( $registrations ) . ')</h4>';
+			echo '<h4>' . esc_html__( 'Current Registrations', 'wp-events' ) . ' (' . count( self::get_active_registrations( $post->ID ) ) . ')</h4>';
 			echo '<table class="wp-list-table widefat fixed striped">';
 			echo '<thead><tr>';
 			echo '<th>' . esc_html__( 'Name', 'wp-events' ) . '</th>';
 			echo '<th>' . esc_html__( 'Email', 'wp-events' ) . '</th>';
 			echo '<th>' . esc_html__( 'Date', 'wp-events' ) . '</th>';
 			echo '<th>' . esc_html__( 'Status', 'wp-events' ) . '</th>';
+			echo '<th>' . esc_html__( 'Actions', 'wp-events' ) . '</th>';
 			echo '</tr></thead><tbody>';
 
 			foreach ( $registrations as $reg ) {
-				printf(
-					'<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
-					esc_html( $reg['name'] ),
-					esc_html( $reg['email'] ),
-					esc_html( date_i18n( get_option( 'date_format' ), strtotime( $reg['date'] ) ) ),
-					esc_html( ucfirst( $reg['status'] ) )
-				);
+				$status = isset( $reg['status'] ) ? $reg['status'] : 'confirmed';
+				$reg_id = isset( $reg['id'] ) ? $reg['id'] : '';
+				echo '<tr>';
+				echo '<td>' . esc_html( $reg['name'] ) . '</td>';
+				echo '<td>' . esc_html( $reg['email'] ) . '</td>';
+				echo '<td>' . esc_html( date_i18n( get_option( 'date_format' ), strtotime( $reg['date'] ) ) ) . '</td>';
+				echo '<td>' . esc_html( ucfirst( $status ) ) . '</td>';
+				echo '<td>';
+				if ( $reg_id ) {
+					if ( 'pending' === $status ) {
+						echo '<a href="' . esc_url( self::registration_action_url( $post->ID, $reg_id, 'approve' ) ) . '">' . esc_html__( 'Approve', 'wp-events' ) . '</a> | ';
+						echo '<a href="' . esc_url( self::registration_action_url( $post->ID, $reg_id, 'reject' ) ) . '">' . esc_html__( 'Reject', 'wp-events' ) . '</a> | ';
+					}
+					echo '<a href="' . esc_url( self::registration_action_url( $post->ID, $reg_id, 'delete' ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Delete this registration?', 'wp-events' ) ) . '\');">' . esc_html__( 'Delete', 'wp-events' ) . '</a>';
+				}
+				echo '</td>';
+				echo '</tr>';
 			}
 
 			echo '</tbody></table>';
@@ -278,8 +291,7 @@ class AdditionalFeatures {
 
 		// Check capacity.
 		$max_attendees = get_post_meta( $event_id, 'max_attendees', true );
-		$registrations = self::get_registrations( $event_id );
-		$current_count = count( $registrations );
+		$current_count = self::get_active_registration_count( $event_id );
 
 		if ( $max_attendees > 0 && $current_count >= $max_attendees ) {
 			$content .= '<div class="event-registration-full">';
@@ -384,7 +396,7 @@ class AdditionalFeatures {
 		$max_attendees = get_post_meta( $event_id, 'max_attendees', true );
 		$registrations = self::get_registrations( $event_id );
 
-		if ( $max_attendees > 0 && count( $registrations ) >= $max_attendees ) {
+		if ( $max_attendees > 0 && self::get_active_registration_count( $event_id ) >= $max_attendees ) {
 			wp_die( esc_html__( 'Sorry, this event is now full', 'wp-events' ) );
 		}
 
@@ -397,6 +409,10 @@ class AdditionalFeatures {
 
 		// Duplicate email check for this event.
 		foreach ( $registrations as $existing ) {
+			$existing_status = isset( $existing['status'] ) ? $existing['status'] : 'confirmed';
+			if ( 'rejected' === $existing_status ) {
+				continue;
+			}
 			if ( isset( $existing['email'] ) && strtolower( $existing['email'] ) === strtolower( $email ) ) {
 				wp_die( esc_html__( 'This email is already registered for this event.', 'wp-events' ) );
 			}
@@ -406,6 +422,7 @@ class AdditionalFeatures {
 
 		// Save registration.
 		$registration = array(
+			'id'     => wp_generate_uuid4(),
 			'name'   => $name,
 			'email'  => $email,
 			'phone'  => $phone,
@@ -418,24 +435,7 @@ class AdditionalFeatures {
 		update_post_meta( $event_id, 'event_registrations', $registrations );
 		set_transient( $rate_key, 1, 10 * MINUTE_IN_SECONDS );
 
-		// Send confirmation email.
-		$subject  = sprintf( __( 'Registration Confirmation: %s', 'wp-events' ), get_the_title( $event_id ) );
-		$message  = sprintf( __( 'Thank you for registering for %s!', 'wp-events' ), get_the_title( $event_id ) );
-		$message .= "\n\n" . __( 'Event Details:', 'wp-events' ) . "\n";
-		$message .= __( 'Event:', 'wp-events' ) . ' ' . get_the_title( $event_id ) . "\n";
-
-		$start = get_post_meta( $event_id, 'event_start', true );
-		if ( $start ) {
-			$message .= __( 'Date:', 'wp-events' ) . ' ' . date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $start ) ) . "\n";
-		}
-
-		$message .= __( 'URL:', 'wp-events' ) . ' ' . get_permalink( $event_id ) . "\n";
-
-		if ( '1' === $require_approval ) {
-			$message .= "\n" . __( 'Your registration is pending approval. You will receive another email when approved.', 'wp-events' );
-		}
-
-		wp_mail( $email, $subject, $message );
+		self::send_registration_email( $event_id, $registration );
 
 		// Redirect back with success message.
 		wp_safe_redirect( add_query_arg( 'registered', '1', get_permalink( $event_id ) ) );
@@ -445,9 +445,229 @@ class AdditionalFeatures {
 	/**
 	 * Get registrations for an event
 	 */
-	protected static function get_registrations( $event_id ) {
+	protected static function get_registrations( $event_id, $persist_ids = false ) {
 		$registrations = get_post_meta( $event_id, 'event_registrations', true );
-		return is_array( $registrations ) ? $registrations : array();
+		if ( ! is_array( $registrations ) ) {
+			return array();
+		}
+
+		$changed = false;
+		foreach ( $registrations as $index => $reg ) {
+			if ( empty( $reg['id'] ) ) {
+				$registrations[ $index ]['id'] = wp_generate_uuid4();
+				$changed                       = true;
+			}
+		}
+
+		if ( $changed && $persist_ids ) {
+			update_post_meta( $event_id, 'event_registrations', $registrations );
+		}
+
+		return $registrations;
+	}
+
+	/**
+	 * Registrations that occupy capacity (pending + confirmed).
+	 *
+	 * @param int $event_id Event ID.
+	 * @return array
+	 */
+	protected static function get_active_registrations( $event_id ) {
+		$active = array();
+		foreach ( self::get_registrations( $event_id ) as $reg ) {
+			$status = isset( $reg['status'] ) ? $reg['status'] : 'confirmed';
+			if ( 'rejected' !== $status ) {
+				$active[] = $reg;
+			}
+		}
+		return $active;
+	}
+
+	/**
+	 * Count registrations that occupy capacity.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return int
+	 */
+	protected static function get_active_registration_count( $event_id ) {
+		return count( self::get_active_registrations( $event_id ) );
+	}
+
+	/**
+	 * Admin URL for a registration approve/reject/delete action.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param string $reg_id   Registration UUID.
+	 * @param string $action   Action slug.
+	 * @return string
+	 */
+	protected static function registration_action_url( $event_id, $reg_id, $action ) {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'              => 'wpevents_registration_action',
+					'event_id'            => $event_id,
+					'registration_id'     => $reg_id,
+					'registration_action' => $action,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			'wpevents_registration_action'
+		);
+	}
+
+	/**
+	 * Handle approve, reject, or delete from the event editor.
+	 */
+	public static function handle_registration_action() {
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'wpevents_registration_action' ) ) {
+			wp_die( esc_html__( 'Security check failed', 'wp-events' ) );
+		}
+
+		$event_id = isset( $_GET['event_id'] ) ? absint( $_GET['event_id'] ) : 0;
+		$reg_id   = isset( $_GET['registration_id'] ) ? sanitize_text_field( wp_unslash( $_GET['registration_id'] ) ) : '';
+		$action   = isset( $_GET['registration_action'] ) ? sanitize_key( wp_unslash( $_GET['registration_action'] ) ) : '';
+
+		if ( ! $event_id || ! $reg_id || ! in_array( $action, array( 'approve', 'reject', 'delete' ), true ) ) {
+			wp_die( esc_html__( 'Invalid registration action.', 'wp-events' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $event_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to manage this event.', 'wp-events' ) );
+		}
+
+		$registrations = self::get_registrations( $event_id, true );
+		$found         = false;
+		$updated_reg   = null;
+
+		foreach ( $registrations as $index => $reg ) {
+			if ( empty( $reg['id'] ) || $reg['id'] !== $reg_id ) {
+				continue;
+			}
+
+			$found = true;
+			if ( 'delete' === $action ) {
+				unset( $registrations[ $index ] );
+			} elseif ( 'approve' === $action ) {
+				$registrations[ $index ]['status'] = 'confirmed';
+				$updated_reg                       = $registrations[ $index ];
+			} elseif ( 'reject' === $action ) {
+				$registrations[ $index ]['status'] = 'rejected';
+				$updated_reg                       = $registrations[ $index ];
+			}
+			break;
+		}
+
+		if ( ! $found ) {
+			wp_die( esc_html__( 'Registration not found.', 'wp-events' ) );
+		}
+
+		update_post_meta( $event_id, 'event_registrations', array_values( $registrations ) );
+
+		if ( $updated_reg ) {
+			self::send_registration_email( $event_id, $updated_reg );
+		}
+
+		$redirect = add_query_arg(
+			array(
+				'post'          => $event_id,
+				'action'        => 'edit',
+				'wpevents_reg'  => $action,
+			),
+			admin_url( 'post.php' )
+		);
+		wp_safe_redirect( $redirect );
+		exit;
+	}
+
+	/**
+	 * Admin notice after a registration action.
+	 */
+	public static function registration_admin_notice() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'event' !== $screen->id ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only flag after redirect.
+		$action = isset( $_GET['wpevents_reg'] ) ? sanitize_key( wp_unslash( $_GET['wpevents_reg'] ) ) : '';
+		if ( ! $action ) {
+			return;
+		}
+
+		$messages = array(
+			'approve' => __( 'Registration approved. A confirmation email was sent.', 'wp-events' ),
+			'reject'  => __( 'Registration rejected. The attendee was notified.', 'wp-events' ),
+			'delete'  => __( 'Registration deleted.', 'wp-events' ),
+		);
+
+		if ( ! isset( $messages[ $action ] ) ) {
+			return;
+		}
+
+		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $messages[ $action ] ) . '</p></div>';
+	}
+
+	/**
+	 * Email the attendee about registration status.
+	 *
+	 * @param int   $event_id     Event ID.
+	 * @param array $registration Registration row.
+	 */
+	protected static function send_registration_email( $event_id, $registration ) {
+		$email  = isset( $registration['email'] ) ? $registration['email'] : '';
+		$status = isset( $registration['status'] ) ? $registration['status'] : 'confirmed';
+		if ( ! $email || ! is_email( $email ) ) {
+			return;
+		}
+
+		$title = get_the_title( $event_id );
+		$start = get_post_meta( $event_id, 'event_start', true );
+
+		if ( 'rejected' === $status ) {
+			$subject = sprintf(
+				/* translators: %s: event title */
+				__( 'Registration update: %s', 'wp-events' ),
+				$title
+			);
+			$message = sprintf(
+				/* translators: %s: event title */
+				__( 'Your registration for %s was not approved.', 'wp-events' ),
+				$title
+			);
+		} elseif ( 'pending' === $status ) {
+			$subject = sprintf(
+				/* translators: %s: event title */
+				__( 'Registration received: %s', 'wp-events' ),
+				$title
+			);
+			$message  = sprintf(
+				/* translators: %s: event title */
+				__( 'Thank you for registering for %s!', 'wp-events' ),
+				$title
+			);
+			$message .= "\n\n" . __( 'Your registration is pending approval. You will receive another email when it is reviewed.', 'wp-events' );
+		} else {
+			$subject = sprintf(
+				/* translators: %s: event title */
+				__( 'Registration Confirmation: %s', 'wp-events' ),
+				$title
+			);
+			$message = sprintf(
+				/* translators: %s: event title */
+				__( 'Thank you for registering for %s!', 'wp-events' ),
+				$title
+			);
+		}
+
+		$message .= "\n\n" . __( 'Event Details:', 'wp-events' ) . "\n";
+		$message .= __( 'Event:', 'wp-events' ) . ' ' . $title . "\n";
+		if ( $start ) {
+			$message .= __( 'Date:', 'wp-events' ) . ' ' . date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $start ) ) . "\n";
+		}
+		$message .= __( 'URL:', 'wp-events' ) . ' ' . get_permalink( $event_id ) . "\n";
+
+		wp_mail( $email, $subject, $message );
 	}
 
 	/**
