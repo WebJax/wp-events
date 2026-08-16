@@ -79,6 +79,7 @@ $categories = get_the_terms( $event_id, 'event_category' );
                 <a href="<?php the_permalink(); ?>">
                     <?php the_title(); ?>
                 </a>
+                <?php wpevents_the_status_badge(); ?>
             </h2>
             
             <?php if ( $categories && ! is_wp_error( $categories ) ) : ?>

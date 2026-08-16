@@ -53,6 +53,7 @@ class Shortcodes {
 			$venue_id = (int) get_post_meta( get_the_ID(), 'event_venue', true );
 			echo '<li class="wp-event-item">';
 			echo '<a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . '</a>';
+			echo wpevents_get_status_badge();
 			if ( $start ) {
 				echo ' <time datetime="' . esc_attr( $start ) . '">' . esc_html( wp_date( 'j. M Y H:i', strtotime( $start ) ) ) . '</time>';
 			}
@@ -84,7 +85,7 @@ class Shortcodes {
 
 		ob_start();
 		echo '<div class="wp-event-single">';
-		echo '<h3>' . esc_html( get_the_title( $post_id ) ) . '</h3>';
+		echo '<h3>' . esc_html( get_the_title( $post_id ) ) . wpevents_get_status_badge( $post_id ) . '</h3>';
 		if ( $start ) {
 			echo '<div class="dates">';
 			echo '<time datetime="' . esc_attr( $start ) . '">' . esc_html( wp_date( 'j. M Y H:i', strtotime( $start ) ) ) . '</time>';

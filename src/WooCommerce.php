@@ -49,9 +49,11 @@ class WooCommerce {
 		// Display event info in order details.
 		add_filter( 'woocommerce_order_item_meta_end', array( __CLASS__, 'display_event_in_order' ), 10, 4 );
 
-		// Add attendee fields to checkout.
-		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'add_attendee_fields' ) );
+		// Per-ticket attendee fields on classic checkout.
+		add_action( 'woocommerce_after_order_notes', array( __CLASS__, 'render_attendee_fields' ) );
+		add_action( 'woocommerce_checkout_process', array( __CLASS__, 'validate_attendee_fields' ) );
 		add_action( 'woocommerce_checkout_update_order_meta', array( __CLASS__, 'save_attendee_data' ) );
+		add_action( 'woocommerce_after_order_itemmeta', array( __CLASS__, 'display_item_attendees' ), 10, 3 );
 
 		// Add event ticket product type (behaves as a simple product).
 		add_filter( 'product_type_selector', array( __CLASS__, 'add_event_ticket_product_type' ) );
@@ -112,6 +114,16 @@ class WooCommerce {
 		}
 
 		return in_array( $product_id, self::get_ticket_product_ids( $event_id ), true );
+	}
+
+	/**
+	 * Resolve the event ID for a product from the request or an unambiguous link.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return int Event ID or 0.
+	 */
+	public static function get_event_id_for_product( $product_id ) {
+		return self::resolve_event_id_for_product( $product_id );
 	}
 
 	/**
@@ -255,17 +267,43 @@ class WooCommerce {
 
 		<p>
 			<label><?php _e( 'Ticket Products:', 'wp-events' ); ?></label>
-			<select name="ticket_product_ids[]" multiple size="6" style="width: 100%;">
+			<input type="search" class="wpevents-product-search widefat" placeholder="<?php esc_attr_e( 'Search products to add…', 'wp-events' ); ?>" autocomplete="off">
+			<select name="ticket_product_ids[]" id="wpevents-ticket-products" class="wpevents-ticket-products" multiple size="6" style="width: 100%; margin-top: 6px;">
 				<?php
-				$products = get_posts(
+				$products  = array();
+				$shown_ids = array();
+
+				if ( ! empty( $ticket_product_ids ) ) {
+					$selected = get_posts(
+						array(
+							'post_type'      => 'product',
+							'post__in'       => $ticket_product_ids,
+							'posts_per_page' => -1,
+							'orderby'        => 'post__in',
+							'post_status'    => array( 'publish', 'private', 'draft' ),
+						)
+					);
+					foreach ( $selected as $product ) {
+						$products[ $product->ID ] = $product;
+						$shown_ids[]              = $product->ID;
+					}
+				}
+
+				$recent = get_posts(
 					array(
 						'post_type'      => 'product',
 						'posts_per_page' => 50,
 						'orderby'        => 'title',
 						'order'          => 'ASC',
+						'post_status'    => array( 'publish', 'private' ),
+						'exclude'        => $shown_ids,
 						'no_found_rows'  => true,
 					)
 				);
+
+				foreach ( $recent as $product ) {
+					$products[ $product->ID ] = $product;
+				}
 
 				if ( empty( $products ) ) {
 					echo '<option value="" disabled>' . esc_html__( 'No products found', 'wp-events' ) . '</option>';
@@ -281,7 +319,7 @@ class WooCommerce {
 				}
 				?>
 			</select>
-			<small><?php _e( 'Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple.', 'wp-events' ); ?></small>
+			<small><?php _e( 'Select one or more WooCommerce products as ticket types. Search to find products beyond the first 50. Hold Ctrl/Cmd to select multiple.', 'wp-events' ); ?></small>
 		</p>
 
 		<p>
@@ -399,17 +437,26 @@ class WooCommerce {
 				$button_html .= '<p><em>' . esc_html__( 'This ticket type is sold out.', 'wp-events' ) . '</em></p>';
 			} else {
 				$has_purchasable = true;
-				$add_to_cart_url = add_query_arg(
-					array(
-						'add-to-cart'       => $product_id,
-						'wpevents_event_id' => $event_id,
-					),
-					wc_get_cart_url()
-				);
+				$max_qty         = $product->get_max_purchase_quantity();
+				if ( null !== $remaining ) {
+					$max_qty = ( $max_qty < 0 ) ? $remaining : min( (int) $max_qty, $remaining );
+				}
 
-				$button_html .= '<a href="' . esc_url( $add_to_cart_url ) . '" class="button wp-events-buy-ticket" style="display: inline-block; padding: 12px 24px; background: #0073aa; color: white; text-decoration: none; border-radius: 3px; font-weight: bold;">';
+				$button_html .= '<form class="cart wp-events-ticket-form" method="post" action="' . esc_url( wc_get_cart_url() ) . '" style="margin: 8px 0 0;">';
+				$button_html .= '<input type="hidden" name="add-to-cart" value="' . esc_attr( (string) $product_id ) . '">';
+				$button_html .= '<input type="hidden" name="wpevents_event_id" value="' . esc_attr( (string) $event_id ) . '">';
+				$button_html .= '<p style="margin: 0 0 8px;">';
+				$button_html .= '<label for="wpevents-qty-' . esc_attr( (string) $product_id ) . '">' . esc_html__( 'Quantity', 'wp-events' ) . '</label> ';
+				$button_html .= '<input type="number" id="wpevents-qty-' . esc_attr( (string) $product_id ) . '" name="quantity" value="1" min="1" step="1"';
+				if ( $max_qty >= 0 ) {
+					$button_html .= ' max="' . esc_attr( (string) $max_qty ) . '"';
+				}
+				$button_html .= ' style="width: 5em;">';
+				$button_html .= '</p>';
+				$button_html .= '<button type="submit" class="button wp-events-buy-ticket" style="display: inline-block; padding: 12px 24px; background: #0073aa; color: white; text-decoration: none; border-radius: 3px; font-weight: bold; border: 0; cursor: pointer;">';
 				$button_html .= esc_html__( 'Buy Ticket', 'wp-events' );
-				$button_html .= '</a>';
+				$button_html .= '</button>';
+				$button_html .= '</form>';
 			}
 
 			$button_html .= '</li>';
@@ -710,6 +757,8 @@ class WooCommerce {
 				);
 			}
 		}
+
+		self::save_attendees_to_order_item( $item, $cart_item_key );
 	}
 
 	/**
@@ -733,32 +782,101 @@ class WooCommerce {
 	}
 
 	/**
-	 * Add attendee fields to checkout
+	 * Render one name/email pair per ticket on classic checkout.
+	 *
+	 * @param \WC_Checkout $checkout Checkout object.
 	 */
-	public static function add_attendee_fields( $fields ) {
-		// Check if cart contains event tickets.
-		if ( ! self::cart_has_event_tickets() ) {
-			return $fields;
+	public static function render_attendee_fields( $checkout ) {
+		unset( $checkout );
+
+		if ( ! self::cart_has_event_tickets() || ! function_exists( 'woocommerce_form_field' ) ) {
+			return;
 		}
 
-		$fields['billing']['attendee_name'] = array(
-			'label'       => __( 'Attendee Name', 'wp-events' ),
-			'placeholder' => __( 'Full name of attendee', 'wp-events' ),
-			'required'    => false,
-			'class'       => array( 'form-row-wide' ),
-			'priority'    => 25,
-		);
+		echo '<div class="wpevents-attendee-fields"><h3>' . esc_html__( 'Attendee details', 'wp-events' ) . '</h3>';
 
-		$fields['billing']['attendee_email'] = array(
-			'label'       => __( 'Attendee Email', 'wp-events' ),
-			'placeholder' => __( 'Email for ticket confirmation', 'wp-events' ),
-			'type'        => 'email',
-			'required'    => false,
-			'class'       => array( 'form-row-wide' ),
-			'priority'    => 26,
-		);
+		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+			if ( empty( $cart_item['event_id'] ) ) {
+				continue;
+			}
 
-		return $fields;
+			$qty          = max( 1, absint( $cart_item['quantity'] ) );
+			$event_id     = absint( $cart_item['event_id'] );
+			$event_title  = get_the_title( $event_id );
+			$product_name = isset( $cart_item['data'] ) && is_callable( array( $cart_item['data'], 'get_name' ) )
+				? $cart_item['data']->get_name()
+				: $event_title;
+
+			for ( $i = 0; $i < $qty; $i++ ) {
+				$n = $i + 1;
+				woocommerce_form_field(
+					"wpevents_attendee[{$cart_item_key}][{$i}][name]",
+					array(
+						'type'        => 'text',
+						'class'       => array( 'form-row-first' ),
+						'label'       => sprintf(
+							/* translators: 1: ticket index, 2: product or event name */
+							__( 'Attendee %1$d name (%2$s)', 'wp-events' ),
+							$n,
+							$product_name
+						),
+						'required'    => true,
+						'placeholder' => __( 'Full name', 'wp-events' ),
+					)
+				);
+				woocommerce_form_field(
+					"wpevents_attendee[{$cart_item_key}][{$i}][email]",
+					array(
+						'type'        => 'email',
+						'class'       => array( 'form-row-last' ),
+						'label'       => sprintf(
+							/* translators: %d: ticket index */
+							__( 'Attendee %d email', 'wp-events' ),
+							$n
+						),
+						'required'    => true,
+						'placeholder' => __( 'Email for ticket confirmation', 'wp-events' ),
+					)
+				);
+				echo '<div class="clear"></div>';
+			}
+		}
+
+		echo '</div>';
+	}
+
+	/**
+	 * Require a name and email for every event ticket in the cart.
+	 */
+	public static function validate_attendee_fields() {
+		if ( ! self::cart_has_event_tickets() ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
+		$posted = isset( $_POST['wpevents_attendee'] ) ? wp_unslash( $_POST['wpevents_attendee'] ) : array();
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+			if ( empty( $cart_item['event_id'] ) ) {
+				continue;
+			}
+
+			$qty = max( 1, absint( $cart_item['quantity'] ) );
+			for ( $i = 0; $i < $qty; $i++ ) {
+				$row   = isset( $posted[ $cart_item_key ][ $i ] ) && is_array( $posted[ $cart_item_key ][ $i ] ) ? $posted[ $cart_item_key ][ $i ] : array();
+				$name  = isset( $row['name'] ) ? sanitize_text_field( $row['name'] ) : '';
+				$email = isset( $row['email'] ) ? sanitize_email( $row['email'] ) : '';
+
+				if ( '' === $name || ! is_email( $email ) ) {
+					wc_add_notice(
+						__( 'Please enter a name and valid email for every event ticket.', 'wp-events' ),
+						'error'
+					);
+					return;
+				}
+			}
+		}
 	}
 
 	/**
@@ -787,17 +905,120 @@ class WooCommerce {
 			return;
 		}
 
+		$first_name  = '';
+		$first_email = '';
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
-		if ( isset( $_POST['attendee_name'] ) ) {
-			$order->update_meta_data( 'attendee_name', sanitize_text_field( wp_unslash( $_POST['attendee_name'] ) ) );
+		if ( isset( $_POST['wpevents_attendee'] ) && is_array( $_POST['wpevents_attendee'] ) ) {
+			foreach ( wp_unslash( $_POST['wpevents_attendee'] ) as $rows ) {
+				if ( ! is_array( $rows ) ) {
+					continue;
+				}
+				foreach ( $rows as $row ) {
+					if ( ! is_array( $row ) ) {
+						continue;
+					}
+					$name  = isset( $row['name'] ) ? sanitize_text_field( $row['name'] ) : '';
+					$email = isset( $row['email'] ) ? sanitize_email( $row['email'] ) : '';
+					if ( $name || $email ) {
+						$first_name  = $name;
+						$first_email = $email;
+						break 2;
+					}
+				}
+			}
 		}
 
-		if ( isset( $_POST['attendee_email'] ) ) {
-			$order->update_meta_data( 'attendee_email', sanitize_email( wp_unslash( $_POST['attendee_email'] ) ) );
+		if ( ! $first_name && isset( $_POST['attendee_name'] ) ) {
+			$first_name = sanitize_text_field( wp_unslash( $_POST['attendee_name'] ) );
+		}
+
+		if ( ! $first_email && isset( $_POST['attendee_email'] ) ) {
+			$first_email = sanitize_email( wp_unslash( $_POST['attendee_email'] ) );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
+		if ( $first_name ) {
+			$order->update_meta_data( 'attendee_name', $first_name );
+		}
+		if ( $first_email ) {
+			$order->update_meta_data( 'attendee_email', $first_email );
+		}
+
 		$order->save();
+	}
+
+	/**
+	 * Attach per-ticket attendees to a line item from checkout POST.
+	 *
+	 * @param \WC_Order_Item_Product $item          Order item.
+	 * @param string                 $cart_item_key Cart item key.
+	 */
+	protected static function save_attendees_to_order_item( $item, $cart_item_key ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- WooCommerce verifies checkout nonce before this hook fires.
+		$posted = isset( $_POST['wpevents_attendee'][ $cart_item_key ] ) ? wp_unslash( $_POST['wpevents_attendee'][ $cart_item_key ] ) : array();
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		if ( ! is_array( $posted ) ) {
+			return;
+		}
+
+		$attendees = array();
+		foreach ( $posted as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$name  = isset( $row['name'] ) ? sanitize_text_field( $row['name'] ) : '';
+			$email = isset( $row['email'] ) ? sanitize_email( $row['email'] ) : '';
+			if ( '' === $name && '' === $email ) {
+				continue;
+			}
+			$attendees[] = array(
+				'name'  => $name,
+				'email' => $email,
+			);
+		}
+
+		if ( empty( $attendees ) ) {
+			return;
+		}
+
+		$item->add_meta_data( '_attendees', $attendees, true );
+		$item->add_meta_data(
+			__( 'Attendees', 'wp-events' ),
+			implode( ', ', wp_list_pluck( $attendees, 'name' ) ),
+			true
+		);
+	}
+
+	/**
+	 * Show stored attendees under the order item in admin.
+	 *
+	 * @param int                    $item_id Item ID.
+	 * @param \WC_Order_Item_Product $item    Item.
+	 * @param \WC_Product|false      $product Product.
+	 */
+	public static function display_item_attendees( $item_id, $item, $product ) {
+		unset( $item_id, $product );
+
+		if ( ! is_object( $item ) || ! is_callable( array( $item, 'get_meta' ) ) ) {
+			return;
+		}
+
+		$attendees = $item->get_meta( '_attendees' );
+		if ( ! is_array( $attendees ) || empty( $attendees ) ) {
+			return;
+		}
+
+		echo '<div class="wpevents-order-attendees" style="margin-top:8px;">';
+		echo '<strong>' . esc_html__( 'Attendees', 'wp-events' ) . '</strong>';
+		echo '<ul style="margin:4px 0 0 1.2em;">';
+		foreach ( $attendees as $attendee ) {
+			$name  = isset( $attendee['name'] ) ? $attendee['name'] : '';
+			$email = isset( $attendee['email'] ) ? $attendee['email'] : '';
+			echo '<li>' . esc_html( trim( $name . ( $email ? ' <' . $email . '>' : '' ) ) ) . '</li>';
+		}
+		echo '</ul></div>';
 	}
 
 	/**

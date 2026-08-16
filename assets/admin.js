@@ -66,4 +66,38 @@ jQuery(document).ready(function($) {
             });
         }
     });
+    
+    var productSearchTimer;
+    $('.wpevents-product-search').on('input', function() {
+        var $input = $(this);
+        var query = $.trim($input.val());
+        var $select = $('#wpevents-ticket-products');
+        var ajaxUrl = (typeof wp_events_admin !== 'undefined' && wp_events_admin.ajax_url) ? wp_events_admin.ajax_url : ajaxurl;
+
+        clearTimeout(productSearchTimer);
+        if (query.length < 2 || !$select.length) {
+            return;
+        }
+
+        productSearchTimer = setTimeout(function() {
+            $.post(ajaxUrl, {
+                action: 'wpevents_search_products',
+                q: query,
+                nonce: wp_events_admin.nonce
+            }, function(response) {
+                if (!response || !response.success || !response.data) {
+                    return;
+                }
+                $.each(response.data, function(i, product) {
+                    if ($select.find('option[value="' + product.id + '"]').length) {
+                        return;
+                    }
+                    $select.append($('<option>', {
+                        value: product.id,
+                        text: product.title
+                    }));
+                });
+            });
+        }, 300);
+    });
 });

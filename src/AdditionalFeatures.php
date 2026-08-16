@@ -31,10 +31,8 @@ class AdditionalFeatures {
 		add_action( 'admin_post_event_registration', array( __CLASS__, 'handle_registration' ) );
 		add_action( 'admin_post_nopriv_event_registration', array( __CLASS__, 'handle_registration' ) );
 		add_action( 'admin_post_wpevents_registration_action', array( __CLASS__, 'handle_registration_action' ) );
+		add_action( 'admin_post_wpevents_export_registrations', array( __CLASS__, 'export_registrations_csv' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'registration_admin_notice' ) );
-
-		// Add event badges/labels.
-		add_filter( 'the_title', array( __CLASS__, 'add_event_status_badge' ), 10, 2 );
 
 		// Add admin columns for status.
 		add_filter( 'manage_event_posts_columns', array( __CLASS__, 'add_status_column' ) );
@@ -192,6 +190,7 @@ class AdditionalFeatures {
 		$registrations = self::get_registrations( $post->ID, true );
 		if ( ! empty( $registrations ) ) {
 			echo '<h4>' . esc_html__( 'Current Registrations', 'wp-events' ) . ' (' . count( self::get_active_registrations( $post->ID ) ) . ')</h4>';
+			echo '<p><a class="button" href="' . esc_url( self::export_registrations_url( $post->ID ) ) . '">' . esc_html__( 'Export CSV', 'wp-events' ) . '</a></p>';
 			echo '<table class="wp-list-table widefat fixed striped">';
 			echo '<thead><tr>';
 			echo '<th>' . esc_html__( 'Name', 'wp-events' ) . '</th>';
@@ -444,8 +443,12 @@ class AdditionalFeatures {
 
 	/**
 	 * Get registrations for an event
+	 *
+	 * @param int  $event_id    Event ID.
+	 * @param bool $persist_ids Whether to store generated UUIDs.
+	 * @return array
 	 */
-	protected static function get_registrations( $event_id, $persist_ids = false ) {
+	public static function get_registrations( $event_id, $persist_ids = false ) {
 		$registrations = get_post_meta( $event_id, 'event_registrations', true );
 		if ( ! is_array( $registrations ) ) {
 			return array();
@@ -491,6 +494,75 @@ class AdditionalFeatures {
 	 */
 	protected static function get_active_registration_count( $event_id ) {
 		return count( self::get_active_registrations( $event_id ) );
+	}
+
+	/**
+	 * Admin URL for a registration CSV export.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return string
+	 */
+	public static function export_registrations_url( $event_id ) {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'   => 'wpevents_export_registrations',
+					'event_id' => $event_id,
+				),
+				admin_url( 'admin-post.php' )
+			),
+			'wpevents_export_registrations'
+		);
+	}
+
+	/**
+	 * Stream registrations as CSV.
+	 */
+	public static function export_registrations_csv() {
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'wpevents_export_registrations' ) ) {
+			wp_die( esc_html__( 'Security check failed', 'wp-events' ) );
+		}
+
+		$event_id = isset( $_GET['event_id'] ) ? absint( $_GET['event_id'] ) : 0;
+		if ( ! $event_id || 'event' !== get_post_type( $event_id ) ) {
+			wp_die( esc_html__( 'Invalid event.', 'wp-events' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $event_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to manage this event.', 'wp-events' ) );
+		}
+
+		$registrations = self::get_registrations( $event_id );
+		$filename      = 'registrations-' . $event_id . '-' . gmdate( 'Y-m-d' ) . '.csv';
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+		$out = fopen( 'php://output', 'w' );
+		if ( false === $out ) {
+			wp_die( esc_html__( 'Could not export registrations.', 'wp-events' ) );
+		}
+
+		fwrite( $out, "\xEF\xBB\xBF" );
+		fputcsv( $out, array( 'Name', 'Email', 'Phone', 'Notes', 'Date', 'Status' ) );
+
+		foreach ( $registrations as $reg ) {
+			fputcsv(
+				$out,
+				array(
+					isset( $reg['name'] ) ? $reg['name'] : '',
+					isset( $reg['email'] ) ? $reg['email'] : '',
+					isset( $reg['phone'] ) ? $reg['phone'] : '',
+					isset( $reg['notes'] ) ? $reg['notes'] : '',
+					isset( $reg['date'] ) ? $reg['date'] : '',
+					isset( $reg['status'] ) ? $reg['status'] : 'confirmed',
+				)
+			);
+		}
+
+		fclose( $out );
+		exit;
 	}
 
 	/**
@@ -671,36 +743,39 @@ class AdditionalFeatures {
 	}
 
 	/**
-	 * Add status badge to event title
+	 * HTML status badge for an event (empty when scheduled/unset).
+	 *
+	 * @param int $post_id Event post ID.
+	 * @return string Escaped HTML.
 	 */
-	public static function add_event_status_badge( $title, $post_id = null ) {
-		if ( ! $post_id || get_post_type( $post_id ) !== 'event' ) {
-			return $title;
-		}
-
-		if ( ! is_singular( 'event' ) && ! is_post_type_archive( 'event' ) && ! is_tax( array( 'event_category', 'event_tag' ) ) ) {
-			return $title;
+	public static function get_status_badge_html( $post_id = 0 ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id || 'event' !== get_post_type( $post_id ) ) {
+			return '';
 		}
 
 		$status = get_post_meta( $post_id, 'event_status', true );
-
 		if ( ! $status || 'scheduled' === $status ) {
-			return $title;
+			return '';
 		}
 
 		$badges = array(
-			'cancelled'   => '<span class="event-badge event-cancelled">' . __( 'CANCELLED', 'wp-events' ) . '</span>',
-			'postponed'   => '<span class="event-badge event-postponed">' . __( 'POSTPONED', 'wp-events' ) . '</span>',
-			'rescheduled' => '<span class="event-badge event-rescheduled">' . __( 'RESCHEDULED', 'wp-events' ) . '</span>',
-			'sold_out'    => '<span class="event-badge event-sold-out">' . __( 'SOLD OUT', 'wp-events' ) . '</span>',
-			'completed'   => '<span class="event-badge event-completed">' . __( 'COMPLETED', 'wp-events' ) . '</span>',
+			'cancelled'   => array( 'event-cancelled', __( 'CANCELLED', 'wp-events' ) ),
+			'postponed'   => array( 'event-postponed', __( 'POSTPONED', 'wp-events' ) ),
+			'rescheduled' => array( 'event-rescheduled', __( 'RESCHEDULED', 'wp-events' ) ),
+			'sold_out'    => array( 'event-sold-out', __( 'SOLD OUT', 'wp-events' ) ),
+			'completed'   => array( 'event-completed', __( 'COMPLETED', 'wp-events' ) ),
 		);
 
-		if ( isset( $badges[ $status ] ) ) {
-			$title .= ' ' . $badges[ $status ];
+		if ( ! isset( $badges[ $status ] ) ) {
+			return '';
 		}
 
-		return $title;
+		return sprintf(
+			' <span class="event-badge %s">%s</span>',
+			esc_attr( $badges[ $status ][0] ),
+			esc_html( $badges[ $status ][1] )
+		);
 	}
 
 	/**

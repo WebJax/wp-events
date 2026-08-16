@@ -177,8 +177,137 @@ class Meta {
 		);
 
 		register_post_meta(
+			'event',
+			'event_status',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( AdditionalFeatures::class, 'sanitize_event_status' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'ticket_product_ids',
+			array(
+				'type'              => 'array',
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'integer' ),
+					),
+				),
+				'sanitize_callback' => array( Sanitizer::class, 'sanitize_ids_array' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'enable_tickets',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( Sanitizer::class, 'sanitize_flag' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'ticket_capacity',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'enable_registration',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( Sanitizer::class, 'sanitize_flag' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'max_attendees',
+			array(
+				'type'              => 'integer',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'absint',
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'require_approval',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( Sanitizer::class, 'sanitize_flag' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+		register_post_meta(
+			'event',
+			'assigned_organizer_users',
+			array(
+				'type'              => 'array',
+				'single'            => true,
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'integer' ),
+					),
+				),
+				'sanitize_callback' => array( Sanitizer::class, 'sanitize_ids_array' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_event' ),
+			)
+		);
+
+		register_post_meta(
 			'venue',
 			'venue_address',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_post_meta(
+			'venue',
+			'venue_city',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_post_meta(
+			'venue',
+			'venue_postal_code',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		register_post_meta(
+			'venue',
+			'venue_country',
 			array(
 				'type'              => 'string',
 				'single'            => true,

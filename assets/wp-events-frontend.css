@@ -1565,3 +1565,33 @@ i.icon-location:before {
 .wp-events-related-events h2 {
     margin-bottom: 1.25rem;
 }
+
+.event-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 3px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+.event-cancelled {
+    background: #dc3545;
+    color: #fff;
+}
+.event-postponed {
+    background: #ffc107;
+    color: #000;
+}
+.event-rescheduled {
+    background: #17a2b8;
+    color: #fff;
+}
+.event-sold-out {
+    background: #6c757d;
+    color: #fff;
+}
+.event-completed {
+    background: #28a745;
+    color: #fff;
+}

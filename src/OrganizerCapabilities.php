@@ -251,6 +251,46 @@ class OrganizerCapabilities {
 	}
 
 	/**
+	 * Event IDs a user may manage: authored events plus assigned organizer events.
+	 *
+	 * @param int $user_id User ID.
+	 * @return int[]
+	 */
+	public static function get_event_ids_for_user( $user_id ) {
+		global $wpdb;
+
+		$user_id = absint( $user_id );
+		if ( $user_id <= 0 ) {
+			return array();
+		}
+
+		$author_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				WHERE post_type = 'event'
+				AND post_author = %d
+				AND post_status IN ( 'publish', 'draft', 'pending', 'private', 'future' )",
+				$user_id
+			)
+		);
+
+		$assigned_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+				WHERE meta_key = 'assigned_organizer_users'
+				AND (meta_value LIKE %s OR meta_value LIKE %s)",
+				'%i:' . $user_id . ';%',
+				'%s:"' . $user_id . '";%'
+			)
+		);
+
+		$ids = array_merge( (array) $author_ids, (array) $assigned_ids );
+		$ids = array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+
+		return $ids;
+	}
+
+	/**
 	 * Filter events in admin for organizers
 	 */
 	public static function filter_events_for_organizers( $query ) {
@@ -258,7 +298,7 @@ class OrganizerCapabilities {
 			return;
 		}
 
-		global $pagenow, $wpdb;
+		global $pagenow;
 		if ( 'edit.php' !== $pagenow || ! isset( $_GET['post_type'] ) || 'event' !== sanitize_key( wp_unslash( $_GET['post_type'] ) ) ) {
 			return;
 		}
@@ -270,25 +310,10 @@ class OrganizerCapabilities {
 			return;
 		}
 
-		// Event organizers only see their assigned events.
+		// Event organizers see events they authored or were assigned to.
 		if ( in_array( 'event_organizer', $user->roles, true ) ) {
-			// Use a more precise query for organizer assignment.
-			$assigned_event_ids = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
-                WHERE meta_key = 'assigned_organizer_users' 
-                AND (meta_value LIKE %s OR meta_value LIKE %s)",
-					'%i:' . $user->ID . ';%',
-					'%s:"' . $user->ID . '";%'
-				)
-			);
-
-			if ( ! empty( $assigned_event_ids ) ) {
-				$query->set( 'post__in', $assigned_event_ids );
-			} else {
-				// No events assigned, show none.
-				$query->set( 'post__in', array( 0 ) );
-			}
+			$event_ids = self::get_event_ids_for_user( $user->ID );
+			$query->set( 'post__in', ! empty( $event_ids ) ? $event_ids : array( 0 ) );
 		}
 	}
 
@@ -300,41 +325,23 @@ class OrganizerCapabilities {
 			return '<p>' . esc_html__( 'Please log in to view your dashboard.', 'wp-events' ) . '</p>';
 		}
 
-		$user_id = get_current_user_id();
+		$user_id   = get_current_user_id();
+		$event_ids = self::get_event_ids_for_user( $user_id );
 
-		// Get user's events.
-		$args = array(
-			'post_type'      => 'event',
-			'author'         => $user_id,
-			'posts_per_page' => -1,
-			'orderby'        => 'meta_value',
-			'meta_key'       => 'event_start',
-			'order'          => 'ASC',
-		);
-		global $wpdb;
-		$assigned_event_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT DISTINCT post_id FROM {$wpdb->postmeta} 
-            WHERE meta_key = 'assigned_organizer_users' 
-            AND (meta_value LIKE %s OR meta_value LIKE %s)",
-				'%i:' . $user_id . ';%',
-				'%s:"' . $user_id . '";%'
-			)
-		);
-
-		$assigned_events = array();
-		if ( ! empty( $assigned_event_ids ) ) {
-			$assigned_events = get_posts(
+		$all_events = array();
+		if ( ! empty( $event_ids ) ) {
+			$all_events = get_posts(
 				array(
 					'post_type'      => 'event',
+					'post__in'       => $event_ids,
 					'posts_per_page' => -1,
-					'post__in'       => $assigned_event_ids,
+					'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+					'orderby'        => 'meta_value',
+					'meta_key'       => 'event_start',
+					'order'          => 'ASC',
 				)
 			);
 		}
-
-		$my_events  = get_posts( $args );
-		$all_events = array_unique( array_merge( $my_events, $assigned_events ), SORT_REGULAR );
 
 		ob_start();
 		?>
@@ -378,6 +385,12 @@ class OrganizerCapabilities {
 								<td>
 									<a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'wp-events' ); ?></a> |
 									<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" target="_blank"><?php esc_html_e( 'View', 'wp-events' ); ?></a>
+									<?php
+									$registrations = AdditionalFeatures::get_registrations( $event->ID );
+									if ( ! empty( $registrations ) ) {
+										echo ' | <a href="' . esc_url( AdditionalFeatures::export_registrations_url( $event->ID ) ) . '">' . esc_html__( 'Export RSVP', 'wp-events' ) . '</a>';
+									}
+									?>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -496,8 +509,13 @@ class OrganizerCapabilities {
 			update_post_meta( $event_id, 'event_price', floatval( sanitize_text_field( wp_unslash( $_POST['event_price'] ) ) ) );
 		}
 
-		// Assign user as organizer.
+		// Assign user as organizer (user account + linked organizer CPT when present).
 		update_post_meta( $event_id, 'assigned_organizer_users', array( $user_id ) );
+
+		$organizer_post_id = absint( get_user_meta( $user_id, 'organizer_post_id', true ) );
+		if ( $organizer_post_id && 'organizer' === get_post_type( $organizer_post_id ) ) {
+			update_post_meta( $event_id, 'event_organizer', array( $organizer_post_id ) );
+		}
 
 		// Redirect to success page or back to form.
 		$redirect_url = wp_get_referer();

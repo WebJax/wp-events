@@ -18,6 +18,7 @@ class Ajax {
 	public static function register() {
 		add_action( 'wp_ajax_set_venue_featured_image', array( __CLASS__, 'ajax_set_venue_featured_image' ) );
 		add_action( 'wp_ajax_remove_venue_featured_image', array( __CLASS__, 'ajax_remove_venue_featured_image' ) );
+		add_action( 'wp_ajax_wpevents_search_products', array( __CLASS__, 'ajax_search_products' ) );
 	}
 
 	/**
@@ -73,5 +74,43 @@ class Ajax {
 		}
 
 		wp_send_json_error( 'Failed to remove featured image' );
+	}
+
+	/**
+	 * Search WooCommerce products for the ticket picker.
+	 */
+	public static function ajax_search_products() {
+		check_ajax_referer( 'wp_events_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'edit_events' ) ) {
+			wp_send_json_error( 'Permission denied', 403 );
+		}
+
+		$q = isset( $_POST['q'] ) ? sanitize_text_field( wp_unslash( $_POST['q'] ) ) : '';
+		if ( strlen( $q ) < 2 ) {
+			wp_send_json_success( array() );
+		}
+
+		$products = get_posts(
+			array(
+				'post_type'      => 'product',
+				'posts_per_page' => 20,
+				's'              => $q,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'post_status'    => array( 'publish', 'private' ),
+				'no_found_rows'  => true,
+			)
+		);
+
+		$results = array();
+		foreach ( $products as $product ) {
+			$results[] = array(
+				'id'    => (int) $product->ID,
+				'title' => $product->post_title,
+			);
+		}
+
+		wp_send_json_success( $results );
 	}
 }

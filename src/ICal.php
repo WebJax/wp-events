@@ -184,11 +184,41 @@ class ICal {
 			$ical .= $organizer_line;
 		}
 
-		$ical .= "STATUS:CONFIRMED\r\n";
+		$ical .= 'STATUS:' . self::status_for_event( $event_id ) . "\r\n";
 		$ical .= "END:VEVENT\r\n";
 		$ical .= "END:VCALENDAR\r\n";
 
 		return $ical;
+	}
+
+	/**
+	 * iCalendar STATUS for an event post.
+	 *
+	 * @param int $event_id Event post ID.
+	 * @return string CANCELLED, TENTATIVE, or CONFIRMED.
+	 */
+	public static function status_for_event( $event_id ) {
+		return self::map_event_status_to_ical( get_post_meta( $event_id, 'event_status', true ) );
+	}
+
+	/**
+	 * Map plugin event_status meta to an iCalendar STATUS value.
+	 *
+	 * @param mixed $status Event status slug.
+	 * @return string CANCELLED, TENTATIVE, or CONFIRMED.
+	 */
+	public static function map_event_status_to_ical( $status ) {
+		$status = strtolower( preg_replace( '/[^a-z0-9_]/', '', (string) $status ) );
+
+		if ( 'cancelled' === $status ) {
+			return 'CANCELLED';
+		}
+
+		if ( 'postponed' === $status ) {
+			return 'TENTATIVE';
+		}
+
+		return 'CONFIRMED';
 	}
 
 	/**

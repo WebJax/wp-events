@@ -62,7 +62,7 @@ get_header(); ?>
                         </div>
                     <?php endif; ?>
                     
-                    <h1 class="event-title"><?php the_title(); ?></h1>
+                    <h1 class="event-title"><?php the_title(); ?><?php wpevents_the_status_badge(); ?></h1>
                     
                     <div class="event-meta">
                         <?php if ( $formatted_start ) : ?>

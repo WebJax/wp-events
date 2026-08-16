@@ -47,7 +47,7 @@ $first_category = $categories && ! is_wp_error( $categories ) ? $categories[0] :
         <?php endif; ?>
         
         <div class="event-content">
-            <h3 class="event-title"><?php the_title(); ?></h3>
+            <h3 class="event-title"><?php the_title(); ?><?php wpevents_the_status_badge(); ?></h3>
             
             <div class="event-meta">
                 <?php if ( $date_parts ) : ?>

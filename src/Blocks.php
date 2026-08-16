@@ -722,7 +722,7 @@ class Blocks {
 			$venue      = $venue_id ? get_the_title( $venue_id ) : '';
 
 			$output .= '<div class="event-item">';
-			$output .= '<h3><a href="' . esc_url( get_permalink( $event->ID ) ) . '">' . esc_html( get_the_title( $event->ID ) ) . '</a></h3>';
+			$output .= '<h3><a href="' . esc_url( get_permalink( $event->ID ) ) . '">' . esc_html( get_the_title( $event->ID ) ) . '</a>' . wpevents_get_status_badge( $event->ID ) . '</h3>';
 			if ( $start_date ) {
 				$output .= '<div class="event-date">' . esc_html( wp_date( get_option( 'date_format' ), strtotime( $start_date ) ) ) . '</div>';
 			}
@@ -779,7 +779,7 @@ class Blocks {
 				$output .= '<div class="event-image">' . $featured_image . '</div>';
 			}
 			$output .= '<div class="event-content">';
-			$output .= '<h3><a href="' . esc_url( get_permalink( $event->ID ) ) . '">' . esc_html( get_the_title( $event->ID ) ) . '</a></h3>';
+			$output .= '<h3><a href="' . esc_url( get_permalink( $event->ID ) ) . '">' . esc_html( get_the_title( $event->ID ) ) . '</a>' . wpevents_get_status_badge( $event->ID ) . '</h3>';
 			if ( $start_date ) {
 				$output .= '<div class="event-date">' . esc_html( wp_date( get_option( 'date_format' ), strtotime( $start_date ) ) ) . '</div>';
 			}

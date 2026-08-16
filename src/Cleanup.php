@@ -73,11 +73,13 @@ class Cleanup {
 	}
 
 	/**
-	 * Trash published events past the retention window.
+	 * Daily pass: mark ended events completed, then optionally trash old ones.
 	 *
 	 * @return void
 	 */
 	public static function run() {
+		self::complete_past_events();
+
 		$settings = Settings::get();
 
 		if ( empty( $settings['auto_trash_enabled'] ) ) {
@@ -149,6 +151,74 @@ class Cleanup {
 
 			wp_trash_post( (int) $post_id );
 			++$trashed;
+		}
+	}
+
+	/**
+	 * Mark past scheduled/sold-out events as completed.
+	 *
+	 * Does not override cancelled, postponed, or rescheduled.
+	 *
+	 * @return void
+	 */
+	public static function complete_past_events() {
+		$now = QueryFilters::now_iso();
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'event',
+				'post_status'            => 'publish',
+				'posts_per_page'         => self::BATCH_SIZE,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'meta_query'             => array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'event_end',
+						'value'   => $now,
+						'compare' => '<=',
+						'type'    => 'CHAR',
+					),
+					array(
+						'key'     => 'event_start',
+						'value'   => $now,
+						'compare' => '<=',
+						'type'    => 'CHAR',
+					),
+				),
+			)
+		);
+
+		if ( empty( $query->posts ) ) {
+			return;
+		}
+
+		$updated = 0;
+
+		foreach ( $query->posts as $post_id ) {
+			if ( $updated >= self::BATCH_SIZE ) {
+				break;
+			}
+
+			$status = get_post_meta( $post_id, 'event_status', true );
+			if ( $status && ! in_array( $status, array( 'scheduled', 'sold_out' ), true ) ) {
+				continue;
+			}
+
+			$end   = get_post_meta( $post_id, 'event_end', true );
+			$start = get_post_meta( $post_id, 'event_start', true );
+			$ref   = ! empty( $end ) ? $end : $start;
+
+			if ( empty( $ref ) || strcmp( (string) $ref, $now ) > 0 ) {
+				continue;
+			}
+
+			update_post_meta( $post_id, 'event_status', 'completed' );
+			++$updated;
 		}
 	}
 }

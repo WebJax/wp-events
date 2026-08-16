@@ -96,6 +96,7 @@ get_header(); ?>
                                     <a href="<?php the_permalink(); ?>">
                                         <?php the_title(); ?>
                                     </a>
+                                    <?php wpevents_the_status_badge(); ?>
                                 </h2>
                                 
                                 <?php if ( $formatted_start ) : ?>

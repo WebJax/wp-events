@@ -13,6 +13,12 @@
       "src/functions-templates.php"
     ]
   },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
+  "scripts": {
+    "test": "php tests/run.php"
+  },
   "repositories": [
     {
       "type": "package",

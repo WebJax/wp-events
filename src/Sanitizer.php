@@ -120,7 +120,17 @@ class Sanitizer {
 	 * @return string
 	 */
 	public static function sanitize_currency( $value ) {
-		$v = strtoupper( preg_replace( '/[^A-Z]/', '', (string) $value ) );
+		$v = preg_replace( '/[^A-Z]/', '', strtoupper( (string) $value ) );
 		return substr( $v, 0, 3 );
+	}
+
+	/**
+	 * Sanitize a stored 1/0 flag.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_flag( $value ) {
+		return ( true === $value || 1 === $value || '1' === $value ) ? '1' : '0';
 	}
 }
