@@ -307,22 +307,19 @@ class ICal {
 	 * REST endpoint for event feed
 	 */
 	public static function rest_get_feed( $request ) {
-		$args = array(
-			'post_type'      => 'event',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'meta_key'       => 'event_start',
-			'orderby'        => 'meta_value',
-			'order'          => 'ASC',
-			'meta_query'     => array(
-				array(
-					'key'     => 'event_start',
-					'value'   => current_time( DATE_ATOM ),
-					'compare' => '>=',
-					'type'    => 'CHAR',
+		$args = QueryFilters::constrain_event_listing_args(
+			array(
+				'post_type'      => 'event',
+				'post_status'    => 'publish',
+				'posts_per_page' => 50,
+				'meta_key'       => 'event_start',
+				'orderby'        => 'meta_value',
+				'order'          => 'ASC',
+				'meta_query'     => array(
+					QueryFilters::upcoming_start_clause(),
 				),
-			),
-			'has_password'   => false,  // Exclude password-protected events
+				'has_password'   => false,
+			)
 		);
 
 		$events = get_posts( $args );

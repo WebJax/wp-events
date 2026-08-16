@@ -110,7 +110,7 @@ Sælg billetter til events gennem WooCommerce. Et event kan have flere billettyp
 ### Funktioner
 - **Flere billettyper**: Flere WooCommerce-produkter pr. event
 - **Automatisk ticket-sektion**: Vises på event-sider med pris og knap pr. type
-- **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager (tjekkes ved add-to-cart, kurv og checkout)
+- **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager (tjekkes ved add-to-cart, kurv og checkout). Loftet tvinger ikke produktet udsolgt globalt, så samme produkt kan sælges til flere events.
 - **Order tracking**: Events linkes til orders; lager synces når ordrestatus ændres
 - **Deltagerliste**: Attendee info gemmes på orders
 - **Udsolgt beskeder**: Vises når event-loftet eller en billet-type er udsolgt; status kan sættes til Sold Out automatisk
@@ -221,7 +221,12 @@ Plugin'et tilbyder **fire forskellige visningsformater** for event-arkivet:
 - Perfekt til sidebars eller widgets
 - Tilgås via: `/events/?view=compact`
 
-### 2. Taxonomy Templates
+### 2. Single templates
+- `single-event.php` — Event med tid, sted, arrangør, billetter og tilmelding
+- `single-venue.php` — Venue med adresse, kontakt og kommende events på stedet
+- `single-organizer.php` — Arrangør med kontakt og kommende events
+
+### 3. Taxonomy Templates
 - `taxonomy-event_category.php` - Events i en specifik kategori
 - `taxonomy-event_tag.php` - Events med et specifikt tag
 

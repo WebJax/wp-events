@@ -94,6 +94,7 @@ class Plugin {
 		OrganizerCapabilities::init();
 		AdditionalFeatures::init();
 		QueryFilters::init();
+		Recurrence::init();
 		Settings::init();
 		Cleanup::init();
 		Tribe::register();

@@ -59,7 +59,8 @@ class WooCommerce {
 		add_action( 'woocommerce_event_ticket_add_to_cart', 'woocommerce_simple_add_to_cart', 30 );
 		add_action( 'admin_footer', array( __CLASS__, 'enable_event_ticket_product_js' ) );
 
-		// Sync event capacity with product stock on save and after orders change.
+		// Keep sold_out status in sync; do not mutate WooCommerce product stock
+		// (the same product can be sold for multiple events).
 		add_action( 'save_post_event', array( __CLASS__, 'sync_ticket_stock' ), 20 );
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'sync_capacity_on_order_status_change' ), 10, 4 );
 		add_action( 'woocommerce_order_refunded', array( __CLASS__, 'sync_capacity_on_order_refunded' ) );
@@ -208,6 +209,16 @@ class WooCommerce {
 		}
 
 		return max( 0, $capacity - self::get_tickets_sold( $event_id ) );
+	}
+
+	/**
+	 * Public remaining shared capacity, or null when unlimited / unset.
+	 *
+	 * @param int $event_id Event post ID.
+	 * @return int|null
+	 */
+	public static function get_remaining_capacity( $event_id ) {
+		return self::get_event_capacity_remaining( $event_id );
 	}
 
 	/**
@@ -834,62 +845,20 @@ class WooCommerce {
 	}
 
 	/**
-	 * Sync shared event capacity onto linked products without overwriting per-type stock qty.
+	 * Keep event sold_out status in sync without mutating WooCommerce product stock.
 	 *
-	 * When the shared event capacity is exhausted, linked products are forced out of stock
-	 * via stock_status and a marker meta. Per-product stock quantities are left intact.
-	 * When capacity frees up, only products we previously blocked are restored.
+	 * Shared ticket products must stay purchasable for other events. Capacity is
+	 * enforced per event on add-to-cart, cart, and checkout.
 	 */
 	public static function sync_ticket_stock( $event_id ) {
-		$enable_tickets = get_post_meta( $event_id, 'enable_tickets', true );
-		$product_ids    = self::get_ticket_product_ids( $event_id );
-		$capacity_raw   = get_post_meta( $event_id, 'ticket_capacity', true );
-
-		// Only proceed when tickets are enabled and at least one product is linked.
-		if ( '1' !== $enable_tickets || empty( $product_ids ) ) {
-			return;
-		}
-
-		// Occurrences share parent ticket products; do not mutate product stock
-		// based on a single date's remaining capacity.
-		if ( get_post_meta( $event_id, 'is_occurrence', true ) ) {
-			self::maybe_update_sold_out_status( $event_id );
-			return;
-		}
-
-		// If capacity is not set at all, do not change stock settings.
-		if ( '' === $capacity_raw || false === $capacity_raw ) {
-			return;
-		}
-
-		$capacity = (int) $capacity_raw;
-
-		// Capacity 0 means unlimited tickets: leave each product's own stock settings alone,
-		// but clear any capacity blocks this integration previously applied.
-		if ( 0 === $capacity ) {
-			foreach ( $product_ids as $product_id ) {
-				self::clear_capacity_block( $product_id );
-			}
-			return;
-		}
-
-		$sold      = self::get_tickets_sold( $event_id );
-		$remaining = max( 0, $capacity - $sold );
-
+		$product_ids = self::get_ticket_product_ids( $event_id );
 		foreach ( $product_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( ! $product ) {
-				continue;
-			}
-
-			if ( $remaining <= 0 ) {
-				self::apply_capacity_block( $product );
-			} else {
-				self::clear_capacity_block( $product_id, $product );
-			}
+			self::clear_capacity_block( $product_id );
 		}
 
-		self::maybe_update_sold_out_status( $event_id );
+		if ( '1' === get_post_meta( $event_id, 'enable_tickets', true ) ) {
+			self::maybe_update_sold_out_status( $event_id );
+		}
 	}
 
 	/**

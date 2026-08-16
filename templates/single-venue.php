@@ -32,26 +32,23 @@ if ( ! is_array( $other_social ) ) {
 }
 
 $upcoming = new WP_Query(
-	array(
-		'post_type'      => 'event',
-		'post_status'    => 'publish',
-		'posts_per_page' => 10,
-		'meta_key'       => 'event_start',
-		'orderby'        => 'meta_value',
-		'order'          => 'ASC',
-		'meta_query'     => array(
-			array(
-				'key'     => 'event_venue',
-				'value'   => (string) $venue_id,
-				'compare' => '=',
+	\WPEvents\QueryFilters::constrain_event_listing_args(
+		array(
+			'post_type'      => 'event',
+			'post_status'    => 'publish',
+			'posts_per_page' => 10,
+			'meta_key'       => 'event_start',
+			'orderby'        => 'meta_value',
+			'order'          => 'ASC',
+			'meta_query'     => array(
+				array(
+					'key'     => 'event_venue',
+					'value'   => (string) $venue_id,
+					'compare' => '=',
+				),
+				\WPEvents\QueryFilters::upcoming_start_clause(),
 			),
-			array(
-				'key'     => 'event_start',
-				'value'   => wp_date( DATE_ATOM, time(), wp_timezone() ),
-				'compare' => '>=',
-				'type'    => 'CHAR',
-			),
-		),
+		)
 	)
 );
 ?>

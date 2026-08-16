@@ -26,22 +26,18 @@ class Shortcodes {
 		);
 
 		$q = new \WP_Query(
-			array(
-				'post_type'      => 'event',
-				'posts_per_page' => (int) $atts['limit'],
-				'post_status'    => 'publish',
-				'orderby'        => 'meta_value',
-				'order'          => 'ASC',
-				'meta_key'       => 'event_start',
-				'meta_type'      => 'DATETIME',
-				'meta_query'     => array(
-					array(
-						'key'     => 'event_start',
-						'value'   => wp_date( DATE_ATOM, time(), wp_timezone() ),
-						'compare' => '>=',
-						'type'    => 'CHAR',
+			QueryFilters::constrain_event_listing_args(
+				array(
+					'post_type'      => 'event',
+					'posts_per_page' => (int) $atts['limit'],
+					'post_status'    => 'publish',
+					'orderby'        => 'meta_value',
+					'order'          => 'ASC',
+					'meta_key'       => 'event_start',
+					'meta_query'     => array(
+						QueryFilters::upcoming_start_clause(),
 					),
-				),
+				)
 			)
 		);
 

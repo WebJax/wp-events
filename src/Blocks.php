@@ -689,21 +689,18 @@ class Blocks {
 	public static function render_events_list_block( $attributes ) {
 		$limit = isset( $attributes['numberOfEvents'] ) ? intval( $attributes['numberOfEvents'] ) : 5;
 
-		$args = array(
-			'post_type'      => 'event',
-			'posts_per_page' => $limit,
-			'post_status'    => 'publish',
-			'meta_query'     => array(
-				array(
-					'key'     => 'event_start',
-					'value'   => current_time( 'Y-m-d' ),
-					'compare' => '>=',
-					'type'    => 'DATE',
+		$args = QueryFilters::constrain_event_listing_args(
+			array(
+				'post_type'      => 'event',
+				'posts_per_page' => $limit,
+				'post_status'    => 'publish',
+				'meta_query'     => array(
+					QueryFilters::upcoming_start_clause(),
 				),
-			),
-			'meta_key'       => 'event_start',
-			'orderby'        => 'meta_value',
-			'order'          => 'ASC',
+				'meta_key'       => 'event_start',
+				'orderby'        => 'meta_value',
+				'order'          => 'ASC',
+			)
 		);
 
 		$events = get_posts( $args );
@@ -742,21 +739,18 @@ class Blocks {
 	public static function render_events_carousel_block( $attributes ) {
 		$limit = isset( $attributes['numberOfEvents'] ) ? intval( $attributes['numberOfEvents'] ) : 3;
 
-		$args = array(
-			'post_type'      => 'event',
-			'posts_per_page' => $limit,
-			'post_status'    => 'publish',
-			'meta_query'     => array(
-				array(
-					'key'     => 'event_start',
-					'value'   => current_time( 'Y-m-d' ),
-					'compare' => '>=',
-					'type'    => 'DATE',
+		$args = QueryFilters::constrain_event_listing_args(
+			array(
+				'post_type'      => 'event',
+				'posts_per_page' => $limit,
+				'post_status'    => 'publish',
+				'meta_query'     => array(
+					QueryFilters::upcoming_start_clause(),
 				),
-			),
-			'meta_key'       => 'event_start',
-			'orderby'        => 'meta_value',
-			'order'          => 'ASC',
+				'meta_key'       => 'event_start',
+				'orderby'        => 'meta_value',
+				'order'          => 'ASC',
+			)
 		);
 
 		$events = get_posts( $args );

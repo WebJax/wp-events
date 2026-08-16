@@ -19,35 +19,32 @@ $email        = get_post_meta( $organizer_id, 'organizer_email', true );
 $website      = get_post_meta( $organizer_id, 'organizer_website', true );
 
 $upcoming = new WP_Query(
-	array(
-		'post_type'      => 'event',
-		'post_status'    => 'publish',
-		'posts_per_page' => 10,
-		'meta_key'       => 'event_start',
-		'orderby'        => 'meta_value',
-		'order'          => 'ASC',
-		'meta_query'     => array(
-			'relation' => 'AND',
-			array(
-				'relation' => 'OR',
+	\WPEvents\QueryFilters::constrain_event_listing_args(
+		array(
+			'post_type'      => 'event',
+			'post_status'    => 'publish',
+			'posts_per_page' => 10,
+			'meta_key'       => 'event_start',
+			'orderby'        => 'meta_value',
+			'order'          => 'ASC',
+			'meta_query'     => array(
+				'relation' => 'AND',
 				array(
-					'key'     => 'event_organizer',
-					'value'   => 'i:' . (int) $organizer_id . ';',
-					'compare' => 'LIKE',
+					'relation' => 'OR',
+					array(
+						'key'     => 'event_organizer',
+						'value'   => 'i:' . (int) $organizer_id . ';',
+						'compare' => 'LIKE',
+					),
+					array(
+						'key'     => 'event_organizer',
+						'value'   => '"' . (int) $organizer_id . '"',
+						'compare' => 'LIKE',
+					),
 				),
-				array(
-					'key'     => 'event_organizer',
-					'value'   => '"' . (int) $organizer_id . '"',
-					'compare' => 'LIKE',
-				),
+				\WPEvents\QueryFilters::upcoming_start_clause(),
 			),
-			array(
-				'key'     => 'event_start',
-				'value'   => wp_date( DATE_ATOM, time(), wp_timezone() ),
-				'compare' => '>=',
-				'type'    => 'CHAR',
-			),
-		),
+		)
 	)
 );
 ?>

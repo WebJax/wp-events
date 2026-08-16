@@ -35,6 +35,32 @@ class Recurrence {
 	);
 
 	/**
+	 * Hook listing/SEO helpers.
+	 */
+	public static function init() {
+		add_filter( 'wp_robots', array( __CLASS__, 'filter_robots' ) );
+	}
+
+	/**
+	 * Avoid indexing the series parent when a same-day occurrence is the public URL.
+	 *
+	 * @param array $robots Robots directives.
+	 * @return array
+	 */
+	public static function filter_robots( $robots ) {
+		if ( ! is_singular( 'event' ) ) {
+			return $robots;
+		}
+
+		$post_id = get_the_ID();
+		if ( $post_id && in_array( (int) $post_id, self::get_hidden_series_parent_ids(), true ) ) {
+			$robots['noindex'] = true;
+		}
+
+		return $robots;
+	}
+
+	/**
 	 * Create or update occurrence posts when a parent event is saved.
 	 *
 	 * Existing occurrences are matched by date and updated in place so IDs,
@@ -84,17 +110,15 @@ class Recurrence {
 		$count  = 0;
 		$max    = 200;
 		while ( $cursor <= $until_ts && $count < $max ) {
-			if ( $cursor !== $start_ts ) {
-				$date_key      = wp_date( 'Y-m-d', $cursor, wp_timezone() );
-				$new_start     = wp_date( DATE_ATOM, $cursor, wp_timezone() );
-				$new_end       = $end_ts ? wp_date( DATE_ATOM, $cursor + ( $end_ts - $start_ts ), wp_timezone() ) : '';
-				$occurrence_id = isset( $existing_by_date[ $date_key ] ) ? (int) $existing_by_date[ $date_key ] : 0;
+			$date_key      = wp_date( 'Y-m-d', $cursor, wp_timezone() );
+			$new_start     = wp_date( DATE_ATOM, $cursor, wp_timezone() );
+			$new_end       = $end_ts ? wp_date( DATE_ATOM, $cursor + ( $end_ts - $start_ts ), wp_timezone() ) : '';
+			$occurrence_id = isset( $existing_by_date[ $date_key ] ) ? (int) $existing_by_date[ $date_key ] : 0;
 
-				$occurrence_id = self::upsert_occurrence( $post_id, $post, $occurrence_id, $cursor, $new_start, $new_end );
-				if ( $occurrence_id > 0 ) {
-					$keep_ids[] = $occurrence_id;
-					unset( $existing_by_date[ $date_key ] );
-				}
+			$occurrence_id = self::upsert_occurrence( $post_id, $post, $occurrence_id, $cursor, $new_start, $new_end );
+			if ( $occurrence_id > 0 ) {
+				$keep_ids[] = $occurrence_id;
+				unset( $existing_by_date[ $date_key ] );
 			}
 
 			$next = self::advance( $cursor, $type, $interval );
@@ -110,6 +134,8 @@ class Recurrence {
 				wp_delete_post( (int) $stale_id, true );
 			}
 		}
+
+		self::flush_hidden_parents_cache();
 	}
 
 	/**
@@ -146,6 +172,65 @@ class Recurrence {
 		}
 
 		return $by_date;
+	}
+
+	/**
+	 * Parent event IDs that should be hidden from public listings.
+	 *
+	 * A series parent is hidden only when an occurrence exists on the same
+	 * calendar day, so the first date is not listed twice.
+	 *
+	 * @return int[]
+	 */
+	public static function get_hidden_series_parent_ids() {
+		$cached = wp_cache_get( 'hidden_series_parents', 'wpevents' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'event',
+				'post_status'            => 'publish',
+				'meta_key'               => '_recurrence_parent',
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => true,
+			)
+		);
+
+		$hidden = array();
+		foreach ( $query->posts as $child_id ) {
+			$parent_id = absint( get_post_meta( $child_id, '_recurrence_parent', true ) );
+			if ( $parent_id <= 0 || isset( $hidden[ $parent_id ] ) ) {
+				continue;
+			}
+
+			$child_start  = get_post_meta( $child_id, 'event_start', true );
+			$parent_start = get_post_meta( $parent_id, 'event_start', true );
+			$child_ts     = $child_start ? strtotime( $child_start ) : false;
+			$parent_ts    = $parent_start ? strtotime( $parent_start ) : false;
+			if ( ! $child_ts || ! $parent_ts ) {
+				continue;
+			}
+
+			if ( wp_date( 'Y-m-d', $child_ts, wp_timezone() ) === wp_date( 'Y-m-d', $parent_ts, wp_timezone() ) ) {
+				$hidden[ $parent_id ] = $parent_id;
+			}
+		}
+
+		$hidden = array_values( $hidden );
+		wp_cache_set( 'hidden_series_parents', $hidden, 'wpevents', HOUR_IN_SECONDS );
+
+		return $hidden;
+	}
+
+	/**
+	 * Drop the per-request listing cache after occurrences change.
+	 */
+	public static function flush_hidden_parents_cache() {
+		wp_cache_delete( 'hidden_series_parents', 'wpevents' );
 	}
 
 	/**
