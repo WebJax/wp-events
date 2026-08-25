@@ -405,7 +405,15 @@
     border-radius: 4px;
     background: white;
     min-width: 150px;
+    /* font-family: inherit; */
     font-size: 1rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23333" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* justér denne værdi for at flytte pilen */
+    padding-right: 20px; /* plads til pilen, så teksten ikke rammer den */
 }
 
 .filter-actions {
@@ -507,7 +515,6 @@
 }
 
 .event-categories {
-    margin-bottom: 15px;
 }
 
 .event-category a {
@@ -546,7 +553,11 @@
 
 .event-read-more {
     display: inline-block;
-    background: var(--wpevents-color-primary, var(--primary-color));
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(
+    --wpevents-color-primary, var(--wp--preset--color--primary));
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
@@ -633,7 +644,7 @@
 }
 
 .event-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     margin-bottom: 1rem;
     color: #333;
@@ -647,23 +658,23 @@
     grid-template-areas:
         'date date'
         'venue organizer'
-        'venue taxonomy';
+        'taxonomy taxonomy';
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-block: 1.5rem;
+    margin-bottom: 1rem;
+    padding-block: 1rem;
     padding-inline: 1rem;
     justify-content: space-between;
 }
 
 .event-meta .event-date {
     grid-area: date;
-    font-size: 1.8rem;
+    padding-inline: .5rem;
+    font-size: 1rem;
 }
 
 .event-venue {
     grid-area: venue;
     align-items: self-start;
-    margin-left: .5rem;
 }
 
 i.icon-location:before {
@@ -679,12 +690,14 @@ i.icon-location:before {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    padding: 0.5rem;
 }
 
 .event-taxonomy {
     grid-area: taxonomy;
     display: flex;
-    margin-top: 1rem;
+    margin-block: 0 1rem;
+    flex-wrap: wrap;
     flex-direction: column;
     align-items: flex-end;
 }
@@ -707,7 +720,8 @@ i.icon-location:before {
 }
 
 .event-organizers a {
-    margin-right: .3rem;
+    margin-block: .7rem .1rem;
+    font-weight: 700;
 }
 
 .event-venue a:hover,
@@ -717,9 +731,10 @@ i.icon-location:before {
 
 .event-categories,
 .event-tags {
-    margin-block: 0rem;
-    text-align: end;
-    width: 75%;
+    width: 90%;
+    text-align: center;
+    margin: .5rem auto;
+    line-height: 1.5;
 }
 
 .event-categories strong,
@@ -729,7 +744,7 @@ i.icon-location:before {
 }
 
 .event-category,
-.event-tag {margin-inline: .3rem;line-height: 2;}
+.event-tag {margin-inline: .3rem;line-height: 0;}
 
 .event-category a,
 .event-tag a {
@@ -738,9 +753,11 @@ i.icon-location:before {
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.6rem;
     border: 1px solid #dee2e6;
     transition: all 0.3s ease;
+    line-height: 0;
+    white-space: nowrap;
 }
 
 .event-category a:hover,
@@ -779,13 +796,24 @@ i.icon-location:before {
     color: #333;
 }
 
+.venue-info h2 {
+    margin: 0;
+    line-height: 1;
+    font-size: 2rem;
+    font-weight: 700;
+    padding-bottom: .5rem;
+}
+
+.event-venue-details h5, .event-organizers h5 {
+    margin-block: 0 .5rem;
+}
+
 /* Venue Details */
 .event-venue-details {
     background: #f8f9fa;
     padding: 2rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    border-left: 4px solid var(--wpevents-color-primary, var(--wp--preset--color--primary, #007cba));
 }
 
 .event-venue-details h3 {
@@ -801,9 +829,11 @@ i.icon-location:before {
     font-size: 1.25rem;
 }
 
+
+
 .venue-address,
 .venue-contact {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
 }
 
 .venue-contact a {
@@ -894,12 +924,9 @@ i.icon-location:before {
 
 /* Responsive Design for Single Event */
 @media (max-width: 768px) {
-    .event-title {
-        font-size: 2rem;
-    }
-    
     .event-meta {
         font-size: 1rem;
+        row-gap: 0rem;
     }
     
     .event-navigation {
@@ -912,7 +939,8 @@ i.icon-location:before {
     }
     
     .event-venue-details {
-        padding: 1.5rem;
+        padding: 0.5rem;
+        margin-bottom: 0rem;
     }
     
     .wp-events-single-page .container {

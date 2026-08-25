@@ -67,7 +67,7 @@ get_header(); ?>
                     <div class="event-meta">
                         <?php if ( $formatted_start ) : ?>
                             <div class="event-date">
-                                <span class="dashicons dashicons-calendar-alt"></span>
+                                <span class="icon-calendar"></span>
                                 <time datetime="<?php echo esc_attr( $start_date ); ?>">
                                     <?php echo esc_html( $formatted_start ); ?>
                                     <?php if ( $formatted_end && $formatted_end !== $formatted_start ) : ?>
