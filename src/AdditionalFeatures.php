@@ -133,8 +133,8 @@ class AdditionalFeatures {
 			__( 'Registration Settings', 'wp-events' ),
 			array( __CLASS__, 'render_registration_box' ),
 			'event',
-			'normal',
-			'default'
+			'side',
+			'high'
 		);
 	}
 

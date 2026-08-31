@@ -189,7 +189,7 @@ get_header(); ?>
                         <?php if ( $prev_event ) : ?>
                             <div class="prev-event">
                                 <a href="<?php echo esc_url( get_permalink( $prev_event->ID ) ); ?>" rel="prev">
-                                    <span class="nav-subtitle"><?php esc_html_e( 'Previous Event', 'wp-events' ); ?></span>
+                                    <span class="nav-subtitle"><?php esc_html_e( 'Forrige Event', 'wp-events' ); ?></span>
                                     <span class="nav-title"><?php echo esc_html( get_the_title( $prev_event->ID ) ); ?></span>
                                 </a>
                             </div>
@@ -198,7 +198,7 @@ get_header(); ?>
                         <?php if ( $next_event ) : ?>
                             <div class="next-event">
                                 <a href="<?php echo esc_url( get_permalink( $next_event->ID ) ); ?>" rel="next">
-                                    <span class="nav-subtitle"><?php esc_html_e( 'Next Event', 'wp-events' ); ?></span>
+                                    <span class="nav-subtitle"><?php esc_html_e( 'Næste Event', 'wp-events' ); ?></span>
                                     <span class="nav-title"><?php echo esc_html( get_the_title( $next_event->ID ) ); ?></span>
                                 </a>
                             </div>
@@ -207,7 +207,7 @@ get_header(); ?>
                     
                     <div class="back-to-events">
                         <a href="<?php echo esc_url( get_post_type_archive_link( 'event' ) ); ?>" class="btn btn-outline">
-                            <?php esc_html_e( '← Return to all events', 'wp-events' ); ?>
+                            <?php esc_html_e( '← Tilbage til alle events', 'wp-events' ); ?>
                         </a>
                     </div>
                 </footer>
