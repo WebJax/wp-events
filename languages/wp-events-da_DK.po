@@ -1065,8 +1065,8 @@ msgid "Nulstil"
 msgstr "Nulstil"
 
 #: templates/parts/view-switcher.php:55
-msgid "Rutenett"
-msgstr "Rutenett"
+msgid "Oversigt"
+msgstr "Oversigt"
 
 #: templates/parts/view-switcher.php:60
 msgid "Kalender"

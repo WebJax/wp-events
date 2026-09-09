@@ -52,7 +52,7 @@ $url_separator = $query_string ? '&' : '';
 // View options
 $views = array(
     'grid' => array(
-        'label' => __( 'Rutenett', 'wp-events' ),
+        'label' => __( 'Oversigt', 'wp-events' ),
         'icon' => 'icon-calendar',
         'url' => $base_url . ( $query_string ? '?' . $query_string : '' ),
     ),

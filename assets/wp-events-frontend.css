@@ -668,7 +668,7 @@
 
 .event-meta .event-date {
     grid-area: date;
-    padding-inline: .5rem;
+    padding-inline: 0;
     font-size: 1rem;
 }
 
@@ -694,7 +694,6 @@ i.icon-location:before {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    padding: 0.5rem;
 }
 
 .event-taxonomy {
@@ -724,8 +723,9 @@ i.icon-location:before {
 }
 
 .event-organizers a {
-    margin-block: .7rem .1rem;
+    margin-block: 0;
     font-weight: 700;
+    text-align: end;
 }
 
 .event-venue a:hover,
@@ -803,13 +803,17 @@ i.icon-location:before {
 .venue-info h2 {
     margin: 0;
     line-height: 1;
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     padding-bottom: .5rem;
 }
 
 .event-venue-details h5, .event-organizers h5 {
     margin-block: 0 .5rem;
+}
+
+.event-venue-details h5 {
+    display: none;
 }
 
 /* Venue Details */
@@ -931,6 +935,8 @@ i.icon-location:before {
     .event-meta {
         font-size: 1rem;
         row-gap: 0rem;
+        padding-block: .5rem;
+        padding-inline: .5rem;
     }
     
     .event-navigation {
@@ -943,7 +949,7 @@ i.icon-location:before {
     }
     
     .event-venue-details {
-        padding: 0.5rem;
+        padding: 0;
         margin-bottom: 0rem;
     }
     
@@ -988,8 +994,22 @@ i.icon-location:before {
 }
 
 @media (max-width: 480px) {
+    .event-featured-image img {
+        width: 250vw;
+        max-width: 300vw;
+        margin-left: -75vw;
+        margin-top: 40px;
+        height: auto;
+        object-fit: cover;
+    }
+    
     .event-content {
         padding: 15px;
+        margin-top: -30px;
+    }
+
+    .event-content p:first-child {
+        margin-top: 0;
     }
     
     .archive-title,
@@ -1238,6 +1258,7 @@ i.icon-location:before {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin: 0;
 }
 
 .event-card-list .event-header-section {
@@ -1251,11 +1272,16 @@ i.icon-location:before {
 }
 
 .event-card-list .event-categories {
-    margin-bottom: 10px;
+    text-align: left;
+    width: auto;
+    margin: 0;
 }
 
 .event-card-list .event-meta {
     display: flex;
+    background-color: white;
+    padding: 0;
+    margin: 0;
     flex-wrap: wrap;
     gap: 15px;
     margin-bottom: 10px;
@@ -1389,7 +1415,11 @@ i.icon-location:before {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0px;
+    padding: 0;
+    margin-top: 0;
 }
 
 .event-card-compact .event-title {
@@ -1410,6 +1440,9 @@ i.icon-location:before {
     gap: 15px;
     font-size: 0.85rem;
     color: #666;
+    margin: 0;
+    padding: 0;
+    background-color: white;
 }
 
 .event-card-compact .event-time,
@@ -1417,10 +1450,11 @@ i.icon-location:before {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-bottom: 0;
 }
 
 .event-card-compact .event-category-badge {
-    display: inline-block;
+    display: inline;
     background: #f0f0f0;
     color: #555;
     padding: 3px 10px;

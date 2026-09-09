@@ -1080,7 +1080,7 @@ msgid "Nulstil"
 msgstr ""
 
 #: templates/parts/view-switcher.php:55
-msgid "Rutenett"
+msgid "Oversigt"
 msgstr ""
 
 #: templates/parts/view-switcher.php:60
