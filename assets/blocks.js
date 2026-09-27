@@ -16,6 +16,7 @@
         icon: 'location',
         category: 'wp-events',
         description: __('Display event venue information', 'wp-events'),
+        apiVersion: 3,
         
         supports: {
             align: ['left', 'center', 'right'],
@@ -126,7 +127,8 @@
         icon: 'admin-users',
         category: 'wp-events',
         description: __('Display event organizer name', 'wp-events'),
-        
+        apiVersion: 3,
+
         supports: {
             anchor: true,
             className: true,
@@ -205,6 +207,7 @@
         icon: 'calendar-alt',
         category: 'wp-events',
         description: __('Display event date and time in one schedule block', 'wp-events'),
+        apiVersion: 3,
 
         supports: {
             align: ['left', 'center', 'right'],
@@ -364,7 +367,8 @@
         icon: 'calendar',
         category: 'wp-events',
         description: __('Display a list of upcoming events', 'wp-events'),
-        
+        apiVersion: 3,
+
         supports: {
             align: ['left', 'center', 'right'],
             anchor: true,
@@ -443,7 +447,8 @@
         icon: 'images-alt2',
         category: 'wp-events',
         description: __('Display events in a carousel format', 'wp-events'),
-        
+        apiVersion: 3,
+
         supports: {
             align: ['left', 'center', 'right'],
             anchor: true,
@@ -522,6 +527,7 @@
         icon: 'money-alt',
         category: 'wp-events',
         description: __('Display event price with currency', 'wp-events'),
+        apiVersion: 3,
         
         supports: {
             anchor: true,
