@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: WP Events 0.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-events\n"
 "POT-Creation-Date: 2026-07-31T01:55:44+00:00\n"
-"PO-Revision-Date: 2026-08-25 05:42+0200\n"
+"PO-Revision-Date: 2026-10-20 00:48+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: da_DK\n"
@@ -18,7 +18,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: wp-events.php src/PostTypes.php:26
 msgid "WP Events"
-msgstr "WP-begivenheder"
+msgstr "WP Events"
 
 #. Description of the plugin
 #: wp-events.php
@@ -64,7 +64,7 @@ msgstr "Afsluttet"
 
 #: src/AdditionalFeatures.php:90
 msgid "This status will be displayed on the event page"
-msgstr "Denne status vil blive vist på begivenhedssiden"
+msgstr "Denne status vil blive vist på eventssiden"
 
 #: src/AdditionalFeatures.php:133
 msgid "Registration Settings"
@@ -76,7 +76,7 @@ msgstr "Aktiver registrering"
 
 #: src/AdditionalFeatures.php:159
 msgid "Allow attendees to register for this event"
-msgstr "Tillad deltagere at tilmelde sig denne begivenhed"
+msgstr "Tillad deltagere at tilmelde sig denne event"
 
 #: src/AdditionalFeatures.php:164
 msgid "Maximum Attendees"
@@ -139,7 +139,7 @@ msgstr "Tak for din tilmelding! Du vil modtage en bekræftelsesmail."
 
 #: src/AdditionalFeatures.php:301
 msgid "Register for This Event"
-msgstr "Tilmeld dig denne begivenhed"
+msgstr "Tilmeld dig denne event"
 
 #: src/AdditionalFeatures.php:305
 #, php-format
@@ -176,19 +176,19 @@ msgstr "Påkrævede felter mangler"
 
 #: src/AdditionalFeatures.php:365
 msgid "Invalid event."
-msgstr "Ugyldig begivenhed."
+msgstr "Ugyldig event."
 
 #: src/AdditionalFeatures.php:371
 msgid "Registration for this event is closed."
-msgstr "Tilmelding til denne begivenhed er lukket."
+msgstr "Tilmelding til denne event er lukket."
 
 #: src/AdditionalFeatures.php:379
 msgid "Registration for this event has ended."
-msgstr "Tilmelding til denne begivenhed er slut."
+msgstr "Tilmelding til denne event er slut."
 
 #: src/AdditionalFeatures.php:388
 msgid "Sorry, this event is now full"
-msgstr "Desværre, begivenheden er udsolgt"
+msgstr "Desværre, eventet er udsolgt"
 
 #: src/AdditionalFeatures.php:395
 msgid "Please wait before registering again."
@@ -196,7 +196,7 @@ msgstr "Vent venligst, før du tilmelder dig igen."
 
 #: src/AdditionalFeatures.php:401
 msgid "This email is already registered for this event."
-msgstr "Denne e-mail er allerede registreret til denne begivenhed."
+msgstr "Denne e-mail er allerede registreret til denne event."
 
 #: src/AdditionalFeatures.php:422
 #, php-format
@@ -275,7 +275,7 @@ msgstr "Slut"
 
 #: src/Admin/MetaBoxes.php:86
 msgid "Event Recurrence"
-msgstr "Gentagelse af begivenhed"
+msgstr "Gentagelse af event"
 
 #: src/Admin/MetaBoxes.php:99
 msgid "Type"
@@ -351,7 +351,7 @@ msgstr "Lad prisen stå tom, hvis arrangementet er gratis"
 
 #: src/Admin/MetaBoxes.php:324
 msgid "Venue Details"
-msgstr ""
+msgstr "Spillesteddetaljer"
 
 #: src/Admin/MetaBoxes.php:336
 msgid "Featured Image"
@@ -427,7 +427,7 @@ msgstr "Organizer detaljer"
 
 #: src/Admin/Settings.php:103
 msgid "Events Settings"
-msgstr "Indstillinger for begivenheder"
+msgstr "Indstillinger for eventer"
 
 #: src/Admin/Settings.php:104
 msgid "Settings"
@@ -439,7 +439,7 @@ msgstr "Oprydning"
 
 #: src/Admin/Settings.php:136
 msgid "Auto-trash finished events"
-msgstr "Slet afsluttede begivenheder automatisk"
+msgstr "Slet afsluttede eventer automatisk"
 
 #: src/Admin/Settings.php:144
 msgid "Days after end date"
@@ -470,12 +470,12 @@ msgstr ""
 #: src/Admin/Settings.php:348
 msgid "Choose whether event UI colors follow the theme or use plugin tokens."
 msgstr ""
-"Vælg, om farverne i begivenheds-brugerfladen skal følge temaet eller bruge "
+"Vælg, om farverne i events-brugerfladen skal følge temaet eller bruge "
 "plugin-tokens."
 
 #: src/Admin/Settings.php:367
 msgid "Automatically move finished events to Trash"
-msgstr "Flyt automatisk afsluttede begivenheder til papirkurven"
+msgstr "Flyt automatisk afsluttede eventer til papirkurven"
 
 #: src/Admin/Settings.php:391
 msgid ""
@@ -495,11 +495,11 @@ msgstr "Brugerdefineret palet"
 
 #: src/Blocks.php:484
 msgid "Venue block can only be used in event posts."
-msgstr "Stedblokken kan kun bruges i begivenhedsindlæg."
+msgstr "Stedblokken kan kun bruges i eventsindlæg."
 
 #: src/Blocks.php:489
 msgid "No venue assigned to this event."
-msgstr "Der er ikke tildelt noget spillested til denne begivenhed."
+msgstr "Der er ikke tildelt noget spillested til denne event."
 
 #: src/Blocks.php:494
 msgid "Venue not found."
@@ -519,11 +519,11 @@ msgstr "Find vej"
 
 #: src/Blocks.php:566
 msgid "Organizer block can only be used in event posts."
-msgstr "Organisatorblok kan kun bruges i begivenhedsindlæg."
+msgstr "Organisatorblok kan kun bruges i eventsindlæg."
 
 #: src/Blocks.php:571
 msgid "No organizer assigned to this event."
-msgstr "Ingen arrangør tildelt denne begivenhed."
+msgstr "Ingen arrangør tildelt denne event."
 
 #: src/Blocks.php:589
 msgid "Organizer not found."
@@ -531,11 +531,11 @@ msgstr "Arrangør ikke fundet."
 
 #: src/Blocks.php:603
 msgid "Schedule block can only be used in event posts."
-msgstr "Planlægningsblokken kan kun bruges i begivenhedsindlæg."
+msgstr "Planlægningsblokken kan kun bruges i eventsindlæg."
 
 #: src/Blocks.php:608
 msgid "No start date set for this event."
-msgstr "Der er ikke angivet en startdato for denne begivenhed."
+msgstr "Der er ikke angivet en startdato for denne event."
 
 #: src/Blocks.php:613
 msgid "Invalid start date format."
@@ -543,11 +543,11 @@ msgstr "Ugyldigt startdatoformat."
 
 #: src/Blocks.php:718 src/Blocks.php:771
 msgid "No upcoming events found."
-msgstr "Der blev ikke fundet nogen kommende begivenheder."
+msgstr "Der blev ikke fundet nogen kommende eventer."
 
 #: src/Blocks.php:818
 msgid "Price block can only be used in event posts."
-msgstr "Prisblokken kan kun bruges i begivenhedsindlæg."
+msgstr "Prisblokken kan kun bruges i eventsindlæg."
 
 #: src/ICal.php:68 src/ICal.php:86
 msgid "Event not found."
@@ -575,7 +575,7 @@ msgstr "Begivenhedskalenderen blev ikke fundet (tribe_events CPT mangler)."
 
 #: src/Import/Tribe.php:54
 msgid "Import from The Events Calendar"
-msgstr "Importer fra begivenhedskalenderen"
+msgstr "Importer fra eventskalenderen"
 
 #: src/Import/Tribe.php:60
 msgid "Import Statistics"
@@ -583,7 +583,7 @@ msgstr "Importstatistik"
 
 #: src/Import/Tribe.php:62
 msgid "Total Tribe Events:"
-msgstr "Stammebegivenheder i alt:"
+msgstr "Stammeeventer i alt:"
 
 #: src/Import/Tribe.php:63
 msgid "Already Imported:"
@@ -595,15 +595,15 @@ msgstr "Kan importeres:"
 
 #: src/Import/Tribe.php:65
 msgid "Future Events:"
-msgstr "Fremtidige begivenheder:"
+msgstr "Fremtidige eventer:"
 
 #: src/Import/Tribe.php:66
 msgid "Past Events:"
-msgstr "Tidligere begivenheder:"
+msgstr "Tidligere eventer:"
 
 #: src/Import/Tribe.php:73
 msgid "All Events"
-msgstr "Alle begivenheder"
+msgstr "Alle eventer"
 
 #: src/Import/Tribe.php:74 src/Import/Tribe.php:131
 msgid "Available"
@@ -635,7 +635,7 @@ msgstr "Fravælg alle"
 
 #: src/Import/Tribe.php:94
 msgid "Import Selected Events"
-msgstr "Importer udvalgte begivenheder"
+msgstr "Importer udvalgte eventer"
 
 #: src/Import/Tribe.php:95
 msgid "selected"
@@ -672,7 +672,7 @@ msgstr "Quick Import (Legacy)"
 #: src/Import/Tribe.php:147
 msgid "Import all available events in batch. For large sites, prefer WP-CLI."
 msgstr ""
-"Importer alle tilgængelige begivenheder i batch. For store websteder, "
+"Importer alle tilgængelige eventer i batch. For store websteder, "
 "foretrækker WP-CLI."
 
 #: src/Import/Tribe.php:151
@@ -685,7 +685,7 @@ msgstr "Importer alle tilgængelige"
 
 #: src/Import/Tribe.php:194
 msgid "Please select at least one event to import."
-msgstr "Vælg mindst én begivenhed, der skal importeres."
+msgstr "Vælg mindst én event, der skal importeres."
 
 #: src/Import/Tribe.php:199
 msgid "Are you sure you want to import "
@@ -693,20 +693,20 @@ msgstr "Er du sikker på, at du vil importere "
 
 #: src/Import/Tribe.php:199
 msgid " event(s)?"
-msgstr " begivenhed(er)?"
+msgstr " event(er)?"
 
 #: src/Import/Tribe.php:330 src/Import/Tribe.php:350
 msgid "You do not have permission to import events."
-msgstr "Du har ikke tilladelse til at importere begivenheder."
+msgstr "Du har ikke tilladelse til at importere eventer."
 
 #: src/Import/Tribe.php:386
 #, php-format
 msgid "Successfully imported %d event(s). Skipped: %d"
-msgstr "%d begivenhed(er) blev importeret. Sprunget over: %d"
+msgstr "%d event(er) blev importeret. Sprunget over: %d"
 
 #: src/OrganizerCapabilities.php:66 assets/blocks.js:125
 msgid "Event Organizer"
-msgstr "Arrangør af begivenheder"
+msgstr "Arrangør af eventer"
 
 #: src/OrganizerCapabilities.php:186
 msgid "Assigned Organizers (Users)"
@@ -714,12 +714,11 @@ msgstr "Tildelte arrangører (brugere)"
 
 #: src/OrganizerCapabilities.php:212
 msgid "Select users who can manage this event:"
-msgstr "Vælg brugere, der kan administrere denne begivenhed:"
+msgstr "Vælg brugere, der kan administrere denne event:"
 
 #: src/OrganizerCapabilities.php:228
 msgid "No organizers found. Create users with Event Organizer role."
-msgstr ""
-"Ingen arrangører fundet. Opret brugere med rollen som begivenhedsarrangør."
+msgstr "Ingen arrangører fundet. Opret brugere med rollen som eventsarrangør."
 
 #: src/OrganizerCapabilities.php:300
 msgid "Please log in to view your dashboard."
@@ -727,15 +726,15 @@ msgstr "Log venligst ind for at se dit dashboard."
 
 #: src/OrganizerCapabilities.php:342
 msgid "Your Events Dashboard"
-msgstr "Dit dashboard for arrangementer"
+msgstr "Din oversigt over events"
 
 #: src/OrganizerCapabilities.php:346
 msgid "Add New Event"
-msgstr "Tilføj ny begivenhed"
+msgstr "Tilføj nyt event"
 
 #: src/OrganizerCapabilities.php:351
 msgid "You have no events yet."
-msgstr "Du har ingen begivenheder endnu."
+msgstr "Du har ingen events endnu."
 
 #: src/OrganizerCapabilities.php:356 src/PostTypes.php:25
 #: src/WooCommerce.php:319
@@ -752,19 +751,19 @@ msgstr "Vis"
 
 #: src/OrganizerCapabilities.php:398
 msgid "Please log in to submit an event."
-msgstr "Log venligst ind for at indsende en begivenhed."
+msgstr "Log venligst ind for at indsende et event."
 
 #: src/OrganizerCapabilities.php:404
 msgid "Submit New Event"
-msgstr "Indsend ny begivenhed"
+msgstr "Indsend nyt event"
 
 #: src/OrganizerCapabilities.php:411
 msgid "Event Title *"
-msgstr "Begivenhedens titel *"
+msgstr "Event titel *"
 
 #: src/OrganizerCapabilities.php:416
 msgid "Event Description *"
-msgstr "Begivenhedsbeskrivelse *"
+msgstr "Eventbeskrivelse *"
 
 #: src/OrganizerCapabilities.php:421
 msgid "Start Date & Time *"
@@ -776,27 +775,27 @@ msgstr "Slutdato og tid"
 
 #: src/OrganizerCapabilities.php:431
 msgid "Ticket Price"
-msgstr "Billet pris"
+msgstr "Billetpris"
 
 #: src/OrganizerCapabilities.php:436
 msgid "Submit Event"
-msgstr "Indsend begivenhed"
+msgstr "Indsend event"
 
 #: src/OrganizerCapabilities.php:439
 msgid "Your event will be reviewed before being published."
-msgstr "Din begivenhed vil blive gennemgået, inden den offentliggøres."
+msgstr "Dit event vil blive gennemgået, inden den offentliggøres."
 
 #: src/OrganizerCapabilities.php:457
 msgid "You must be logged in to submit events"
-msgstr "Du skal være logget ind for at indsende begivenheder"
+msgstr "Du skal være logget ind for at indsende events"
 
 #: src/OrganizerCapabilities.php:462
 msgid "You do not have permission to submit events"
-msgstr "Du har ikke tilladelse til at indsende begivenheder"
+msgstr "Du har ikke tilladelse til at indsende events"
 
 #: src/OrganizerCapabilities.php:479
 msgid "Failed to create event"
-msgstr "Begivenheden kunne ikke oprettes"
+msgstr "Eventet kunne ikke oprettes"
 
 #: src/OrganizerCapabilities.php:522
 msgid "Event Organizer Settings"
@@ -832,7 +831,7 @@ msgstr "Arrangør(er)"
 
 #: src/Taxonomies.php:23 src/Taxonomies.php:25
 msgid "Event Categories"
-msgstr "Begivenhedskategorier"
+msgstr "Event kategorier"
 
 #: src/Taxonomies.php:26
 msgid "Event Category"
@@ -888,7 +887,7 @@ msgstr ""
 
 #: src/WooCommerce.php:244
 msgid "Event Capacity:"
-msgstr "Begivenhedskapacitet:"
+msgstr "Eventkapacitet:"
 
 #: src/WooCommerce.php:246
 msgid ""
@@ -913,7 +912,7 @@ msgstr "Tilgængelige billetter: %d / %d"
 
 #: src/WooCommerce.php:334
 msgid "Sorry, this event is sold out."
-msgstr "Beklager, denne begivenhed er udsolgt."
+msgstr "Beklager, dette event er udsolgt."
 
 #: src/WooCommerce.php:351
 msgid "Price:"
@@ -940,7 +939,7 @@ msgstr ""
 
 #: src/WooCommerce.php:325
 msgid "Event Date"
-msgstr "Begivenhedsdato"
+msgstr "Eventdato"
 
 #: src/WooCommerce.php:358
 msgid "Attendee Name"
@@ -960,11 +959,11 @@ msgstr "E-mail til billetbekræftelse"
 
 #: src/WooCommerce.php:417
 msgid "Event Ticket"
-msgstr "Event billet"
+msgstr "Eventbillet"
 
 #: templates/archive-event-calendar.php:24
 msgid "Event Kalender"
-msgstr "Event Kalender"
+msgstr "Eventkalender"
 
 #: templates/archive-event-calendar.php:63
 #: templates/archive-event-compact.php:63 templates/archive-event-list.php:63
@@ -999,7 +998,7 @@ msgstr "Kommende Events"
 
 #: templates/archive-event-list.php:24 templates/archive-event.php:23
 msgid "Alle Events"
-msgstr "Alle begivenheder"
+msgstr "Alle events"
 
 #: templates/parts/event-card-grid.php:121
 #: templates/parts/event-card-list.php:130
@@ -1022,7 +1021,7 @@ msgstr "Tidspunkt:"
 
 #: templates/parts/event-filters.php:71
 msgid "Alle events"
-msgstr "Alle arrangementer"
+msgstr "Alle events"
 
 #: templates/parts/event-filters.php:74
 msgid "Kommende events"
@@ -1030,7 +1029,7 @@ msgstr "Kommende events"
 
 #: templates/parts/event-filters.php:77
 msgid "Tidligere events"
-msgstr "Tidligere arrangementer"
+msgstr "Tidligere events"
 
 #: templates/parts/event-filters.php:80
 msgid "I dag"
@@ -1102,7 +1101,7 @@ msgstr "Tags:"
 
 #: templates/single-event.php:192
 msgid "Forrige Event:"
-msgstr "Forrige begivenhed:"
+msgstr "Forrige event:"
 
 #: templates/single-event.php:201
 msgid "Næste Event:"
@@ -1110,7 +1109,7 @@ msgstr "Næste Event:"
 
 #: templates/single-event.php:210
 msgid "← Tilbage til alle events"
-msgstr "← Tilbage til alle begivenheder"
+msgstr "← Tilbage til alle events"
 
 #. translators: %s: event category name
 #: templates/taxonomy-event_category.php:25
@@ -1166,7 +1165,7 @@ msgstr "Vis arrangør navn"
 
 #: assets/blocks.js:204
 msgid "Event Schedule"
-msgstr "Begivenhedsplan"
+msgstr "Eventplan"
 
 #: assets/blocks.js:207
 msgid "Display event date and time in one schedule block"
@@ -1226,7 +1225,7 @@ msgstr "Events liste"
 
 #: assets/blocks.js:366
 msgid "Display a list of upcoming events"
-msgstr "Vis en liste over kommende begivenheder"
+msgstr "Vis en liste over kommende events"
 
 #: assets/blocks.js:416
 msgid "List Settings"
@@ -1234,7 +1233,7 @@ msgstr "Listeindstillinger"
 
 #: assets/blocks.js:418 assets/blocks.js:497
 msgid "Number of Events"
-msgstr "Antal begivenheder"
+msgstr "Antal events"
 
 #: assets/blocks.js:442
 msgid "Events Carousel"
@@ -1242,7 +1241,7 @@ msgstr "Event karrusel"
 
 #: assets/blocks.js:445
 msgid "Display events in a carousel format"
-msgstr "Vis begivenheder i et karruselformat"
+msgstr "Vis event i et karruselformat"
 
 #: assets/blocks.js:495
 msgid "Carousel Settings"
@@ -1250,7 +1249,7 @@ msgstr "Indstillinger for karrusel"
 
 #: assets/blocks.js:524
 msgid "Display event price with currency"
-msgstr "Vis begivenhedspris med valuta"
+msgstr "Vis eventpris med valuta"
 
 #: assets/blocks.js:606
 msgid "Price Settings"
