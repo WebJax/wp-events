@@ -383,7 +383,8 @@ class Tribe {
 			}
 		}
 
-		$msg = sprintf( __( 'Successfully imported %d event(s). Skipped: %d', 'wp-events' ), $imported, $skipped );
+		// translators: %1$d: The number of imported events. %2$d: The number of skipped events.
+		$msg = sprintf( __( 'Successfully imported %1$d event(s). Skipped: %2$d', 'wp-events' ), $imported, $skipped );
 		wp_safe_redirect(
 			add_query_arg(
 				array(
@@ -662,7 +663,7 @@ class Tribe {
 			return $content;
 		}
 
-		if ( ! class_exists( HtmlTransformer::class ) ) {
+		if ( ! class_exists(  HtmlTransformer::class ) ) {
 			return $content;
 		}
 

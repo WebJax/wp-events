@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-31T01:55:44+00:00\n"
+"POT-Creation-Date: 2026-10-20T00:00:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-events\n"
@@ -35,32 +35,32 @@ msgid "Event Status"
 msgstr ""
 
 #: src/AdditionalFeatures.php:71
-#: src/AdditionalFeatures.php:511
+#: src/AdditionalFeatures.php:807
 msgid "Scheduled"
 msgstr ""
 
 #: src/AdditionalFeatures.php:72
-#: src/AdditionalFeatures.php:512
+#: src/AdditionalFeatures.php:808
 msgid "Cancelled"
 msgstr ""
 
 #: src/AdditionalFeatures.php:73
-#: src/AdditionalFeatures.php:513
+#: src/AdditionalFeatures.php:809
 msgid "Postponed"
 msgstr ""
 
 #: src/AdditionalFeatures.php:74
-#: src/AdditionalFeatures.php:514
+#: src/AdditionalFeatures.php:810
 msgid "Rescheduled"
 msgstr ""
 
 #: src/AdditionalFeatures.php:75
-#: src/AdditionalFeatures.php:515
+#: src/AdditionalFeatures.php:811
 msgid "Sold Out"
 msgstr ""
 
 #: src/AdditionalFeatures.php:76
-#: src/AdditionalFeatures.php:516
+#: src/AdditionalFeatures.php:812
 msgid "Completed"
 msgstr ""
 
@@ -108,164 +108,246 @@ msgstr ""
 msgid "Current Registrations"
 msgstr ""
 
-#: src/AdditionalFeatures.php:195
-msgid "Name"
+#: src/AdditionalFeatures.php:193
+msgid "Export CSV"
 msgstr ""
 
 #: src/AdditionalFeatures.php:196
+msgid "Name"
+msgstr ""
+
+#: src/AdditionalFeatures.php:197
 #: src/Admin/MetaBoxes.php:355
 #: src/Admin/MetaBoxes.php:440
 msgid "Email"
 msgstr ""
 
-#: src/AdditionalFeatures.php:197
+#: src/AdditionalFeatures.php:198
 #: src/Admin/Columns.php:36
-#: src/OrganizerCapabilities.php:357
+#: src/OrganizerCapabilities.php:364
 msgid "Date"
 msgstr ""
 
-#: src/AdditionalFeatures.php:198
-#: src/AdditionalFeatures.php:494
+#: src/AdditionalFeatures.php:199
+#: src/AdditionalFeatures.php:790
 #: src/Import/Tribe.php:105
-#: src/OrganizerCapabilities.php:358
+#: src/OrganizerCapabilities.php:365
 msgid "Status"
 msgstr ""
 
-#: src/AdditionalFeatures.php:274
-msgid "Registration is closed for this event."
+#: src/AdditionalFeatures.php:200
+#: src/Import/Tribe.php:106
+#: src/OrganizerCapabilities.php:366
+msgid "Actions"
+msgstr ""
+
+#: src/AdditionalFeatures.php:214
+msgid "Approve"
+msgstr ""
+
+#: src/AdditionalFeatures.php:215
+msgid "Reject"
+msgstr ""
+
+#: src/AdditionalFeatures.php:217
+msgid "Delete this registration?"
+msgstr ""
+
+#: src/AdditionalFeatures.php:217
+msgid "Delete"
 msgstr ""
 
 #: src/AdditionalFeatures.php:286
+msgid "Registration is closed for this event."
+msgstr ""
+
+#: src/AdditionalFeatures.php:297
 msgid "This event is full. Registration is closed."
 msgstr ""
 
-#: src/AdditionalFeatures.php:295
+#: src/AdditionalFeatures.php:306
 msgid "Thank you for registering! You will receive a confirmation email."
 msgstr ""
 
-#: src/AdditionalFeatures.php:301
+#: src/AdditionalFeatures.php:312
 msgid "Register for This Event"
 msgstr ""
 
-#: src/AdditionalFeatures.php:305
+#. translators: %d: The number of available or remaining spots/seats.
+#: src/AdditionalFeatures.php:317
 #, php-format
 msgid "%d spots remaining"
 msgstr ""
 
-#: src/AdditionalFeatures.php:314
+#: src/AdditionalFeatures.php:326
 msgid "Your Name *"
 msgstr ""
 
-#: src/AdditionalFeatures.php:319
+#: src/AdditionalFeatures.php:331
 msgid "Your Email *"
 msgstr ""
 
-#: src/AdditionalFeatures.php:324
+#: src/AdditionalFeatures.php:336
 msgid "Phone Number"
 msgstr ""
 
-#: src/AdditionalFeatures.php:329
+#: src/AdditionalFeatures.php:341
 msgid "Notes/Comments"
 msgstr ""
 
-#: src/AdditionalFeatures.php:334
+#: src/AdditionalFeatures.php:346
 msgid "Register Now"
 msgstr ""
 
-#: src/AdditionalFeatures.php:349
-#: src/OrganizerCapabilities.php:453
+#: src/AdditionalFeatures.php:361
+#: src/AdditionalFeatures.php:524
+#: src/AdditionalFeatures.php:597
+#: src/OrganizerCapabilities.php:466
 msgid "Security check failed"
 msgstr ""
 
-#: src/AdditionalFeatures.php:359
+#: src/AdditionalFeatures.php:371
 msgid "Required fields missing"
 msgstr ""
 
-#: src/AdditionalFeatures.php:365
+#: src/AdditionalFeatures.php:377
+#: src/AdditionalFeatures.php:529
 msgid "Invalid event."
 msgstr ""
 
-#: src/AdditionalFeatures.php:371
+#: src/AdditionalFeatures.php:383
 msgid "Registration for this event is closed."
 msgstr ""
 
-#: src/AdditionalFeatures.php:379
+#: src/AdditionalFeatures.php:391
 msgid "Registration for this event has ended."
 msgstr ""
 
-#: src/AdditionalFeatures.php:388
+#: src/AdditionalFeatures.php:400
 msgid "Sorry, this event is now full"
 msgstr ""
 
-#: src/AdditionalFeatures.php:395
+#: src/AdditionalFeatures.php:407
 msgid "Please wait before registering again."
 msgstr ""
 
-#: src/AdditionalFeatures.php:401
+#: src/AdditionalFeatures.php:417
 msgid "This email is already registered for this event."
 msgstr ""
 
-#: src/AdditionalFeatures.php:422
-#, php-format
-msgid "Registration Confirmation: %s"
+#: src/AdditionalFeatures.php:533
+#: src/AdditionalFeatures.php:609
+msgid "You do not have permission to manage this event."
 msgstr ""
 
-#: src/AdditionalFeatures.php:423
+#: src/AdditionalFeatures.php:545
+msgid "Could not export registrations."
+msgstr ""
+
+#: src/AdditionalFeatures.php:605
+msgid "Invalid registration action."
+msgstr ""
+
+#: src/AdditionalFeatures.php:635
+msgid "Registration not found."
+msgstr ""
+
+#: src/AdditionalFeatures.php:672
+msgid "Registration approved. A confirmation email was sent."
+msgstr ""
+
+#: src/AdditionalFeatures.php:673
+msgid "Registration rejected. The attendee was notified."
+msgstr ""
+
+#: src/AdditionalFeatures.php:674
+msgid "Registration deleted."
+msgstr ""
+
+#. translators: %s: event title
+#: src/AdditionalFeatures.php:703
+#, php-format
+msgid "Registration update: %s"
+msgstr ""
+
+#. translators: %s: event title
+#: src/AdditionalFeatures.php:708
+#, php-format
+msgid "Your registration for %s was not approved."
+msgstr ""
+
+#. translators: %s: event title
+#: src/AdditionalFeatures.php:714
+#, php-format
+msgid "Registration received: %s"
+msgstr ""
+
+#. translators: %s: event title
+#: src/AdditionalFeatures.php:719
+#: src/AdditionalFeatures.php:731
 #, php-format
 msgid "Thank you for registering for %s!"
 msgstr ""
 
-#: src/AdditionalFeatures.php:424
+#: src/AdditionalFeatures.php:722
+msgid "Your registration is pending approval. You will receive another email when it is reviewed."
+msgstr ""
+
+#. translators: %s: event title
+#: src/AdditionalFeatures.php:726
+#, php-format
+msgid "Registration Confirmation: %s"
+msgstr ""
+
+#: src/AdditionalFeatures.php:736
 msgid "Event Details:"
 msgstr ""
 
-#: src/AdditionalFeatures.php:425
-#: src/WooCommerce.php:344
+#: src/AdditionalFeatures.php:737
+#: src/WooCommerce.php:778
+#: src/WooCommerce.php:782
 msgid "Event:"
 msgstr ""
 
-#: src/AdditionalFeatures.php:429
+#: src/AdditionalFeatures.php:739
 msgid "Date:"
 msgstr ""
 
-#: src/AdditionalFeatures.php:432
+#: src/AdditionalFeatures.php:741
 msgid "URL:"
 msgstr ""
 
-#: src/AdditionalFeatures.php:435
-msgid "Your registration is pending approval. You will receive another email when approved."
-msgstr ""
-
-#: src/AdditionalFeatures.php:472
+#: src/AdditionalFeatures.php:764
 msgid "CANCELLED"
 msgstr ""
 
-#: src/AdditionalFeatures.php:473
+#: src/AdditionalFeatures.php:765
 msgid "POSTPONED"
 msgstr ""
 
-#: src/AdditionalFeatures.php:474
+#: src/AdditionalFeatures.php:766
 msgid "RESCHEDULED"
 msgstr ""
 
-#: src/AdditionalFeatures.php:475
+#: src/AdditionalFeatures.php:767
 msgid "SOLD OUT"
 msgstr ""
 
-#: src/AdditionalFeatures.php:476
+#: src/AdditionalFeatures.php:768
 msgid "COMPLETED"
 msgstr ""
 
 #: src/Admin/Columns.php:37
 #: src/Admin/MetaBoxes.php:158
 #: src/Import/Tribe.php:104
-#: src/PostTypes.php:63
-#: src/Shortcodes.php:101
+#: src/PostTypes.php:71
+#: src/Shortcodes.php:98
 msgid "Venue"
 msgstr ""
 
 #: src/Admin/Columns.php:38
-#: src/PostTypes.php:46
+#: src/PostTypes.php:54
+#: templates/single-event.php:126
 msgid "Organizer"
 msgstr ""
 
@@ -330,8 +412,8 @@ msgid "Select a venue..."
 msgstr ""
 
 #: src/Admin/MetaBoxes.php:177
-#: src/PostTypes.php:43
-#: src/PostTypes.php:45
+#: src/PostTypes.php:51
+#: src/PostTypes.php:53
 msgid "Organizers"
 msgstr ""
 
@@ -344,12 +426,12 @@ msgid "No organizers found. Create organizers first."
 msgstr ""
 
 #: src/Admin/MetaBoxes.php:244
-#: assets/blocks.js:521
+#: assets/blocks.js:526
 msgid "Event Price"
 msgstr ""
 
 #: src/Admin/MetaBoxes.php:264
-#: src/Blocks.php:831
+#: src/Blocks.php:825
 msgid "Price"
 msgstr ""
 
@@ -447,6 +529,34 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: src/Admin/Settings.php:197
+msgid "Permalinks"
+msgstr ""
+
+#: src/Admin/Settings.php:204
+msgid "Short link title"
+msgstr ""
+
+#: src/Admin/Settings.php:215
+msgid "Event link"
+msgstr ""
+
+#: src/Admin/Settings.php:465
+msgid "Set the public URL slugs for the event archive and for a single event."
+msgstr ""
+
+#: src/Admin/Settings.php:479
+msgid "The above should be plural."
+msgstr ""
+
+#: src/Admin/Settings.php:494
+msgid "The above should be singular."
+msgstr ""
+
+#: src/Admin/Settings.php:528
+msgid "Preview:"
+msgstr ""
+
 #: src/Admin/Settings.php:129
 msgid "Cleanup"
 msgstr ""
@@ -461,6 +571,38 @@ msgstr ""
 
 #: src/Admin/Settings.php:152
 msgid "Appearance"
+msgstr ""
+
+#: src/Admin/Settings.php:545
+msgid "Settings sections"
+msgstr ""
+
+#: src/Admin/Settings.php:710
+msgid "Headings, links and buttons use the theme color. Body text uses the theme text color."
+msgstr ""
+
+#: src/Admin/Settings.php:732
+msgid "Headings and links use the primary color. The second button uses the accent color."
+msgstr ""
+
+#: src/Admin/Settings.php:793
+msgid "Talk at the centre"
+msgstr ""
+
+#: src/Admin/Settings.php:795
+msgid "An open event for everyone."
+msgstr ""
+
+#: src/Admin/Settings.php:796
+msgid "Read more about the evening"
+msgstr ""
+
+#: src/Admin/Settings.php:799
+msgid "Sign up"
+msgstr ""
+
+#: src/Admin/Settings.php:800
+msgid "See the programme"
 msgstr ""
 
 #: src/Admin/Settings.php:159
@@ -512,15 +654,20 @@ msgid "Venue not found."
 msgstr ""
 
 #: src/Blocks.php:533
+#: templates/single-organizer.php:75
+#: templates/single-venue.php:93
 msgid "Phone:"
 msgstr ""
 
 #: src/Blocks.php:536
 #: templates/single-event.php:115
+#: templates/single-organizer.php:79
+#: templates/single-venue.php:97
 msgid "Email:"
 msgstr ""
 
 #: src/Blocks.php:549
+#: templates/single-venue.php:129
 msgid "Get directions"
 msgstr ""
 
@@ -548,12 +695,12 @@ msgstr ""
 msgid "Invalid start date format."
 msgstr ""
 
-#: src/Blocks.php:718
-#: src/Blocks.php:771
+#: src/Blocks.php:715
+#: src/Blocks.php:765
 msgid "No upcoming events found."
 msgstr ""
 
-#: src/Blocks.php:818
+#: src/Blocks.php:812
 msgid "Price block can only be used in event posts."
 msgstr ""
 
@@ -567,7 +714,7 @@ msgstr ""
 msgid "Event not found"
 msgstr ""
 
-#: src/ICal.php:231
+#: src/ICal.php:261
 msgid "Add to Calendar"
 msgstr ""
 
@@ -612,6 +759,7 @@ msgid "Past Events:"
 msgstr ""
 
 #: src/Import/Tribe.php:73
+#: src/PostTypes.php:27
 msgid "All Events"
 msgstr ""
 
@@ -665,11 +813,6 @@ msgstr ""
 msgid "End Date"
 msgstr ""
 
-#: src/Import/Tribe.php:106
-#: src/OrganizerCapabilities.php:359
-msgid "Actions"
-msgstr ""
-
 #: src/Import/Tribe.php:129
 msgid "(Edit)"
 msgstr ""
@@ -711,13 +854,14 @@ msgstr ""
 msgid "You do not have permission to import events."
 msgstr ""
 
-#: src/Import/Tribe.php:386
+#. translators: %1$d: The number of imported events. %2$d: The number of skipped events.
+#: src/Import/Tribe.php:387
 #, php-format
-msgid "Successfully imported %d event(s). Skipped: %d"
+msgid "Successfully imported %1$d event(s). Skipped: %2$d"
 msgstr ""
 
 #: src/OrganizerCapabilities.php:66
-#: assets/blocks.js:125
+#: assets/blocks.js:126
 msgid "Event Organizer"
 msgstr ""
 
@@ -733,97 +877,103 @@ msgstr ""
 msgid "No organizers found. Create users with Event Organizer role."
 msgstr ""
 
-#: src/OrganizerCapabilities.php:300
+#: src/OrganizerCapabilities.php:325
 msgid "Please log in to view your dashboard."
 msgstr ""
 
-#: src/OrganizerCapabilities.php:342
+#: src/OrganizerCapabilities.php:349
 msgid "Your Events Dashboard"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:346
+#: src/OrganizerCapabilities.php:353
+#: src/PostTypes.php:29
 msgid "Add New Event"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:351
+#: src/OrganizerCapabilities.php:358
 msgid "You have no events yet."
 msgstr ""
 
-#: src/OrganizerCapabilities.php:356
+#: src/OrganizerCapabilities.php:363
 #: src/PostTypes.php:25
-#: src/WooCommerce.php:319
+#: src/WooCommerce.php:663
+#: src/WooCommerce.php:750
 msgid "Event"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:379
+#: src/OrganizerCapabilities.php:386
 msgid "Edit"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:380
+#: src/OrganizerCapabilities.php:387
 msgid "View"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:398
-msgid "Please log in to submit an event."
-msgstr ""
-
-#: src/OrganizerCapabilities.php:404
-msgid "Submit New Event"
+#: src/OrganizerCapabilities.php:391
+msgid "Export RSVP"
 msgstr ""
 
 #: src/OrganizerCapabilities.php:411
+msgid "Please log in to submit an event."
+msgstr ""
+
+#: src/OrganizerCapabilities.php:417
+msgid "Submit New Event"
+msgstr ""
+
+#: src/OrganizerCapabilities.php:424
 msgid "Event Title *"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:416
+#: src/OrganizerCapabilities.php:429
 msgid "Event Description *"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:421
+#: src/OrganizerCapabilities.php:434
 msgid "Start Date & Time *"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:426
+#: src/OrganizerCapabilities.php:439
 msgid "End Date & Time"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:431
+#: src/OrganizerCapabilities.php:444
 msgid "Ticket Price"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:436
+#: src/OrganizerCapabilities.php:449
 msgid "Submit Event"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:439
+#: src/OrganizerCapabilities.php:452
 msgid "Your event will be reviewed before being published."
 msgstr ""
 
-#: src/OrganizerCapabilities.php:457
+#: src/OrganizerCapabilities.php:470
 msgid "You must be logged in to submit events"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:462
+#: src/OrganizerCapabilities.php:475
 msgid "You do not have permission to submit events"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:479
+#: src/OrganizerCapabilities.php:492
 msgid "Failed to create event"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:522
+#: src/OrganizerCapabilities.php:540
 msgid "Event Organizer Settings"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:526
+#: src/OrganizerCapabilities.php:544
 msgid "Link to Organizer Post"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:529
+#: src/OrganizerCapabilities.php:547
 msgid "-- None --"
 msgstr ""
 
-#: src/OrganizerCapabilities.php:550
+#: src/OrganizerCapabilities.php:568
 msgid "Link this user account to an organizer post"
 msgstr ""
 
@@ -832,16 +982,40 @@ msgstr ""
 msgid "Events"
 msgstr ""
 
-#: src/PostTypes.php:60
-#: src/PostTypes.php:62
+#: src/PostTypes.php:28
+msgid "Add New"
+msgstr ""
+
+#: src/PostTypes.php:30
+msgid "Edit Event"
+msgstr ""
+
+#: src/PostTypes.php:31
+msgid "New Event"
+msgstr ""
+
+#: src/PostTypes.php:32
+msgid "View Event"
+msgstr ""
+
+#: src/PostTypes.php:33
+msgid "View Events"
+msgstr ""
+
+#: src/PostTypes.php:34
+msgid "Search Events"
+msgstr ""
+
+#: src/PostTypes.php:68
+#: src/PostTypes.php:70
 msgid "Venues"
 msgstr ""
 
-#: src/Shortcodes.php:49
+#: src/Shortcodes.php:45
 msgid "No upcoming events"
 msgstr ""
 
-#: src/Shortcodes.php:112
+#: src/Shortcodes.php:109
 msgid "Organizer(s)"
 msgstr ""
 
@@ -881,91 +1055,125 @@ msgstr ""
 msgid "Organizer Category"
 msgstr ""
 
-#: src/WooCommerce.php:58
+#: src/WooCommerce.php:242
 msgid "Ticket Settings (WooCommerce)"
 msgstr ""
 
-#: src/WooCommerce.php:80
+#: src/WooCommerce.php:264
 msgid "Enable ticket sales"
 msgstr ""
 
-#: src/WooCommerce.php:214
+#: src/WooCommerce.php:269
 msgid "Ticket Products:"
 msgstr ""
 
-#: src/WooCommerce.php:228
+#: src/WooCommerce.php:270
+msgid "Search products to add…"
+msgstr ""
+
+#: src/WooCommerce.php:309
 msgid "No products found"
 msgstr ""
 
-#: src/WooCommerce.php:240
-msgid "Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple."
+#: src/WooCommerce.php:322
+msgid "Select one or more WooCommerce products as ticket types. Search to find products beyond the first 50. Hold Ctrl/Cmd to select multiple."
 msgstr ""
 
-#: src/WooCommerce.php:244
+#: src/WooCommerce.php:326
 msgid "Event Capacity:"
 msgstr ""
 
-#: src/WooCommerce.php:246
+#: src/WooCommerce.php:328
 msgid "Shared maximum attendees across all ticket types (0 = unlimited). Each product also keeps its own WooCommerce stock."
 msgstr ""
 
-#: src/WooCommerce.php:250
+#: src/WooCommerce.php:333
 msgid "Create New Product"
 msgstr ""
 
-#: src/WooCommerce.php:321
+#: src/WooCommerce.php:404
 msgid "Get Tickets"
 msgstr ""
 
-#: src/WooCommerce.php:327
+#. translators: %1$d: The number of available tickets. %2$d: The total number of tickets available.
+#: src/WooCommerce.php:410
 #, php-format
-msgid "Available: %d / %d tickets"
-msgstr ""
-
-#: src/WooCommerce.php:334
-msgid "Sorry, this event is sold out."
-msgstr ""
-
-#: src/WooCommerce.php:351
-msgid "Price:"
-msgstr ""
-
-#: src/WooCommerce.php:355
-msgid "This ticket type is sold out."
-msgstr ""
-
-#: src/WooCommerce.php:366
-msgid "Buy Ticket"
-msgstr ""
-
-#: src/WooCommerce.php:376
-msgid "Sorry, no ticket types are currently available."
-msgstr ""
-
-#: src/WooCommerce.php:468
-msgid "Sorry, this event does not have enough remaining capacity for that quantity."
-msgstr ""
-#: src/WooCommerce.php:325
-msgid "Event Date"
-msgstr ""
-
-#: src/WooCommerce.php:358
-msgid "Attendee Name"
-msgstr ""
-
-#: src/WooCommerce.php:359
-msgid "Full name of attendee"
-msgstr ""
-
-#: src/WooCommerce.php:366
-msgid "Attendee Email"
-msgstr ""
-
-#: src/WooCommerce.php:367
-msgid "Email for ticket confirmation"
+msgid "Available: %1$d / %2$d tickets"
 msgstr ""
 
 #: src/WooCommerce.php:417
+msgid "Sorry, this event is sold out."
+msgstr ""
+
+#: src/WooCommerce.php:435
+msgid "Price:"
+msgstr ""
+
+#: src/WooCommerce.php:438
+msgid "This ticket type is sold out."
+msgstr ""
+
+#: src/WooCommerce.php:450
+msgid "Quantity"
+msgstr ""
+
+#: src/WooCommerce.php:458
+msgid "Buy Ticket"
+msgstr ""
+
+#: src/WooCommerce.php:469
+msgid "Sorry, no ticket types are currently available."
+msgstr ""
+
+#: src/WooCommerce.php:529
+msgid "Sorry, this event does not have enough remaining capacity for that quantity."
+msgstr ""
+
+#. translators: %1$s: The event title. %2$d: The remaining ticket count.
+#: src/WooCommerce.php:560
+#: src/WooCommerce.php:603
+#, php-format
+msgid "Not enough remaining capacity for \"%1$s\". Only %2$d ticket(s) left."
+msgstr ""
+
+#: src/WooCommerce.php:756
+msgid "Event Date"
+msgstr ""
+
+#: src/WooCommerce.php:798
+msgid "Attendee details"
+msgstr ""
+
+#. translators: 1: ticket index, 2: product or event name
+#: src/WooCommerce.php:821
+#, php-format
+msgid "Attendee %1$d name (%2$s)"
+msgstr ""
+
+#: src/WooCommerce.php:826
+msgid "Full name"
+msgstr ""
+
+#. translators: %d: ticket index
+#: src/WooCommerce.php:836
+#, php-format
+msgid "Attendee %d email"
+msgstr ""
+
+#: src/WooCommerce.php:840
+msgid "Email for ticket confirmation"
+msgstr ""
+
+#: src/WooCommerce.php:875
+msgid "Please enter a name and valid email for every event ticket."
+msgstr ""
+
+#: src/WooCommerce.php:990
+#: src/WooCommerce.php:1016
+msgid "Attendees"
+msgstr ""
+
+#: src/WooCommerce.php:1030
 msgid "Event Ticket"
 msgstr ""
 
@@ -977,8 +1185,8 @@ msgstr ""
 #: templates/archive-event-compact.php:63
 #: templates/archive-event-list.php:63
 #: templates/archive-event.php:62
-#: templates/taxonomy-event_category.php:149
-#: templates/taxonomy-event_tag.php:149
+#: templates/taxonomy-event_category.php:150
+#: templates/taxonomy-event_tag.php:150
 msgid "Forrige"
 msgstr ""
 
@@ -986,8 +1194,8 @@ msgstr ""
 #: templates/archive-event-compact.php:64
 #: templates/archive-event-list.php:64
 #: templates/archive-event.php:63
-#: templates/taxonomy-event_category.php:150
-#: templates/taxonomy-event_tag.php:150
+#: templates/taxonomy-event_category.php:151
+#: templates/taxonomy-event_tag.php:151
 msgid "Næste"
 msgstr ""
 
@@ -995,8 +1203,8 @@ msgstr ""
 #: templates/archive-event-compact.php:71
 #: templates/archive-event-list.php:71
 #: templates/archive-event.php:70
-#: templates/taxonomy-event_category.php:157
-#: templates/taxonomy-event_tag.php:157
+#: templates/taxonomy-event_category.php:158
+#: templates/taxonomy-event_tag.php:158
 msgid "Ingen events fundet"
 msgstr ""
 
@@ -1016,10 +1224,10 @@ msgstr ""
 msgid "Alle Events"
 msgstr ""
 
-#: templates/parts/event-card-grid.php:121
-#: templates/parts/event-card-list.php:130
-#: templates/taxonomy-event_category.php:138
-#: templates/taxonomy-event_tag.php:138
+#: templates/parts/event-card-grid.php:122
+#: templates/parts/event-card-list.php:131
+#: templates/taxonomy-event_category.php:139
+#: templates/taxonomy-event_tag.php:139
 msgid "Læs mere"
 msgstr ""
 
@@ -1108,23 +1316,44 @@ msgid "Telefon:"
 msgstr ""
 
 #: templates/single-event.php:150
-msgid "Kategorier:"
+msgid "Categories"
 msgstr ""
 
 #: templates/single-event.php:163
-msgid "Tags:"
+msgid "Tags"
 msgstr ""
 
 #: templates/single-event.php:192
-msgid "Forrige Event:"
+msgid "Forrige Event"
 msgstr ""
 
 #: templates/single-event.php:201
-msgid "Næste Event:"
+msgid "Næste Event"
 msgstr ""
 
 #: templates/single-event.php:210
 msgid "← Tilbage til alle events"
+msgstr ""
+
+#: templates/single-organizer.php:85
+#: templates/single-venue.php:103
+msgid "Website:"
+msgstr ""
+
+#: templates/single-organizer.php:96
+msgid "Upcoming events"
+msgstr ""
+
+#: templates/single-venue.php:113
+msgid "Facebook"
+msgstr ""
+
+#: templates/single-venue.php:116
+msgid "Instagram"
+msgstr ""
+
+#: templates/single-venue.php:138
+msgid "Upcoming events at this venue"
 msgstr ""
 
 #. translators: %s: event category name
@@ -1133,7 +1362,7 @@ msgstr ""
 msgid "Events i kategorien: %s"
 msgstr ""
 
-#: templates/taxonomy-event_category.php:158
+#: templates/taxonomy-event_category.php:159
 msgid "Der er ingen events i denne kategori endnu."
 msgstr ""
 
@@ -1143,7 +1372,7 @@ msgstr ""
 msgid "Events tagget med: %s"
 msgstr ""
 
-#: templates/taxonomy-event_tag.php:158
+#: templates/taxonomy-event_tag.php:159
 msgid "Der er ingen events med dette tag endnu."
 msgstr ""
 
@@ -1155,143 +1384,143 @@ msgstr ""
 msgid "Display event venue information"
 msgstr ""
 
-#: assets/blocks.js:80
+#: assets/blocks.js:81
 msgid "Venue Settings"
 msgstr ""
 
-#: assets/blocks.js:82
+#: assets/blocks.js:83
 msgid "Show Address"
 msgstr ""
 
-#: assets/blocks.js:89
+#: assets/blocks.js:90
 msgid "Show Contact Info"
 msgstr ""
 
-#: assets/blocks.js:96
+#: assets/blocks.js:97
 msgid "Show Directions Link"
 msgstr ""
 
-#: assets/blocks.js:103
+#: assets/blocks.js:104
 msgid "Link to Venue Page"
 msgstr ""
 
-#: assets/blocks.js:128
+#: assets/blocks.js:129
 msgid "Display event organizer name"
 msgstr ""
 
-#: assets/blocks.js:204
+#: assets/blocks.js:206
 msgid "Event Schedule"
 msgstr ""
 
-#: assets/blocks.js:207
+#: assets/blocks.js:209
 msgid "Display event date and time in one schedule block"
 msgstr ""
 
-#: assets/blocks.js:285
+#: assets/blocks.js:288
 msgid "Schedule Settings"
 msgstr ""
 
-#: assets/blocks.js:287
+#: assets/blocks.js:290
 msgid "Display Mode"
 msgstr ""
 
-#: assets/blocks.js:290
+#: assets/blocks.js:293
 msgid "Combined"
 msgstr ""
 
-#: assets/blocks.js:291
+#: assets/blocks.js:294
 msgid "Start Only"
 msgstr ""
 
-#: assets/blocks.js:292
+#: assets/blocks.js:295
 msgid "End Only"
 msgstr ""
 
-#: assets/blocks.js:299
+#: assets/blocks.js:302
 msgid "Time Separator"
 msgstr ""
 
-#: assets/blocks.js:306
+#: assets/blocks.js:309
 msgid "Date Format"
 msgstr ""
 
-#: assets/blocks.js:313
+#: assets/blocks.js:316
 msgid "Time Format"
 msgstr ""
 
-#: assets/blocks.js:320
-#: assets/blocks.js:608
+#: assets/blocks.js:323
+#: assets/blocks.js:614
 msgid "Show Label"
 msgstr ""
 
-#: assets/blocks.js:327
-#: assets/blocks.js:615
+#: assets/blocks.js:330
+#: assets/blocks.js:621
 msgid "Custom Label"
 msgstr ""
 
-#: assets/blocks.js:334
-#: assets/blocks.js:623
+#: assets/blocks.js:337
+#: assets/blocks.js:629
 msgid "Bold Label"
 msgstr ""
 
-#: assets/blocks.js:341
-#: assets/blocks.js:630
+#: assets/blocks.js:344
+#: assets/blocks.js:636
 msgid "Italic Label"
 msgstr ""
 
-#: assets/blocks.js:363
+#: assets/blocks.js:366
 msgid "Events List"
 msgstr ""
 
-#: assets/blocks.js:366
+#: assets/blocks.js:369
 msgid "Display a list of upcoming events"
 msgstr ""
 
-#: assets/blocks.js:416
+#: assets/blocks.js:420
 msgid "List Settings"
 msgstr ""
 
-#: assets/blocks.js:418
-#: assets/blocks.js:497
+#: assets/blocks.js:422
+#: assets/blocks.js:502
 msgid "Number of Events"
 msgstr ""
 
-#: assets/blocks.js:442
+#: assets/blocks.js:446
 msgid "Events Carousel"
 msgstr ""
 
-#: assets/blocks.js:445
+#: assets/blocks.js:449
 msgid "Display events in a carousel format"
 msgstr ""
 
-#: assets/blocks.js:495
+#: assets/blocks.js:500
 msgid "Carousel Settings"
 msgstr ""
 
-#: assets/blocks.js:524
+#: assets/blocks.js:529
 msgid "Display event price with currency"
 msgstr ""
 
-#: assets/blocks.js:606
+#: assets/blocks.js:612
 msgid "Price Settings"
 msgstr ""
 
-#: assets/blocks.js:620
+#: assets/blocks.js:626
 msgid "Enter custom text for the label"
 msgstr ""
 
-#: assets/blocks.js:637
+#: assets/blocks.js:643
 msgid "Show Currency Symbol"
 msgstr ""
 
-#: assets/blocks.js:644
+#: assets/blocks.js:650
 msgid "Currency Position"
 msgstr ""
 
-#: assets/blocks.js:647
+#: assets/blocks.js:653
 msgid "After amount (100 DKK)"
 msgstr ""
 
-#: assets/blocks.js:648
+#: assets/blocks.js:654
 msgid "Before amount (DKK 100)"
 msgstr ""

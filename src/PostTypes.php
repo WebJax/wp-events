@@ -7,6 +7,8 @@
 
 namespace WPEvents;
 
+use WPEvents\Admin\Settings;
+
 /**
  * Registers event, organizer, and venue post types.
  */
@@ -24,12 +26,23 @@ class PostTypes {
 					'name'          => __( 'Events', 'wp-events' ),
 					'singular_name' => __( 'Event', 'wp-events' ),
 					'menu_name'     => __( 'WP Events', 'wp-events' ),
+					'all_items'     => __( 'All Events', 'wp-events' ),
+					'add_new'       => __( 'Add New', 'wp-events' ),
+					'add_new_item'  => __( 'Add New Event', 'wp-events' ),
+					'edit_item'     => __( 'Edit Event', 'wp-events' ),
+					'new_item'      => __( 'New Event', 'wp-events' ),
+					'view_item'     => __( 'View Event', 'wp-events' ),
+					'view_items'    => __( 'View Events', 'wp-events' ),
+					'search_items'  => __( 'Search Events', 'wp-events' ),
 				),
 				'public'          => true,
 				'show_in_rest'    => true,
 				'supports'        => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
-				'has_archive'     => true,
-				'rewrite'         => array( 'slug' => 'events' ),
+				'has_archive'     => Settings::get_archive_slug(),
+				'rewrite'         => array(
+					'slug'       => Settings::get_single_slug(),
+					'with_front' => false,
+				),
 				'menu_icon'       => 'dashicons-calendar-alt',
 				'taxonomies'      => array( 'event_category', 'event_tag' ),
 				'capability_type' => 'event',

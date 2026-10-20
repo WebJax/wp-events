@@ -313,6 +313,7 @@ class AdditionalFeatures {
 
 		if ( $max_attendees > 0 ) {
 			$remaining = $max_attendees - $current_count;
+			// translators: %d: The number of available or remaining spots/seats.
 			$form     .= '<p>' . sprintf( esc_html__( '%d spots remaining', 'wp-events' ), $remaining ) . '</p>';
 		}
 

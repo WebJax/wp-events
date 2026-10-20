@@ -406,7 +406,8 @@ class WooCommerce {
 		if ( null !== $remaining ) {
 			$button_html .= '<p>';
 			$button_html .= sprintf(
-				esc_html__( 'Available: %d / %d tickets', 'wp-events' ),
+				// translators: %1$d: The number of available tickets. %2$d: The total number of tickets available.
+				esc_html__( 'Available: %1$d / %2$d tickets', 'wp-events' ),
 				$remaining,
 				(int) $capacity
 			);
@@ -555,6 +556,7 @@ class WooCommerce {
 				wc_add_notice(
 					sprintf(
 						/* translators: 1: event title, 2: remaining ticket count */
+						// translators: %1$s: The event title. %2$d: The remaining ticket count.
 						__( 'Not enough remaining capacity for "%1$s". Only %2$d ticket(s) left.', 'wp-events' ),
 						get_the_title( $event_id ),
 						$remaining
@@ -597,7 +599,7 @@ class WooCommerce {
 			$cart->set_quantity( $cart_item_key, $allowed, false );
 			wc_add_notice(
 				sprintf(
-					/* translators: 1: event title, 2: remaining ticket count */
+					// translators: %1$s: The event title. %2$d: The remaining ticket count.
 					__( 'Not enough remaining capacity for "%1$s". Only %2$d ticket(s) left.', 'wp-events' ),
 					get_the_title( $event_id ),
 					$remaining

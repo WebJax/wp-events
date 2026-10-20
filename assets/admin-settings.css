@@ -1,0 +1,150 @@
+.wpevents-settings .nav-tab-wrapper {
+	padding-top: 9px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.wpevents-settings .nav-tab-active {
+	background: #fff;
+	border-bottom-color: #fff;
+}
+
+.wpevents-tab-panel {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: 0;
+	padding: 16px 20px 4px;
+}
+
+.wpevents-tab-panel > .description {
+	margin-top: 0;
+}
+
+.wpevents-palette-choices {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+	margin: 12px 0 8px;
+	padding: 0;
+	border: 0;
+	min-inline-size: 0;
+}
+
+.wpevents-palette-card {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0;
+	padding: 16px;
+	border: 2px solid #dcdcde;
+	border-radius: 8px;
+	background: #f6f7f7;
+	cursor: pointer;
+}
+
+.wpevents-palette-card.is-selected {
+	border-color: #2271b1;
+	background: #fff;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.wpevents-palette-card__choice {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.wpevents-palette-card__choice input {
+	margin: 0;
+}
+
+.wpevents-preview {
+	padding: 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.wpevents-preview__heading {
+	margin: 0 0 8px;
+	padding: 0;
+	color: var(--preview-primary);
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.wpevents-preview__text {
+	margin: 0;
+	color: var(--preview-text);
+	font-size: 14px;
+	line-height: 1.55;
+}
+
+.wpevents-preview__link {
+	color: var(--preview-primary);
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wpevents-preview__link:hover,
+.wpevents-preview__link:focus {
+	color: var(--preview-accent);
+}
+
+.wpevents-preview__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 14px 0 0;
+}
+
+.wpevents-preview__button {
+	margin: 0;
+	padding: 8px 14px;
+	border: 0;
+	border-radius: 4px;
+	background: var(--preview-primary);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.wpevents-preview__button--accent {
+	background: var(--preview-accent);
+}
+
+.wpevents-preview__button:hover,
+.wpevents-preview__button:focus {
+	background: var(--preview-accent);
+	color: #fff;
+}
+
+.wpevents-preview__button--accent:hover,
+.wpevents-preview__button--accent:focus {
+	background: var(--preview-primary);
+	color: #fff;
+}
+
+.wpevents-palette-pickers {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px 24px;
+	margin-top: 4px;
+}
+
+.wpevents-palette-pickers label {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+
+@media (max-width: 782px) {
+	.wpevents-palette-choices {
+		grid-template-columns: 1fr;
+	}
+}
