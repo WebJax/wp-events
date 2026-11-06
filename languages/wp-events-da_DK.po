@@ -1356,3 +1356,44 @@ msgstr "Eventsted"
 msgctxt "block description"
 msgid "Display event venue information"
 msgstr "Vis oplysninger om begivenhedssted"
+
+#: src/Admin/MetaBoxes.php
+msgid "Create venue"
+msgstr "Opret eventsted"
+
+#: src/Admin/MetaBoxes.php
+msgid "Create organizer"
+msgstr "Opret arrangør"
+
+#: src/Admin/MetaBoxes.php
+msgid "Create and select"
+msgstr "Opret og vælg"
+
+#: src/Admin/MetaBoxes.php
+msgid "Saving…"
+msgstr "Gemmer…"
+
+#: src/Admin/MetaBoxes.php
+#: src/Admin/Ajax.php
+msgid "Enter a name."
+msgstr "Angiv et navn."
+
+#: src/Admin/MetaBoxes.php
+msgid "Venue created."
+msgstr "Eventsted oprettet."
+
+#: src/Admin/MetaBoxes.php
+msgid "Organizer created."
+msgstr "Arrangør oprettet."
+
+#: src/Admin/MetaBoxes.php
+msgid "Could not save. Try again."
+msgstr "Kunne ikke gemmes. Prøv igen."
+
+#: src/Admin/MetaBoxes.php
+msgid "Edit details"
+msgstr "Rediger detaljer"
+
+#: src/Admin/Ajax.php
+msgid "Enter a valid email address."
+msgstr "Angiv en gyldig e-mailadresse."

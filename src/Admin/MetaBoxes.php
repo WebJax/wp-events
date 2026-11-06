@@ -151,11 +151,10 @@ class MetaBoxes {
 		$selected_venue      = (int) get_post_meta( $post->ID, 'event_venue', true );
 		$selected_organizers = get_post_meta( $post->ID, 'event_organizer', true );
 		if ( ! is_array( $selected_organizers ) ) {
-			$selected_organizers = array();
+			$selected_organizers = ( '' === $selected_organizers || false === $selected_organizers ) ? array() : array( $selected_organizers );
 		}
+		$selected_organizers = array_map( 'absint', $selected_organizers );
 
-		// Venue selection.
-		echo '<h4>' . __( 'Venue', 'wp-events' ) . '</h4>';
 		$venues = get_posts(
 			array(
 				'post_type'   => 'venue',
@@ -166,15 +165,29 @@ class MetaBoxes {
 			)
 		);
 
-		echo '<select name="event_venue" style="width:85%">';
-		echo '<option value="">' . __( 'Select a venue...', 'wp-events' ) . '</option>';
+		echo '<div class="wpevents-related" data-target="venue">';
+		echo '<h4>' . esc_html__( 'Venue', 'wp-events' ) . '</h4>';
+		echo '<label class="screen-reader-text" for="wpevents-event-venue">' . esc_html__( 'Venue', 'wp-events' ) . '</label>';
+		echo '<select id="wpevents-event-venue" name="event_venue" style="width:100%">';
+		echo '<option value="">' . esc_html__( 'Select a venue...', 'wp-events' ) . '</option>';
 		foreach ( $venues as $venue ) {
-			echo '<option value="' . esc_attr( $venue->ID ) . '"' . selected( $selected_venue, $venue->ID, false ) . '>' . esc_html( $venue->post_title ) . '</option>';
+			echo '<option value="' . esc_attr( (string) $venue->ID ) . '"' . selected( $selected_venue, $venue->ID, false ) . '>' . esc_html( $venue->post_title ) . '</option>';
 		}
-		echo '</select><br><br>';
+		echo '</select>';
+		echo '<p class="wpevents-related-message" role="status"></p>';
+		self::render_related_create_form(
+			'venue',
+			__( 'Create venue', 'wp-events' ),
+			__( 'Create and select', 'wp-events' ),
+			array(
+				'address'     => __( 'Street Address', 'wp-events' ),
+				'postal_code' => __( 'Postal Code', 'wp-events' ),
+				'city'        => __( 'City', 'wp-events' ),
+			),
+			empty( $venues )
+		);
+		echo '</div>';
 
-		// Organizer selection (multiple)
-		echo '<h4>' . __( 'Organizers', 'wp-events' ) . '</h4>';
 		$organizers = get_posts(
 			array(
 				'post_type'   => 'organizer',
@@ -185,22 +198,59 @@ class MetaBoxes {
 			)
 		);
 
-		echo '<div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">';
+		echo '<div class="wpevents-related" data-target="organizer">';
+		echo '<h4>' . esc_html__( 'Organizers', 'wp-events' ) . '</h4>';
+		echo '<div id="wpevents-organizer-list" style="max-height:150px;overflow-y:auto;border:1px solid #ddd;padding:5px;">';
 		foreach ( $organizers as $organizer ) {
-			$checked = in_array( $organizer->ID, $selected_organizers, true ) ? 'checked="checked"' : '';
-			echo '<label style="display: block; margin: 5px 0;">';
-			echo '<input type="checkbox" name="event_organizer[]" value="' . esc_attr( $organizer->ID ) . '" ' . $checked . '> ';
+			echo '<label style="display:block;margin:5px 0;">';
+			echo '<input type="checkbox" name="event_organizer[]" value="' . esc_attr( (string) $organizer->ID ) . '" ' . checked( in_array( (int) $organizer->ID, $selected_organizers, true ), true, false ) . '> ';
 			echo esc_html( $organizer->post_title );
 			echo '</label>';
 		}
 		echo '</div>';
+		echo '<p class="wpevents-related-message" role="status"></p>';
+		self::render_related_create_form(
+			'organizer',
+			__( 'Create organizer', 'wp-events' ),
+			__( 'Create and select', 'wp-events' ),
+			array(
+				'email' => __( 'Email', 'wp-events' ),
+				'phone' => __( 'Phone', 'wp-events' ),
+			),
+			empty( $organizers )
+		);
+		echo '</div>';
+	}
 
-		if ( empty( $venues ) ) {
-			echo '<p><em>' . __( 'No venues found. Create venues first.', 'wp-events' ) . '</em></p>';
+	/**
+	 * Inline form for creating a venue or organizer without leaving the event.
+	 *
+	 * @param string               $target       venue|organizer.
+	 * @param string               $toggle_label Button that reveals the form.
+	 * @param string               $create_label Button that saves the new post.
+	 * @param array<string,string> $fields       Extra fields keyed by meta suffix.
+	 * @param bool                 $start_open   Whether the form is visible immediately.
+	 */
+	private static function render_related_create_form( $target, $toggle_label, $create_label, array $fields, $start_open ) {
+		if ( ! current_user_can( 'edit_events' ) && ! current_user_can( 'publish_posts' ) ) {
+			return;
 		}
-		if ( empty( $organizers ) ) {
-			echo '<p><em>' . __( 'No organizers found. Create organizers first.', 'wp-events' ) . '</em></p>';
+
+		$title_id = 'wpevents-new-' . $target . '-title';
+		echo '<p><button type="button" class="button wpevents-related-toggle" aria-expanded="' . ( $start_open ? 'true' : 'false' ) . '" aria-controls="wpevents-new-' . esc_attr( $target ) . '">' . esc_html( $toggle_label ) . '</button></p>';
+		echo '<div id="wpevents-new-' . esc_attr( $target ) . '" class="wpevents-related-form"' . ( $start_open ? '' : ' hidden' ) . '>';
+		echo '<p><label for="' . esc_attr( $title_id ) . '">' . esc_html__( 'Name', 'wp-events' ) . '</label><br>';
+		echo '<input type="text" id="' . esc_attr( $title_id ) . '" class="wpevents-related-title" style="width:100%" /></p>';
+
+		foreach ( $fields as $key => $label ) {
+			$field_id = 'wpevents-new-' . $target . '-' . $key;
+			$type     = 'email' === $key ? 'email' : 'text';
+			echo '<p><label for="' . esc_attr( $field_id ) . '">' . esc_html( $label ) . '</label><br>';
+			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $field_id ) . '" data-field="' . esc_attr( $key ) . '" style="width:100%" /></p>';
 		}
+
+		echo '<p><button type="button" class="button button-primary wpevents-related-create">' . esc_html( $create_label ) . '</button></p>';
+		echo '</div>';
 	}
 
 	public static function save_event_venue_organizer( $post_id ) {
@@ -489,7 +539,22 @@ class MetaBoxes {
 				array(
 					'nonce'    => wp_create_nonce( 'wp_events_admin_nonce' ),
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'i18n'     => array(
+						'saving'           => __( 'Saving…', 'wp-events' ),
+						'nameRequired'     => __( 'Enter a name.', 'wp-events' ),
+						'venueCreated'     => __( 'Venue created.', 'wp-events' ),
+						'organizerCreated' => __( 'Organizer created.', 'wp-events' ),
+						'createFailed'     => __( 'Could not save. Try again.', 'wp-events' ),
+						'editDetails'      => __( 'Edit details', 'wp-events' ),
+					),
 				)
+			);
+
+			wp_register_style( 'wp-events-admin', false, array(), WPEVENTS_VERSION );
+			wp_enqueue_style( 'wp-events-admin' );
+			wp_add_inline_style(
+				'wp-events-admin',
+				'.wpevents-related-form[hidden]{display:none !important}.wpevents-related-message{margin:8px 0}'
 			);
 		}
 	}
