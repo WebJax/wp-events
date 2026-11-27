@@ -362,9 +362,10 @@ Renders upcoming events in a carousel. Attributes: `numberOfEvents` (int), confi
 ## WooCommerce Ticket Integration
 
 - Implemented in `WPEvents\WooCommerce`; only activates when WooCommerce is active (`class_exists('WooCommerce')`).
-- Admin meta box on `event` edit screen: ticket settings including one or more linked products (`ticket_product_ids`), shared event capacity, with legacy `ticket_product_id` kept in sync.
-- Ticket purchase section injected via `the_content` filter on event pages; lists each linked product with price and buy link (`add-to-cart` + `wpevents_event_id`).
-- Event metadata (event ID, start date) attached to cart items and order line items.
+- Admin meta box on `event` edit screen: ticket settings including one or more linked products (`ticket_product_ids`), optional per-product member prices (`ticket_member_prices`), shared event capacity, with legacy `ticket_product_id` kept in sync.
+- Ticket purchase section injected via `the_content` filter on event pages; lists each linked product with price and buy link (`add-to-cart` + `wpevents_event_id`). Configured member prices are shown to everyone; qualifying members see them as the purchase price.
+- Event metadata (event ID, start date) attached to cart items and order line items. Applied member prices are stored as `_member_price_applied` on the line item.
+- Member prices are applied in `woocommerce_before_calculate_totals` when `wpevents_user_qualifies_for_member_price` is true (default false). Do not change the WooCommerce catalog product price; the same product may be sold for several events.
 - Attendee fields added to WooCommerce checkout.
 - Shared event capacity is enforced on add-to-cart, cart quantity changes, and checkout (`woocommerce_check_cart_items`). Event capacity never forces a WooCommerce product out of stock, so the same product can be sold for several events.
 - Sold counts use WooCommerce order CRUD (HPOS-safe) and re-sync when order status changes or an order is refunded.

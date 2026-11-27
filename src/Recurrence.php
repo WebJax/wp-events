@@ -27,6 +27,7 @@ class Recurrence {
 		'ticket_product_ids',
 		'ticket_product_id',
 		'ticket_capacity',
+		'ticket_member_prices',
 		'enable_registration',
 		'max_attendees',
 		'registration_deadline',
