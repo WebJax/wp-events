@@ -103,12 +103,14 @@ Sælg billetter til events gennem WooCommerce. Et event kan have flere billettyp
 3. I event editor, find "Ticket Settings" meta box:
    - Aktivér "Enable ticket sales"
    - Vælg et eller flere WooCommerce-produkter (Ctrl/Cmd for multi-select)
+   - Sæt valgfri medlemspris pr. billet-type (tomt felt = katalogpris; 0 = gratis for medlemmer)
    - Sæt fælles event-kapacitet (max deltagere på tværs af alle billettyper; 0 = ubegrænset)
 4. Styrr lager pr. billet-type i hvert WooCommerce-produkt
 5. Gem event
 
 ### Funktioner
 - **Flere billettyper**: Flere WooCommerce-produkter pr. event
+- **Medlemspris pr. event**: Valgfri lavere pris pr. billet-type. Gæster ser katalogprisen og et login-link; kvalificerede medlemmer betaler medlemsprisen i kurven. Et membership-plugin hooker `wpevents_user_qualifies_for_member_price` (default: ingen rabat).
 - **Automatisk ticket-sektion**: Vises på event-sider med pris og knap pr. type
 - **Kapacitetsstyring**: Fælles event-loft ovenpå hvert produkts eget lager (tjekkes ved add-to-cart, kurv og checkout). Loftet tvinger ikke produktet udsolgt globalt, så samme produkt kan sælges til flere events.
 - **Order tracking**: Events linkes til orders; lager synces når ordrestatus ændres

@@ -20,6 +20,13 @@ class WooCommerce {
 	const CAPACITY_BLOCK_META = '_wpevents_capacity_blocked';
 
 	/**
+	 * Event meta map of ticket product ID => member price.
+	 *
+	 * @var string
+	 */
+	const MEMBER_PRICES_META = 'ticket_member_prices';
+
+	/**
 	 * Initialize WooCommerce integration
 	 */
 	public static function init() {
@@ -42,6 +49,7 @@ class WooCommerce {
 		add_filter( 'woocommerce_add_to_cart_validation', array( __CLASS__, 'validate_event_capacity_on_add_to_cart' ), 10, 3 );
 		add_action( 'woocommerce_check_cart_items', array( __CLASS__, 'validate_cart_event_capacity' ) );
 		add_action( 'woocommerce_after_cart_item_quantity_update', array( __CLASS__, 'validate_cart_item_quantity' ), 10, 4 );
+		add_action( 'woocommerce_before_calculate_totals', array( __CLASS__, 'apply_member_prices_to_cart' ), 20 );
 
 		// Add event info to order.
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'add_event_to_order_item' ), 10, 4 );
@@ -96,6 +104,104 @@ class WooCommerce {
 		}
 
 		return $product_ids;
+	}
+
+	/**
+	 * Member prices keyed by ticket product ID.
+	 *
+	 * Empty strings are omitted. Zero is a valid free member ticket.
+	 *
+	 * @param int $event_id Event post ID.
+	 * @return array<int,float>
+	 */
+	public static function get_ticket_member_prices( $event_id ) {
+		$event_id = absint( $event_id );
+		$raw      = get_post_meta( $event_id, self::MEMBER_PRICES_META, true );
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$prices = array();
+		foreach ( $raw as $product_id => $amount ) {
+			$product_id = absint( $product_id );
+			if ( $product_id <= 0 || ! is_numeric( $amount ) ) {
+				continue;
+			}
+			$prices[ $product_id ] = (float) $amount;
+		}
+
+		return $prices;
+	}
+
+	/**
+	 * Catalog amount a guest pays for a product, ignoring runtime set_price().
+	 *
+	 * @param \WC_Product $product Product instance.
+	 * @return float
+	 */
+	public static function get_catalog_price_amount( $product ) {
+		if ( ! is_object( $product ) || ! method_exists( $product, 'get_regular_price' ) ) {
+			return 0.0;
+		}
+
+		$sale = method_exists( $product, 'get_sale_price' ) ? $product->get_sale_price( 'edit' ) : '';
+		if ( $sale !== '' && is_numeric( $sale ) ) {
+			return (float) $sale;
+		}
+
+		$regular = $product->get_regular_price( 'edit' );
+		if ( $regular !== '' && is_numeric( $regular ) ) {
+			return (float) $regular;
+		}
+
+		$price = method_exists( $product, 'get_price' ) ? $product->get_price( 'edit' ) : '';
+		return is_numeric( $price ) ? (float) $price : 0.0;
+	}
+
+	/**
+	 * Configured member price when it is strictly lower than the catalog price.
+	 *
+	 * @param int   $event_id      Event post ID.
+	 * @param int   $product_id    Ticket product ID.
+	 * @param float $catalog_price Guest catalog price.
+	 * @return float|null
+	 */
+	public static function get_applicable_member_price( $event_id, $product_id, $catalog_price ) {
+		$prices     = self::get_ticket_member_prices( $event_id );
+		$product_id = absint( $product_id );
+		if ( $product_id <= 0 || ! array_key_exists( $product_id, $prices ) ) {
+			return null;
+		}
+
+		$member_price = $prices[ $product_id ];
+		if ( $member_price >= (float) $catalog_price ) {
+			return null;
+		}
+
+		return $member_price;
+	}
+
+	/**
+	 * Whether the current customer should receive the event member price.
+	 *
+	 * Defaults to false. Membership plugins hook
+	 * `wpevents_user_qualifies_for_member_price`.
+	 *
+	 * @param int $user_id    WordPress user ID.
+	 * @param int $event_id   Event post ID.
+	 * @param int $product_id Ticket product ID.
+	 * @return bool
+	 */
+	public static function user_qualifies_for_member_price( $user_id, $event_id, $product_id ) {
+		$qualified = apply_filters(
+			'wpevents_user_qualifies_for_member_price',
+			false,
+			(int) $user_id,
+			(int) $event_id,
+			(int) $product_id
+		);
+
+		return (bool) $qualified;
 	}
 
 	/**
@@ -244,6 +350,7 @@ class WooCommerce {
 		$enable_tickets     = get_post_meta( $post->ID, 'enable_tickets', true );
 		$ticket_product_ids = self::get_ticket_product_ids( $post->ID );
 		$ticket_capacity    = get_post_meta( $post->ID, 'ticket_capacity', true );
+		$member_prices      = self::get_ticket_member_prices( $post->ID );
 
 		?>
 		<p>
@@ -283,6 +390,41 @@ class WooCommerce {
 			</select>
 			<small><?php _e( 'Select one or more WooCommerce products as ticket types. Hold Ctrl/Cmd to select multiple.', 'wp-events' ); ?></small>
 		</p>
+
+		<?php if ( ! empty( $ticket_product_ids ) ) : ?>
+			<p>
+				<strong><?php esc_html_e( 'Member prices', 'wp-events' ); ?></strong><br>
+				<small><?php esc_html_e( 'Optional price for logged-in members, per ticket type. Leave empty to charge the catalog price. 0 is free for members. Save newly selected products before setting their member price.', 'wp-events' ); ?></small>
+			</p>
+			<?php foreach ( $ticket_product_ids as $product_id ) : ?>
+				<?php
+				$product_title = get_the_title( $product_id );
+				$field_value   = array_key_exists( $product_id, $member_prices ) ? (string) $member_prices[ $product_id ] : '';
+				?>
+				<p>
+					<label for="ticket_member_price_<?php echo esc_attr( (string) $product_id ); ?>">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: ticket product name */
+								__( 'Member price (%s)', 'wp-events' ),
+								$product_title ? $product_title : (string) $product_id
+							)
+						);
+						?>
+					</label>
+					<input
+						type="number"
+						id="ticket_member_price_<?php echo esc_attr( (string) $product_id ); ?>"
+						name="ticket_member_prices[<?php echo esc_attr( (string) $product_id ); ?>]"
+						value="<?php echo esc_attr( $field_value ); ?>"
+						min="0"
+						step="0.01"
+						style="width: 100%;"
+					>
+				</p>
+			<?php endforeach; ?>
+		<?php endif; ?>
 
 		<p>
 			<label><?php _e( 'Event Capacity:', 'wp-events' ); ?></label>
@@ -336,6 +478,35 @@ class WooCommerce {
 		if ( isset( $_POST['ticket_capacity'] ) ) {
 			$capacity = absint( $_POST['ticket_capacity'] );
 			update_post_meta( $post_id, 'ticket_capacity', $capacity );
+		}
+
+		$member_prices = array();
+		if ( isset( $_POST['ticket_member_prices'] ) && is_array( $_POST['ticket_member_prices'] ) ) {
+			$posted_prices = wp_unslash( $_POST['ticket_member_prices'] );
+			foreach ( $posted_prices as $product_id => $amount ) {
+				$product_id = absint( $product_id );
+				if ( $product_id <= 0 || ! in_array( $product_id, $product_ids, true ) ) {
+					continue;
+				}
+				if ( ! is_scalar( $amount ) ) {
+					continue;
+				}
+				$amount = trim( (string) $amount );
+				if ( $amount === '' || ! is_numeric( $amount ) ) {
+					continue;
+				}
+				$formatted = function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $amount ) : $amount;
+				if ( $formatted === '' || $formatted === false || ! is_numeric( $formatted ) ) {
+					continue;
+				}
+				$member_prices[ $product_id ] = $formatted;
+			}
+		}
+
+		if ( ! empty( $member_prices ) ) {
+			update_post_meta( $post_id, self::MEMBER_PRICES_META, $member_prices );
+		} else {
+			delete_post_meta( $post_id, self::MEMBER_PRICES_META );
 		}
 	}
 
@@ -393,7 +564,7 @@ class WooCommerce {
 			$is_purchasable = $product->is_purchasable() && $product->is_in_stock();
 			$button_html   .= '<li class="wp-events-ticket-type" style="margin: 0 0 16px; padding: 12px 0; border-top: 1px solid #e2e2e2;">';
 			$button_html   .= '<strong>' . esc_html( $product->get_name() ) . '</strong>';
-			$button_html   .= '<p style="margin: 6px 0;"><strong>' . esc_html__( 'Price:', 'wp-events' ) . '</strong> ' . $product->get_price_html() . '</p>';
+			$button_html   .= self::render_ticket_price_html( $event_id, $product );
 
 			if ( ! $is_purchasable ) {
 				$button_html .= '<p><em>' . esc_html__( 'This ticket type is sold out.', 'wp-events' ) . '</em></p>';
@@ -424,6 +595,44 @@ class WooCommerce {
 		$button_html .= '</div>';
 
 		return $content . $button_html;
+	}
+
+	/**
+	 * Catalog and member price markup for one ticket type.
+	 *
+	 * @param int         $event_id Event post ID.
+	 * @param \WC_Product $product  Ticket product.
+	 * @return string
+	 */
+	protected static function render_ticket_price_html( $event_id, $product ) {
+		$catalog_html   = $product->get_price_html();
+		$catalog_amount = self::get_catalog_price_amount( $product );
+		$member_price   = self::get_applicable_member_price( $event_id, $product->get_id(), $catalog_amount );
+		$qualified      = self::user_qualifies_for_member_price( get_current_user_id(), $event_id, $product->get_id() );
+		$member_html = '';
+		if ( null !== $member_price ) {
+			$member_html = function_exists( 'wc_price' ) ? wc_price( $member_price ) : esc_html( (string) $member_price );
+		}
+
+		$html = '<p style="margin: 6px 0;"><strong>' . esc_html__( 'Price:', 'wp-events' ) . '</strong> ';
+		if ( $qualified && $member_html ) {
+			$html .= '<del>' . $catalog_html . '</del> ' . $member_html;
+		} else {
+			$html .= $catalog_html;
+		}
+		$html .= '</p>';
+
+		if ( null === $member_price || $qualified ) {
+			return $html;
+		}
+
+		$login_url = wp_login_url( get_permalink( $event_id ) );
+		$html     .= '<p class="wp-events-member-price" style="margin: 6px 0;">';
+		$html     .= '<strong>' . esc_html__( 'Member price:', 'wp-events' ) . '</strong> ' . $member_html;
+		$html     .= ' <a href="' . esc_url( $login_url ) . '">' . esc_html__( 'Log in to get the member price', 'wp-events' ) . '</a>';
+		$html     .= '</p>';
+
+		return $html;
 	}
 
 	/**
@@ -615,7 +824,74 @@ class WooCommerce {
 			'value' => $title,
 		);
 
+		$product = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+		if ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+			$product_id = absint( $product->get_id() );
+			$user_id    = get_current_user_id();
+			if ( self::user_qualifies_for_member_price( $user_id, $event_id, $product_id ) ) {
+				$member_price = self::get_applicable_member_price(
+					$event_id,
+					$product_id,
+					self::get_catalog_price_amount( $product )
+				);
+				if ( null !== $member_price ) {
+					$item_data[] = array(
+						'key'   => __( 'Member price', 'wp-events' ),
+						'value' => function_exists( 'wc_price' ) ? wp_strip_all_tags( wc_price( $member_price ) ) : (string) $member_price,
+					);
+				}
+			}
+		}
+
 		return $item_data;
+	}
+
+	/**
+	 * Replace catalog price with the event member price for qualifying users.
+	 *
+	 * Re-evaluates on every totals calculation so login/logout in the same
+	 * session is reflected. Never trusts client-supplied cart data.
+	 *
+	 * @param \WC_Cart $cart Cart object.
+	 */
+	public static function apply_member_prices_to_cart( $cart ) {
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return;
+		}
+		if ( ! $cart instanceof \WC_Cart ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		foreach ( $cart->get_cart() as $cart_item ) {
+			if ( empty( $cart_item['event_id'] ) || empty( $cart_item['data'] ) || ! is_object( $cart_item['data'] ) ) {
+				continue;
+			}
+			if ( ! method_exists( $cart_item['data'], 'set_price' ) || ! method_exists( $cart_item['data'], 'get_id' ) ) {
+				continue;
+			}
+
+			$event_id   = absint( $cart_item['event_id'] );
+			$product    = $cart_item['data'];
+			$product_id = absint( $product->get_id() );
+			if ( $event_id <= 0 || $product_id <= 0 ) {
+				continue;
+			}
+			if ( ! self::user_qualifies_for_member_price( $user_id, $event_id, $product_id ) ) {
+				continue;
+			}
+
+			$member_price = self::get_applicable_member_price(
+				$event_id,
+				$product_id,
+				self::get_catalog_price_amount( $product )
+			);
+			if ( null === $member_price ) {
+				continue;
+			}
+
+			$product->set_price( $member_price );
+		}
 	}
 
 	/**
@@ -694,6 +970,8 @@ class WooCommerce {
 	 * Add event info to order item
 	 */
 	public static function add_event_to_order_item( $item, $cart_item_key, $values, $order ) {
+		unset( $cart_item_key );
+
 		// Get event_id from cart item data, not from $_GET.
 		if ( isset( $values['event_id'] ) ) {
 			$event_id = absint( $values['event_id'] );
@@ -708,6 +986,37 @@ class WooCommerce {
 					date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $start ) ),
 					true
 				);
+			}
+
+			$product_id = 0;
+			if ( is_object( $item ) && method_exists( $item, 'get_variation_id' ) ) {
+				$product_id = absint( $item->get_variation_id() );
+			}
+			if ( $product_id <= 0 && is_object( $item ) && method_exists( $item, 'get_product_id' ) ) {
+				$product_id = absint( $item->get_product_id() );
+			}
+
+			$user_id = 0;
+			if ( $order instanceof \WC_Order ) {
+				$user_id = absint( $order->get_user_id() );
+			}
+
+			$catalog_price = 0.0;
+			if ( isset( $values['data'] ) && is_object( $values['data'] ) ) {
+				$catalog_price = self::get_catalog_price_amount( $values['data'] );
+			}
+
+			if ( $product_id > 0 && self::user_qualifies_for_member_price( $user_id, $event_id, $product_id ) ) {
+				$member_price = self::get_applicable_member_price( $event_id, $product_id, $catalog_price );
+				if ( null !== $member_price ) {
+					$formatted = function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $member_price ) : (string) $member_price;
+					$item->add_meta_data( '_member_price_applied', $formatted, true );
+					$item->add_meta_data(
+						__( 'Member price', 'wp-events' ),
+						function_exists( 'wc_price' ) ? wp_strip_all_tags( wc_price( $member_price ) ) : (string) $member_price,
+						true
+					);
+				}
 			}
 		}
 	}
